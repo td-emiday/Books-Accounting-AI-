@@ -1,0 +1,25 @@
+Extract all bank transactions from the following bank statement text.
+
+IMPORTANT:
+- Detect the currency used in the statement (NGN/₦, USD/$, GBP/£, EUR/€, GHS/₵, ZAR/R, etc.)
+- Parse all amounts correctly regardless of currency format (commas, decimals, currency symbols)
+- Dates should be in YYYY-MM-DD format
+
+Return a JSON object with this exact structure:
+{
+  "currency": "NGN",
+  "transactions": [
+    { "date": "YYYY-MM-DD", "description": "string", "credit": number | null, "debit": number | null, "balance": number | null, "reference": "string | null" }
+  ]
+}
+
+Rules:
+- "currency" should be the ISO 4217 code (NGN, USD, GBP, EUR, GHS, ZAR, etc.)
+- credit = money coming IN (deposits, transfers received, payments received)
+- debit = money going OUT (withdrawals, transfers sent, payments made, charges/fees)
+- amounts should be plain numbers without currency symbols or commas
+- If a transaction shows a single amount with DR/CR indicator, put it in the correct column
+- Return ONLY valid JSON. No explanation or markdown.
+
+Bank statement text:
+{{STATEMENT_TEXT}}

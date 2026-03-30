@@ -1,0 +1,410 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  --brand-1: #7b39fc;
+  --brand-2: #8B5CF6;
+  --brand-3: #A78BFA;
+  --brand-4: #C4B5FD;
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  --surface: rgba(255, 255, 255, 0.03);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(123, 57, 252, 0.3);
+
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background: #000000;
+}
+
+h1, h2, h3, h4, h5, h6,
+p, span, a, button, input, select, textarea, label, th, td, li {
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Selection ── */
+::selection {
+  background: rgba(123, 57, 252, 0.3);
+  color: white;
+}
+
+@layer components {
+  /* ── Glass card (dark variant) ── */
+  .glass-card {
+    @apply relative;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(123, 57, 252, 0.3);
+  }
+
+  /* ── Navbar ── */
+  .glass-navbar {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center font-semibold text-white transition-all duration-200;
+    background: #7b39fc;
+    border-radius: 10px;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: #6d28d9;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center font-medium transition-all duration-200;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #f5f5f5;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.10);
+  }
+
+  /* ── Metric card (dashboard) ── */
+  .metric-card {
+    @apply transition-all duration-200;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .metric-card {
+      padding: 20px;
+    }
+  }
+
+  .metric-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(123, 57, 252, 0.3);
+  }
+
+  /* ── Sidebar (dashboard) ── */
+  .sidebar {
+    background: #0a0a0a;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Data table ── */
+  .data-table th {
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #71717a;
+  }
+
+  .data-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  /* ── Badges ── */
+  .badge-success {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+    background: rgba(16, 185, 129, 0.10);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.20);
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+    background: rgba(245, 158, 11, 0.10);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.20);
+  }
+
+  .badge-danger {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+    background: rgba(239, 68, 68, 0.10);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.20);
+  }
+
+  .badge-info {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+    background: rgba(123, 57, 252, 0.10);
+    color: #a78bfa;
+    border: 1px solid rgba(123, 57, 252, 0.20);
+  }
+
+  /* ── Gradient text ── */
+  .gradient-text {
+    background: linear-gradient(135deg, #7b39fc 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Section styles ── */
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-wider font-inter;
+    color: #7b39fc;
+  }
+
+  .section-heading {
+    @apply font-inter font-semibold text-white tracking-tight;
+    font-size: clamp(32px, 3.5vw, 48px);
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+  }
+
+  .section-desc {
+    @apply font-inter;
+    color: #71717a;
+  }
+
+  /* Tabular numerals for financial data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Dark card hover ── */
+  .dark-card {
+    @apply rounded-2xl transition-all duration-300;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .dark-card:hover {
+    border-color: rgba(123, 57, 252, 0.3);
+    transform: translateY(-2px);
+  }
+}
+
+/* ── Light theme (dashboard) ── */
+.theme-light {
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6B7280;
+  --surface: rgba(0, 0, 0, 0.02);
+  --surface-hover: rgba(0, 0, 0, 0.04);
+  --border: #E5E7EB;
+  --border-hover: rgba(123, 57, 252, 0.3);
+}
+
+.theme-light .glass-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-light .glass-card:hover {
+  border-color: rgba(123, 57, 252, 0.25);
+  box-shadow: 0 8px 30px rgba(123, 57, 252, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.theme-light .btn-secondary {
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  color: #111827;
+}
+
+.theme-light .btn-secondary:hover {
+  background: #E5E7EB;
+}
+
+.theme-light .metric-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+  .theme-light .metric-card {
+    padding: 22px;
+  }
+}
+
+.theme-light .metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(123, 57, 252, 0.25);
+  box-shadow: 0 12px 32px rgba(123, 57, 252, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* KPI card color tints */
+.theme-light .metric-card--revenue {
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 60%);
+  border-color: #ede9fe;
+}
+.theme-light .metric-card--expenses {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 60%);
+  border-color: #fecaca;
+}
+.theme-light .metric-card--profit {
+  background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%);
+  border-color: #a7f3d0;
+}
+.theme-light .metric-card--tax {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%);
+  border-color: #fde68a;
+}
+
+.theme-light .sidebar {
+  background: #fafafa;
+  border-right: 1px solid #E5E7EB;
+}
+
+.theme-light .data-table th {
+  background: #F9FAFB;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #9CA3AF;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.theme-light .data-table td {
+  color: #374151;
+}
+
+.theme-light .data-table tbody tr {
+  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
+}
+
+.theme-light .data-table tbody tr:hover {
+  border-left-color: #7b39fc;
+}
+
+.theme-light .data-table tr:hover td {
+  background: #F5F3FF;
+}
+
+.theme-light .data-table tbody tr:nth-child(even) td {
+  background: #FAFAFA;
+}
+
+.theme-light .data-table tbody tr:nth-child(even):hover td {
+  background: #F5F3FF;
+}
+
+.theme-light .badge-success {
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.theme-light .badge-warning {
+  background: #FFFBEB;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.theme-light .badge-danger {
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.theme-light .badge-info {
+  background: #F5F3FF;
+  color: #7b39fc;
+  border: 1px solid #DDD6FE;
+}
+
+/* Light theme inputs */
+.theme-light input,
+.theme-light select,
+.theme-light textarea {
+  color: #111827;
+}
+
+.theme-light input::placeholder,
+.theme-light textarea::placeholder {
+  color: #9CA3AF;
+}
+
+.theme-light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.theme-light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* ── Scrollbar styling ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Marquee animation ── */
+@keyframes slide-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-slide-left {
+  animation: slide-left 30s linear infinite;
+}
+
+/* ── Hide scrollbar for horizontal scroll sections ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Smooth scroll ── */
+html {
+  scroll-behavior: smooth;
+}

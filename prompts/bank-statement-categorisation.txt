@@ -1,0 +1,13 @@
+Categorise this {{TRANSACTION_TYPE}} transaction for a Nigerian business:
+Description: "{{DESCRIPTION}}"
+{{VENDOR_LINE}}
+{{AMOUNT_LINE}}
+
+Available categories (id|name|tax_treatment):
+{{CATEGORY_LIST}}
+
+Recent categorisations for context:
+{{RECENT_CONTEXT}}
+
+Return ONLY valid JSON:
+{"categoryId":"<uuid>","categoryName":"<name>","confidence":<0-1>,"vatApplicable":<bool>,"whtApplicable":<bool>,"reasoning":"<brief>"}

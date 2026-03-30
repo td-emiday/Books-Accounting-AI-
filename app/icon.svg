@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6C3FE8"/>
+      <stop offset="100%" style="stop-color:#E8247C"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <!-- Outer circle arc -->
+  <path d="M 256 100
+    A 156 156 0 1 1 160 370"
+    fill="none" stroke="white" stroke-width="42" stroke-linecap="round"/>
+  <!-- Inner 'e' shape -->
+  <path d="M 310 230
+    A 80 80 0 1 0 230 310
+    L 260 310"
+    fill="none" stroke="white" stroke-width="42" stroke-linecap="round"/>
+  <!-- Horizontal bar of 'e' -->
+  <line x1="190" y1="256" x2="330" y2="256" stroke="white" stroke-width="42" stroke-linecap="round"/>
+</svg>
