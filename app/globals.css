@@ -367,6 +367,323 @@ p, span, a, button, input, select, textarea, label, th, td, li {
   background: rgba(0, 0, 0, 0.2);
 }
 
+/* ── Dark theme (dashboard) ── */
+.theme-dark {
+  --text-primary: #f5f5f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(123, 57, 252, 0.4);
+}
+
+.theme-dark .glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-dark .glass-card:hover {
+  border-color: rgba(123, 57, 252, 0.4);
+  box-shadow: 0 8px 30px rgba(123, 57, 252, 0.15), 0 2px 8px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.theme-dark .btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f5f5f5;
+}
+
+.theme-dark .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.theme-dark .metric-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+  .theme-dark .metric-card {
+    padding: 22px;
+  }
+}
+
+.theme-dark .metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(123, 57, 252, 0.4);
+  box-shadow: 0 12px 32px rgba(123, 57, 252, 0.18), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* KPI card color tints — dark */
+.theme-dark .metric-card--revenue {
+  background: linear-gradient(135deg, rgba(123, 57, 252, 0.12) 0%, rgba(255, 255, 255, 0.04) 60%);
+  border-color: rgba(123, 57, 252, 0.2);
+}
+.theme-dark .metric-card--expenses {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.10) 0%, rgba(255, 255, 255, 0.04) 60%);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+.theme-dark .metric-card--profit {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.10) 0%, rgba(255, 255, 255, 0.04) 60%);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+.theme-dark .metric-card--tax {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.10) 0%, rgba(255, 255, 255, 0.04) 60%);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.theme-dark .sidebar {
+  background: #0c0c12;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .data-table th {
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #71717a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .data-table td {
+  color: #d4d4d8;
+}
+
+.theme-dark .data-table tbody tr {
+  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
+}
+
+.theme-dark .data-table tbody tr:hover {
+  border-left-color: #7b39fc;
+}
+
+.theme-dark .data-table tr:hover td {
+  background: rgba(123, 57, 252, 0.08);
+}
+
+.theme-dark .data-table tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.theme-dark .data-table tbody tr:nth-child(even):hover td {
+  background: rgba(123, 57, 252, 0.08);
+}
+
+.theme-dark .badge-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.theme-dark .badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.theme-dark .badge-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.theme-dark .badge-info {
+  background: rgba(123, 57, 252, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(123, 57, 252, 0.25);
+}
+
+/* Dark theme inputs */
+.theme-dark input,
+.theme-dark select,
+.theme-dark textarea {
+  color: #f5f5f5;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+.theme-dark input::placeholder,
+.theme-dark textarea::placeholder {
+  color: #71717a;
+}
+
+.theme-dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.theme-dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Dark theme — topbar */
+.theme-dark header {
+  background: rgba(12, 12, 18, 0.92) !important;
+  backdrop-filter: blur(20px);
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.theme-dark header h1 {
+  color: #f5f5f5 !important;
+}
+
+.theme-dark header input {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f5f5f5 !important;
+}
+
+.theme-dark header .relative > div[class*="bg-white"] {
+  background: #1a1a24 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Dark theme — sidebar overrides */
+.theme-dark .sidebar .border-b,
+.theme-dark .sidebar .border-t {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.theme-dark .sidebar [class*="text-[#111827]"] {
+  color: #f5f5f5 !important;
+}
+
+.theme-dark .sidebar [class*="text-[#6B7280]"] {
+  color: #a1a1aa !important;
+}
+
+.theme-dark .sidebar [class*="text-[#9CA3AF]"] {
+  color: #71717a !important;
+}
+
+.theme-dark .sidebar [class*="text-[#374151]"] {
+  color: #d4d4d8 !important;
+}
+
+.theme-dark .sidebar [class*="bg-[#F5F3FF]"] {
+  background: rgba(123, 57, 252, 0.12) !important;
+}
+
+.theme-dark .sidebar [class*="bg-[#EDE9FE]"] {
+  background: rgba(123, 57, 252, 0.08) !important;
+}
+
+.theme-dark .sidebar [class*="border-[#DDD6FE]"] {
+  border-color: rgba(123, 57, 252, 0.3) !important;
+}
+
+.theme-dark .sidebar [class*="border-[#E5E7EB]"] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.theme-dark .sidebar [class*="shadow-purple-100"] {
+  --tw-shadow-color: rgba(123, 57, 252, 0.15) !important;
+}
+
+/* Dark theme — workspace dropdown */
+.theme-dark .sidebar [class*="bg-white"] {
+  background: #1a1a24 !important;
+}
+
+/* Dark theme — plan badge */
+.theme-dark .sidebar span[class*="bg-[#F5F3FF]"] {
+  background: rgba(123, 57, 252, 0.15) !important;
+  border-color: rgba(123, 57, 252, 0.3) !important;
+}
+
+/* Dark theme — topbar dropdown panels */
+.theme-dark [class*="bg-white"][class*="rounded-xl"][class*="shadow-lg"] {
+  background: #1a1a24 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.theme-dark [class*="bg-white"][class*="rounded-xl"] [class*="text-[#111827]"] {
+  color: #f5f5f5 !important;
+}
+
+.theme-dark [class*="bg-white"][class*="rounded-xl"] [class*="text-[#6B7280]"] {
+  color: #a1a1aa !important;
+}
+
+.theme-dark [class*="hover:bg-[#F9FAFB]"]:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.theme-dark [class*="border-[#F3F4F6]"] {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Dark theme — page content text colors */
+.theme-dark [class*="text-[#111827]"] {
+  color: #f5f5f5 !important;
+}
+
+.theme-dark [class*="text-[#374151]"] {
+  color: #d4d4d8 !important;
+}
+
+.theme-dark [class*="text-gray-900"] {
+  color: #f5f5f5 !important;
+}
+
+.theme-dark [class*="text-gray-700"] {
+  color: #d4d4d8 !important;
+}
+
+.theme-dark [class*="text-gray-500"] {
+  color: #a1a1aa !important;
+}
+
+/* Dark theme — card backgrounds on pages */
+.theme-dark [class*="bg-white"] {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.theme-dark [class*="bg-[#F9FAFB]"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.theme-dark [class*="bg-[#F3F4F6]"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Dark theme — borders */
+.theme-dark [class*="border-[#E5E7EB]"] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.theme-dark [class*="border-gray-200"] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Dark theme — search bar in topbar */
+.theme-dark [class*="bg-[#F3F4F6]"][class*="rounded-xl"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Dark theme — hover for notification bell */
+.theme-dark [class*="hover:bg-[#F3F4F6]"]:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Dark selection */
+.theme-dark ::selection {
+  background: rgba(123, 57, 252, 0.4);
+  color: white;
+}
+
 /* ── Scrollbar styling ── */
 ::-webkit-scrollbar {
   width: 6px;

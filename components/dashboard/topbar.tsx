@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Plus, Upload, Bell, Search, Menu, ChevronDown, PenLine } from 'lucide-react';
+import { Plus, Upload, Bell, Search, Menu, ChevronDown, PenLine, Sun, Moon } from 'lucide-react';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useRouter } from 'next/navigation';
 
 export function Topbar() {
   const workspace = useWorkspaceStore((s) => s.currentWorkspace);
-  const { toggleSidebar, setAddTransactionOpen, setImportStatementOpen } = useUIStore();
+  const { toggleSidebar, setAddTransactionOpen, setImportStatementOpen, toggleTheme, theme } = useUIStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddDropdown, setShowAddDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -93,6 +93,15 @@ export function Topbar() {
           </div>
         )}
       </div>
+
+      {/* Theme toggle */}
+      <button
+        onClick={toggleTheme}
+        className="p-2 rounded-xl hover:bg-[#F3F4F6] transition-colors"
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? <Sun size={18} className="text-[#fbbf24]" /> : <Moon size={18} className="text-[#6B7280]" />}
+      </button>
 
       {/* Notification bell */}
       <div ref={notifRef} className="relative">

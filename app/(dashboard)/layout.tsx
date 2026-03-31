@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/dashboard/sidebar';
 import { Topbar } from '@/components/dashboard/topbar';
 import { DashboardInitializer } from '@/components/dashboard/initializer';
 import { OnboardingGate } from '@/components/dashboard/onboarding-gate';
+import { ThemeWrapper } from '@/components/dashboard/theme-wrapper';
 
 export default async function DashboardLayout({
   children,
@@ -35,15 +36,15 @@ export default async function DashboardLayout({
   // If user needs onboarding, show ONLY the onboarding modal — no sidebar/topbar
   if (needsOnboarding) {
     return (
-      <div className="min-h-screen bg-[#F3F4F6] theme-light">
+      <ThemeWrapper>
         <DashboardInitializer profile={profile} workspaces={workspaces} />
         <OnboardingGate needsOnboarding={true} />
-      </div>
+      </ThemeWrapper>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] theme-light">
+    <ThemeWrapper>
       <DashboardInitializer profile={profile} workspaces={workspaces} />
       <Sidebar />
       <div className="lg:ml-[240px] flex flex-col min-h-screen">
@@ -52,6 +53,6 @@ export default async function DashboardLayout({
           {children}
         </main>
       </div>
-    </div>
+    </ThemeWrapper>
   );
 }

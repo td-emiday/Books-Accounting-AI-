@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Receipt, Building2, BarChart3, Bot, Users,
-  Settings, HelpCircle, LogOut, ChevronDown, X, Check, Plus, Landmark
+  Settings, HelpCircle, LogOut, ChevronDown, X, Check, Plus, Landmark,
+  Sun, Moon
 } from 'lucide-react';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 import { useUIStore } from '@/stores/ui-store';
@@ -31,7 +32,7 @@ export function Sidebar() {
   const setCurrentWorkspace = useWorkspaceStore((s) => s.setCurrentWorkspace);
   const profile = useWorkspaceStore((s) => s.profile);
   const reset = useWorkspaceStore((s) => s.reset);
-  const { sidebarOpen, setSidebarOpen } = useUIStore();
+  const { sidebarOpen, setSidebarOpen, theme, toggleTheme } = useUIStore();
   const { data: workspaces = [] } = useWorkspaces();
   const [wsDropdownOpen, setWsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -215,8 +216,19 @@ export function Sidebar() {
           </a>
         </nav>
 
+        {/* Theme toggle */}
+        <div className="px-4 py-3 border-t border-[var(--border)]">
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-[var(--text-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)]"
+          >
+            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            {theme === 'light' ? 'Dark mode' : 'Light mode'}
+          </button>
+        </div>
+
         {/* Bottom section */}
-        <div className="px-4 py-4 border-t border-[#E5E7EB]">
+        <div className="px-4 py-4 border-t border-[var(--border)]">
           <div className="text-center mb-3">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-[#F5F3FF] text-brand-1 border border-[#DDD6FE]">
               {workspace?.planTier || 'Starter'} Plan
