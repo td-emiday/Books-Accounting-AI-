@@ -283,10 +283,10 @@ function ContactSection() {
     e.preventDefault();
     setStatus('sending');
     try {
-      const res = await fetch('/api/email', {
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'contact', ...form }),
+        body: JSON.stringify(form),
       });
       if (!res.ok) throw new Error('Failed');
       setStatus('sent');
