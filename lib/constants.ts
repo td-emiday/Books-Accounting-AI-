@@ -159,7 +159,7 @@ export function hasFeature(tier: WorkspaceTier, feature: string): boolean {
 
 export const PRICING = {
   SME: {
-    STARTER: { monthly: 45000, annual: 45000 * 10, label: 'Starter' },
+    STARTER: { monthly: 55000, annual: 55000 * 10, label: 'Starter' },
     GROWTH: { monthly: 80000, annual: 80000 * 10, label: 'Growth' },
     BUSINESS: { monthly: 150000, annual: 150000 * 10, label: 'Business' },
   },

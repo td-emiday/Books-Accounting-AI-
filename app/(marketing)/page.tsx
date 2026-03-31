@@ -259,7 +259,7 @@ const STEPS = [
 ];
 
 const SME_PLANS = [
-  { name: 'Starter', price: 45000, annual: 45000 * 10, desc: 'For sole traders and micro businesses', popular: false, features: ['Income & expense tracking (unlimited)', 'AI-assisted categorisation', 'Bank statement PDF upload (3/month)', 'VAT calculator + basic FIRS compliance', 'P&L report (PDF)', 'AI Chat — 50 queries/month', 'Email support'] },
+  { name: 'Starter', price: 55000, annual: 55000 * 10, desc: 'For sole traders and micro businesses', popular: false, features: ['Income & expense tracking (unlimited)', 'AI-assisted categorisation', 'Bank statement PDF upload (3/month)', 'VAT calculator + basic FIRS compliance', 'P&L report (PDF)', 'AI Chat — 50 queries/month', 'Email support'] },
   { name: 'Growth', price: 80000, annual: 80000 * 10, desc: 'For SMEs with ₦50m–₦300m revenue', popular: true, features: ['Everything in Starter, plus:', 'Unlimited bank statement imports', 'Full FIRS compliance (VAT, WHT, PAYE)', 'Paystack & Flutterwave auto-sync', 'All financial reports', 'Tax calendar with email alerts', 'AI Chat — unlimited queries', 'Priority email + chat support'] },
   { name: 'Business', price: 150000, annual: 150000 * 10, desc: 'For scaling businesses', popular: false, features: ['Everything in Growth, plus:', 'Multi-user access (up to 5)', 'Full audit trail', 'Employee PAYE (up to 20)', 'Accountant collaboration', 'Custom categories', 'Dedicated account manager'] },
 ];
