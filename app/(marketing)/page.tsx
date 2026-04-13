@@ -614,9 +614,9 @@ export default function LandingPage() {
             <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15] !text-white">From sign-up to compliant in 3 steps</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+          <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 md:pb-0 -mx-5 px-5 md:mx-0 md:px-0 scrollbar-hide">
             {STEPS.map((step, i) => (
-              <div key={step.num} className="dark-card p-5 md:p-6 relative flex md:flex-col items-start gap-4 md:gap-0">
+              <div key={step.num} className="dark-card p-4 md:p-6 relative flex md:flex-col items-start gap-3 md:gap-0 min-w-[220px] max-w-[260px] md:min-w-0 md:max-w-none flex-shrink-0 snap-center">
                 <span className="text-3xl md:text-5xl font-bold bg-gradient-to-b from-[#4F46E5] to-[#4F46E5]/20 bg-clip-text text-transparent flex-shrink-0">{step.num}</span>
                 <div>
                   <h3 className="font-semibold text-white text-[15px] md:mt-4 mb-1 md:mb-2">{step.title}</h3>
