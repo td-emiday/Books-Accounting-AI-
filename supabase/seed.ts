@@ -1,4 +1,4 @@
-// Seed data script for Emiday Books development
+// Seed data script for Emiday development
 // Run with: npx tsx supabase/seed.ts
 
 const DEMO_WORKSPACE = {
@@ -41,7 +41,7 @@ const DEMO_EMPLOYEES = [
   { name: 'Amara Nwankwo', email: 'amara@emiday.com', role: 'Marketing Lead', annual_gross: 4200000, pension_contribution: 0.08, nhf_contribution: 0.025 },
 ];
 
-console.log('=== Emiday Books Seed Data ===');
+console.log('=== Emiday Seed Data ===');
 console.log('');
 console.log('To seed your database, run these SQL statements in Supabase SQL Editor:');
 console.log('');

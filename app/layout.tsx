@@ -3,7 +3,7 @@ import './globals.css';
 import { QueryProvider } from '@/components/providers/query-provider';
 
 export const metadata: Metadata = {
-  title: 'Emiday Books — Your AI Accountant, Built for Africa',
+  title: 'Emiday — Your AI Accountant, Built for Africa',
   description:
     'AI-native accounting and tax compliance platform for businesses in Nigeria, Ghana, and South Africa. Automate bookkeeping, VAT, WHT, and PAYE.',
   keywords: [

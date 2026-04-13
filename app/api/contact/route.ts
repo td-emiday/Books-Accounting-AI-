@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       subject: `New contact from ${name}${company ? ` (${company})` : ''}`,
       html: `
         <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #6C3FE8, #8B5CF6); padding: 24px; border-radius: 16px 16px 0 0;">
+          <div style="background: linear-gradient(135deg, #5B21B6, #8B5CF6); padding: 24px; border-radius: 16px 16px 0 0;">
             <h1 style="color: white; font-size: 20px; margin: 0;">New Contact Form Submission</h1>
           </div>
           <div style="padding: 32px; background: #fff; border: 1px solid #eee; border-radius: 0 0 16px 16px;">

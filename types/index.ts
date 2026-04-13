@@ -15,6 +15,7 @@ export interface Profile {
   avatarUrl?: string;
   role: UserRole;
   phone?: string;
+  isSuperadmin?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,8 +37,42 @@ export interface Workspace {
   planTier: WorkspaceTier;
   billingCycle: 'MONTHLY' | 'ANNUAL';
   trialEndsAt?: string;
+  suspendedAt?: string;
+  suspendedReason?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AdminAuditLog {
+  id: string;
+  adminId: string;
+  action: string;
+  targetType: string;
+  targetId?: string;
+  metadata?: Record<string, unknown>;
+  ipAddress?: string;
+  createdAt: string;
+  // Joined
+  admin?: { full_name: string; email: string };
+}
+
+export interface SystemSettings {
+  key: string;
+  value: Record<string, unknown>;
+  updatedBy?: string;
+  updatedAt: string;
+}
+
+export interface AdminDashboardStats {
+  totalUsers: number;
+  totalWorkspaces: number;
+  activeSubscriptions: number;
+  mrr: number;
+  arr: number;
+  signupsThisWeek: number;
+  churnRate: number;
+  planDistribution: Record<string, number>;
+  recentSignups: Array<{ id: string; full_name: string; email: string; created_at: string }>;
 }
 
 export interface WorkspaceMember {

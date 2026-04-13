@@ -154,14 +154,14 @@ export async function POST(req: Request) {
           .eq('id', pendingLink.id);
 
         await sendWhatsAppReply(from,
-          `✅ Your WhatsApp is now linked to Emiday Books!\n\nYou can now:\n📸 Send photos of invoices or receipts\n📄 Send PDF documents\n💬 Type transactions like "paid 50k for diesel"\n\nWe'll automatically add them to your books.`
+          `✅ Your WhatsApp is now linked to Emiday!\n\nYou can now:\n📸 Send photos of invoices or receipts\n📄 Send PDF documents\n💬 Type transactions like "paid 50k for diesel"\n\nWe'll automatically add them to your books.`
         );
 
         return new Response(TWIML_EMPTY, { headers: TWIML_HEADERS });
       }
 
       await sendWhatsAppReply(from,
-        `👋 Hi! This number isn't linked to an Emiday Books account yet.\n\nTo get started:\n1. Log into your Emiday Books dashboard\n2. Go to Settings → WhatsApp\n3. Link your phone number\n\nVisit emiday.africa to sign up.`
+        `👋 Hi! This number isn't linked to an Emiday account yet.\n\nTo get started:\n1. Log into your Emiday dashboard\n2. Go to Settings → WhatsApp\n3. Link your phone number\n\nVisit emiday.africa to sign up.`
       );
 
       return new Response(TWIML_EMPTY, { headers: TWIML_HEADERS });
@@ -195,7 +195,7 @@ export async function POST(req: Request) {
     // Handle commands
     if (body.toLowerCase() === 'help') {
       await sendWhatsAppReply(from,
-        `📚 *Emiday Books — WhatsApp Bot*\n\nHere's what I can do:\n\n📸 *Send a photo* of an invoice or receipt — I'll extract and book it\n📄 *Send a PDF* document — I'll parse and book it\n💬 *Type a transaction* — e.g. "paid 50k for office supplies"\n\n📊 Type *summary* for a quick financial summary\n🤖 Type *ai* to ask the AI assistant a question\n❓ Type *help* for this menu\n\nDashboard: https://emiday.africa/dashboard`
+        `📚 *Emiday — WhatsApp Bot*\n\nHere's what I can do:\n\n📸 *Send a photo* of an invoice or receipt — I'll extract and book it\n📄 *Send a PDF* document — I'll parse and book it\n💬 *Type a transaction* — e.g. "paid 50k for office supplies"\n\n📊 Type *summary* for a quick financial summary\n🤖 Type *ai* to ask the AI assistant a question\n❓ Type *help* for this menu\n\nDashboard: https://emiday.africa/dashboard`
       );
 
       if (msgLog) await supabase.from('whatsapp_messages').update({ status: 'completed' }).eq('id', msgLog.id);

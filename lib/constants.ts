@@ -1,6 +1,6 @@
 import type { WorkspaceTier } from '@/types';
 
-export const APP_NAME = 'Emiday Books';
+export const APP_NAME = 'Emiday';
 export const APP_TAGLINE = 'Your AI Accountant. Built for Africa.';
 
 export const NIGERIA_VAT_RATE = 0.075;

@@ -20,13 +20,13 @@ export default function AboutPage() {
           <div className="prose prose-lg max-w-none space-y-6 text-text-secondary">
             <p className="text-lg leading-relaxed">
               Emiday AI is a Lagos-based technology company building AI-native tools for African businesses.
-              Our flagship product, Emiday Books, is an accounting and tax compliance platform purpose-built
+              Our flagship product, Emiday, is an accounting and tax compliance platform purpose-built
               for Nigeria, Ghana, and South Africa.
             </p>
 
             <p>
               We believe that business owners in Africa should never need accounting knowledge to stay legally
-              compliant, understand their finances, or prepare tax returns. Emiday Books combines an intelligent
+              compliant, understand their finances, or prepare tax returns. Emiday combines an intelligent
               AI assistant, a jurisdiction-specific compliance engine, and optional access to certified human
               accountants to make this a reality.
             </p>
@@ -44,13 +44,13 @@ export default function AboutPage() {
               the compliance burden is overwhelming for small and growing businesses.
             </p>
             <p>
-              We&apos;re changing that. With Emiday Books, a sole trader in Lagos can be as compliant as a
+              We&apos;re changing that. With Emiday, a sole trader in Lagos can be as compliant as a
               multinational with a full finance team — all powered by AI.
             </p>
 
             <div className="mt-10">
               <Link href="/signup" className="btn-primary px-6 py-3 text-sm font-semibold inline-flex">
-                Join 1,200+ businesses on Emiday Books <ArrowRight size={16} className="ml-2" />
+                Join 1,200+ businesses on Emiday <ArrowRight size={16} className="ml-2" />
               </Link>
             </div>
           </div>

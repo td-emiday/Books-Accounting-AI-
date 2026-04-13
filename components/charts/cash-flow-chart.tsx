@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, ComposedChart
 } from 'recharts';
 import { formatCompactCurrency } from '@/lib/utils';
 
@@ -35,13 +35,13 @@ export function CashFlowChart({ data, currency = 'NGN' }: CashFlowChartProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload) return null;
     return (
-      <div className="bg-white rounded-xl shadow-lg border border-[#E5E7EB] p-3 text-xs">
-        <p className="font-semibold text-[#111827] mb-1.5">{label}</p>
+      <div className="bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-[#E2E8F0]/50 p-4 text-xs">
+        <p className="font-semibold text-[#0F172A] mb-2.5">{label}</p>
         {payload.map((p: any) => (
-          <div key={p.name} className="flex items-center gap-2 py-0.5">
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
-            <span className="text-[#6B7280]">{p.name}:</span>
-            <span className="font-semibold text-[#111827]">{formatCompactCurrency(p.value, currency)}</span>
+          <div key={p.name} className="flex items-center gap-2.5 py-0.5">
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: p.color || p.stroke }} />
+            <span className="text-[#64748B]">{p.name}:</span>
+            <span className="font-semibold text-[#0F172A] tabular-nums">{formatCompactCurrency(p.value, currency)}</span>
           </div>
         ))}
       </div>
@@ -50,17 +50,16 @@ export function CashFlowChart({ data, currency = 'NGN' }: CashFlowChartProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-base text-[#111827]">Cash Flow</h3>
-        <div className="flex gap-1 p-1 bg-[#F3F4F6] rounded-lg">
+      <div className="flex items-center justify-end mb-4">
+        <div className="flex gap-1 p-1 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
           {(['3M', '6M', '12M', 'YTD'] as const).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                 period === p
-                  ? 'bg-white shadow-sm text-brand-1'
-                  : 'text-[#6B7280] hover:text-[#111827]'
+                  ? 'bg-white shadow-sm text-[#4F46E5] border border-[#E2E8F0]'
+                  : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
               {p}
@@ -68,38 +67,63 @@ export function CashFlowChart({ data, currency = 'NGN' }: CashFlowChartProps) {
           ))}
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={filteredData} barGap={4}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+      <ResponsiveContainer width="100%" height={300}>
+        <ComposedChart data={filteredData} barGap={8} barSize={28}>
+          <defs>
+            <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#4F46E5" />
+              <stop offset="100%" stopColor="#818CF8" />
+            </linearGradient>
+            <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F87171" />
+              <stop offset="100%" stopColor="#FECACA" />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
           <XAxis
             dataKey="month"
-            tick={{ fontSize: 12, fill: '#6B7280', fontWeight: 500 }}
-            axisLine={{ stroke: '#E5E7EB' }}
+            tick={{ fontSize: 12, fill: '#64748B', fontWeight: 500 }}
+            axisLine={{ stroke: '#E2E8F0' }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: '#6B7280' }}
+            tick={{ fontSize: 11, fill: '#94A3B8' }}
             tickFormatter={(v) => formatCompactCurrency(v, currency)}
-            width={70}
+            width={75}
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend
-            wrapperStyle={{ fontSize: 12, color: '#374151' }}
-            iconType="circle"
-            iconSize={8}
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(79, 70, 229, 0.04)' }} />
+          <Bar dataKey="income" name="Income" fill="url(#incomeGrad)" radius={[10, 10, 0, 0]} />
+          <Bar dataKey="expense" name="Expenses" fill="url(#expenseGrad)" radius={[10, 10, 0, 0]} />
+          <Line
+            type="monotone"
+            dataKey="net"
+            name="Net"
+            stroke="#059669"
+            strokeWidth={2}
+            strokeDasharray="6 4"
+            dot={false}
+            activeDot={{ r: 4, fill: '#059669', strokeWidth: 2, stroke: '#fff' }}
           />
-          <Bar dataKey="income" name="Income" fill="url(#incomeGrad)" radius={[6, 6, 0, 0]} />
-          <Bar dataKey="expense" name="Expenses" fill="#E5E7EB" radius={[6, 6, 0, 0]} />
-          <defs>
-            <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#7b39fc" />
-              <stop offset="100%" stopColor="#A78BFA" />
-            </linearGradient>
-          </defs>
-        </BarChart>
+        </ComposedChart>
       </ResponsiveContainer>
+
+      {/* Custom legend */}
+      <div className="flex items-center justify-center gap-6 mt-4">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-gradient-to-b from-[#4F46E5] to-[#818CF8]" />
+          <span className="text-xs font-medium text-[#64748B]">Income</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-gradient-to-b from-[#F87171] to-[#FECACA]" />
+          <span className="text-xs font-medium text-[#64748B]">Expenses</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-0.5 border-t-2 border-dashed border-[#059669]" />
+          <span className="text-xs font-medium text-[#64748B]">Net</span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -18,7 +18,6 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
-  // Fetch profile and workspaces for initialization
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
@@ -33,7 +32,6 @@ export default async function DashboardLayout({
   const workspaces = memberships?.map((m: any) => m.workspaces).filter(Boolean) || [];
   const needsOnboarding = workspaces.length === 0;
 
-  // If user needs onboarding, show ONLY the onboarding modal — no sidebar/topbar
   if (needsOnboarding) {
     return (
       <ThemeWrapper>
@@ -47,9 +45,9 @@ export default async function DashboardLayout({
     <ThemeWrapper>
       <DashboardInitializer profile={profile} workspaces={workspaces} />
       <Sidebar />
-      <div className="lg:ml-[240px] flex flex-col min-h-screen">
+      <div className="lg:ml-[260px] flex flex-col min-h-screen bg-[#F8FAFC]">
         <Topbar />
-        <main className="flex-1 p-3 sm:p-5 md:p-6">
+        <main className="flex-1 p-4 sm:p-6 md:p-8">
           {children}
         </main>
       </div>

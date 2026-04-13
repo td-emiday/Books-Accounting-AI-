@@ -33,7 +33,8 @@ export default function ForgotPasswordPage() {
   return (
     <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl p-8">
       <div className="text-center mb-8">
-        <h1 className="font-instrument-serif italic text-3xl text-white mb-2">
+        <img src="/logo.png" alt="Emiday" className="h-14 w-auto mx-auto mb-4 brightness-0 invert" />
+        <h1 className="font-semibold text-xl text-white mb-2">
           Reset Password
         </h1>
         <p className="text-[#71717a] text-sm">
@@ -51,7 +52,7 @@ export default function ForgotPasswordPage() {
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-sm text-[#7b39fc] hover:underline mt-4"
+            className="inline-flex items-center gap-2 text-sm text-[#5B21B6] hover:underline mt-4"
           >
             <ArrowLeft size={14} />
             Back to sign in
@@ -77,7 +78,7 @@ export default function ForgotPasswordPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/30 focus:border-[#7b39fc]/50 text-sm text-white placeholder:text-[#52525b] transition-all"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-[#5B21B6]/30 focus:border-[#5B21B6]/50 text-sm text-white placeholder:text-[#52525b] transition-all"
                   placeholder="you@company.com"
                 />
               </div>
@@ -86,7 +87,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl text-sm font-semibold text-white bg-[#7b39fc] hover:bg-[#6d28d9] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full py-3.5 rounded-xl text-sm font-semibold text-white bg-[#5B21B6] hover:bg-[#4C1D95] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {loading ? (
                 <>

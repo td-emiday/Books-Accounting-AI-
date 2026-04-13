@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface ComplianceScoreProps {
   score: number;
@@ -11,61 +11,90 @@ interface ComplianceScoreProps {
 
 export function ComplianceScore({ score, vatStatus, whtStatus, payeStatus }: ComplianceScoreProps) {
   const circumference = 2 * Math.PI * 45;
-  const strokeDashoffset = circumference - (score / 100) * circumference;
+  const [animatedOffset, setAnimatedOffset] = useState(circumference);
+  const targetOffset = circumference - (score / 100) * circumference;
+
   const label = score >= 80 ? 'Good Standing' : score >= 50 ? 'Needs Attention' : 'Critical';
-  const color = score >= 80 ? '#059669' : score >= 50 ? '#D97706' : '#DC2626';
   const bgColor = score >= 80 ? '#ECFDF5' : score >= 50 ? '#FFFBEB' : '#FEF2F2';
+  const labelColor = score >= 80 ? '#059669' : score >= 50 ? '#D97706' : '#DC2626';
 
-  const StatusIcon = ({ status }: { status: string }) => {
-    if (status === 'ok') return <CheckCircle2 size={16} className="text-[#059669]" />;
-    if (status === 'warning') return <AlertTriangle size={16} className="text-[#D97706]" />;
-    return <XCircle size={16} className="text-[#DC2626]" />;
-  };
+  // Gradient IDs and colors based on score
+  const gradientId = 'compliance-gradient';
+  const gradientColors =
+    score >= 80
+      ? { start: '#059669', end: '#14B8A6' }
+      : score >= 50
+      ? { start: '#D97706', end: '#F59E0B' }
+      : { start: '#DC2626', end: '#FB7185' };
 
-  const statusLabel = (s: string) => s === 'ok' ? 'Filed' : s === 'warning' ? 'Due Soon' : 'Missing';
+  // Animate on mount
+  useEffect(() => {
+    const timeout = setTimeout(() => setAnimatedOffset(targetOffset), 100);
+    return () => clearTimeout(timeout);
+  }, [targetOffset]);
+
+  const statusLabel = (s: string) => (s === 'ok' ? 'Filed' : s === 'warning' ? 'Due Soon' : 'Missing');
+  const dotColor = (s: string) =>
+    s === 'ok' ? 'bg-[#059669]' : s === 'warning' ? 'bg-[#D97706]' : 'bg-[#DC2626]';
+  const textColor = (s: string) =>
+    s === 'ok' ? 'text-[#059669]' : s === 'warning' ? 'text-[#D97706]' : 'text-[#DC2626]';
 
   return (
-    <div>
-      <h3 className="font-bold text-sm md:text-base text-[#111827] mb-3 md:mb-4">Compliance Health</h3>
-      <div className="flex items-center gap-4 md:gap-6">
-        <div className="relative w-20 h-20 md:w-28 md:h-28 flex-shrink-0">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" fill="none" stroke="#F3F4F6" strokeWidth="8" />
-            <circle
-              cx="50" cy="50" r="45" fill="none"
-              stroke={color}
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              className="transition-all duration-1000"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-[#111827]">{score}</span>
-            <span className="text-xs text-[#6B7280]">/100</span>
-          </div>
+    <div className="flex flex-col items-center">
+      {/* Ring */}
+      <div className="relative w-24 h-24 md:w-32 md:h-32 flex-shrink-0">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={gradientColors.start} />
+              <stop offset="100%" stopColor={gradientColors.end} />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="45" fill="none" stroke="#F1F5F9" strokeWidth="7" />
+          <circle
+            cx="50"
+            cy="50"
+            r="45"
+            fill="none"
+            stroke={`url(#${gradientId})`}
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={animatedOffset}
+            style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-3xl font-bold text-[#111827]">{score}</span>
         </div>
-        <div className="space-y-1">
-          <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold mb-2" style={{ background: bgColor, color }}>
-            {label}
+      </div>
+
+      {/* Label badge */}
+      <div
+        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mt-3"
+        style={{ background: bgColor, color: labelColor }}
+      >
+        {label} &middot; {score}/100
+      </div>
+
+      {/* Status items */}
+      <div className="w-full mt-4 space-y-2">
+        {[
+          { label: 'VAT Returns', status: vatStatus },
+          { label: 'WHT Remittance', status: whtStatus },
+          { label: 'PAYE Filing', status: payeStatus },
+        ].map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center gap-2.5 py-2 px-3 rounded-lg hover:bg-[#F8FAFC] transition-colors"
+          >
+            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor(item.status)}`} />
+            <span className="text-sm text-[#374151] font-medium flex-1">{item.label}</span>
+            <span className={`text-xs font-semibold ${textColor(item.status)}`}>
+              {statusLabel(item.status)}
+            </span>
           </div>
-          <div className="space-y-2">
-            {[
-              { label: 'VAT Returns', status: vatStatus },
-              { label: 'WHT Remittance', status: whtStatus },
-              { label: 'PAYE Filing', status: payeStatus },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center gap-2.5">
-                <StatusIcon status={item.status} />
-                <span className="text-sm text-[#374151] font-medium">{item.label}</span>
-                <span className={`text-xs ml-auto ${
-                  item.status === 'ok' ? 'text-[#059669]' : item.status === 'warning' ? 'text-[#D97706]' : 'text-[#DC2626]'
-                }`}>{statusLabel(item.status)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

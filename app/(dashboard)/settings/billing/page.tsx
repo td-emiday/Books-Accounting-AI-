@@ -132,11 +132,11 @@ export default function BillingPage() {
                       Most Popular
                     </span>
                   )}
-                  <h3 className="font-inter font-bold text-lg mb-1">{plan.label}</h3>
+                  <h3 className="font-inter font-bold text-lg mb-1 text-[#111827]">{plan.label}</h3>
                   {isEnterprise ? (
-                    <p className="text-2xl font-inter font-bold mb-4">Custom</p>
+                    <p className="text-2xl font-inter font-bold mb-4 text-[#111827]">Custom</p>
                   ) : (
-                    <p className="text-2xl font-inter font-bold mb-4">
+                    <p className="text-2xl font-inter font-bold mb-4 text-[#111827]">
                       {formatCurrency(price, currency)}<span className="text-sm font-normal text-text-muted">/mo</span>
                     </p>
                   )}
@@ -174,7 +174,7 @@ export default function BillingPage() {
 
       {/* Invoice History */}
       <div className="glass-card p-6">
-        <h3 className="font-inter font-bold text-base mb-4">Invoice History</h3>
+        <h3 className="font-inter font-bold text-base mb-4 text-[#111827]">Invoice History</h3>
         <div className="text-center py-8">
           <p className="text-sm text-text-muted">No invoices yet.</p>
         </div>

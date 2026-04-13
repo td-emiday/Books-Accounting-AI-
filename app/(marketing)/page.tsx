@@ -16,22 +16,7 @@ import {
    ═══════════════════════════════════════════════════════════════ */
 function LogoSvg() {
   return (
-    <svg width="140" height="32" viewBox="0 0 140 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="logoGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#6B21A8" />
-          <stop offset="100%" stopColor="#E040A0" />
-        </linearGradient>
-      </defs>
-      {/* "e" mark */}
-      <circle cx="14" cy="16" r="11" stroke="url(#logoGrad)" strokeWidth="3" fill="none" strokeLinecap="round" strokeDasharray="55 14" />
-      <path d="M14 5C8.5 5 4 9.5 4 16h21" stroke="url(#logoGrad)" strokeWidth="0" fill="none" />
-      <line x1="4" y1="15" x2="22" y2="15" stroke="url(#logoGrad)" strokeWidth="2.5" strokeLinecap="round" />
-      {/* "miday" text */}
-      <text x="30" y="22" fill="#E040A0" fontFamily="Inter, sans-serif" fontWeight="800" fontSize="18" letterSpacing="-0.5">
-        emiday
-      </text>
-    </svg>
+    <Image src="/logo.png" alt="Emiday" width={160} height={44} className="h-11 w-auto" priority />
   );
 }
 
@@ -63,11 +48,11 @@ function DashboardScreenshot() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-lg bg-[#7b39fc] flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-[#4F46E5] flex items-center justify-center">
             <span className="text-white text-[10px] font-bold">E</span>
           </div>
           <span className="font-semibold text-white/90 text-xs">Emiday Demo Company</span>
-          <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#7b39fc]/15 text-[#a78bfa] font-medium">Growth Plan</span>
+          <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#4F46E5]/15 text-[#818CF8] font-medium">Growth Plan</span>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.06]">
@@ -76,9 +61,9 @@ function DashboardScreenshot() {
           </div>
           <div className="w-7 h-7 rounded-lg bg-white/[0.04] flex items-center justify-center relative">
             <Bell size={13} className="text-white/40" />
-            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#7b39fc]" />
+            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#4F46E5]" />
           </div>
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7b39fc] to-[#a78bfa]" />
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#4F46E5] to-[#818CF8]" />
         </div>
       </div>
 
@@ -96,7 +81,7 @@ function DashboardScreenshot() {
             <div
               key={item.label}
               className={`px-3 py-2 rounded-lg mb-0.5 text-[11px] font-medium ${
-                item.active ? 'bg-[#7b39fc]/10 text-[#a78bfa]' : 'text-white/35'
+                item.active ? 'bg-[#4F46E5]/10 text-[#818CF8]' : 'text-white/35'
               }`}
             >
               {item.label}
@@ -111,7 +96,7 @@ function DashboardScreenshot() {
               <h2 className="text-sm font-semibold text-white">Dashboard</h2>
               <p className="text-[10px] text-white/30 mt-0.5">March 2026 Overview</p>
             </div>
-            <button className="px-3 py-1.5 rounded-lg bg-[#7b39fc] text-white text-[10px] font-semibold flex items-center gap-1">
+            <button className="px-3 py-1.5 rounded-lg bg-[#4F46E5] text-white text-[10px] font-semibold flex items-center gap-1">
               <Plus size={11} /> Add Transaction
             </button>
           </div>
@@ -146,7 +131,7 @@ function DashboardScreenshot() {
                 <span className="text-[11px] font-semibold text-white/70">Cash Flow</span>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-[#7b39fc]" />
+                    <div className="w-2 h-2 rounded-full bg-[#4F46E5]" />
                     <span className="text-[9px] text-white/30">Income</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -159,7 +144,7 @@ function DashboardScreenshot() {
                 {barData.map((d, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full flex gap-0.5 items-end h-[100px]">
-                      <div className="flex-1 rounded-t-sm" style={{ height: `${d.income}%`, background: 'linear-gradient(to top, #7b39fc, #a78bfa)' }} />
+                      <div className="flex-1 rounded-t-sm" style={{ height: `${d.income}%`, background: 'linear-gradient(to top, #4F46E5, #818CF8)' }} />
                       <div className="flex-1 rounded-t-sm bg-rose-400/40" style={{ height: `${d.expense}%` }} />
                     </div>
                     <span className="text-[8px] text-white/25">{d.m}</span>
@@ -301,10 +286,10 @@ function ContactSection() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-8 md:mb-14">
           <p className="section-label mb-2 md:mb-3 text-[10px] md:text-xs">GET IN TOUCH</p>
-          <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15]">
+          <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15] !text-white">
             Let&apos;s talk about your <span className="gradient-text">numbers</span>
           </h2>
-          <p className="section-desc mt-3 md:mt-4 max-w-xl mx-auto text-[13px] md:text-base">
+          <p className="section-desc mt-3 md:mt-4 !text-[#a1a1aa] max-w-xl mx-auto text-[13px] md:text-base">
             Questions about Emiday? Want to see it handle your actual books? Drop us a message — we respond within 24 hours.
           </p>
         </div>
@@ -313,22 +298,22 @@ function ContactSection() {
           {/* Info Cards */}
           <div className="lg:col-span-2 space-y-4">
             <div className="dark-card p-5">
-              <div className="w-10 h-10 rounded-xl bg-brand-1/10 flex items-center justify-center mb-3">
-                <Mail size={20} className="text-brand-3" />
+              <div className="w-10 h-10 rounded-xl bg-[#4F46E5]/10 flex items-center justify-center mb-3">
+                <Mail size={20} className="text-[#818CF8]" />
               </div>
               <p className="text-sm font-medium text-white mb-1">Email us</p>
-              <a href="mailto:hello@emiday.africa" className="text-sm text-[#7b39fc] hover:underline">hello@emiday.africa</a>
+              <a href="mailto:hello@emiday.africa" className="text-sm text-[#6366F1] hover:underline">hello@emiday.africa</a>
             </div>
             <div className="dark-card p-5">
-              <div className="w-10 h-10 rounded-xl bg-brand-1/10 flex items-center justify-center mb-3">
-                <Clock size={20} className="text-brand-3" />
+              <div className="w-10 h-10 rounded-xl bg-[#4F46E5]/10 flex items-center justify-center mb-3">
+                <Clock size={20} className="text-[#818CF8]" />
               </div>
               <p className="text-sm font-medium text-white mb-1">Response time</p>
               <p className="text-sm text-[#71717a]">We respond within 24 hours on business days</p>
             </div>
             <div className="dark-card p-5">
-              <div className="w-10 h-10 rounded-xl bg-brand-1/10 flex items-center justify-center mb-3">
-                <Building2 size={20} className="text-brand-3" />
+              <div className="w-10 h-10 rounded-xl bg-[#4F46E5]/10 flex items-center justify-center mb-3">
+                <Building2 size={20} className="text-[#818CF8]" />
               </div>
               <p className="text-sm font-medium text-white mb-1">Enterprise &amp; Firms</p>
               <p className="text-sm text-[#71717a]">Need a custom plan? Reach out for tailored pricing and onboarding.</p>
@@ -346,7 +331,7 @@ function ContactSection() {
                     required
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-white placeholder:text-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/30"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-white placeholder:text-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30"
                     placeholder="Your name"
                   />
                 </div>
@@ -359,7 +344,7 @@ function ContactSection() {
                     required type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-white placeholder:text-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/30"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-white placeholder:text-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30"
                     placeholder="you@company.com"
                   />
                 </div>
@@ -372,7 +357,7 @@ function ContactSection() {
                 <input
                   value={form.company}
                   onChange={(e) => setForm({ ...form, company: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-white placeholder:text-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/30"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-white placeholder:text-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30"
                   placeholder="Your company (optional)"
                 />
               </div>
@@ -385,7 +370,7 @@ function ContactSection() {
                   required rows={4}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-white placeholder:text-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/30 resize-none"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-white placeholder:text-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30 resize-none"
                   placeholder="Tell us how we can help..."
                 />
               </div>
@@ -393,7 +378,7 @@ function ContactSection() {
             <button
               type="submit"
               disabled={status === 'sending'}
-              className="w-full inline-flex items-center justify-center font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60 text-[13px] md:text-[15px] py-2.5 md:py-3.5 rounded-xl bg-[#7b39fc]"
+              className="w-full inline-flex items-center justify-center font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60 text-[13px] md:text-[15px] py-2.5 md:py-3.5 rounded-xl bg-[#4F46E5]"
             >
               {status === 'sending' ? 'Sending...' : status === 'sent' ? 'Message Sent!' : 'Send Message'}
               {status === 'idle' && <Send size={16} className="ml-2" />}
@@ -421,7 +406,7 @@ export default function LandingPage() {
   const plans = planTab === 'sme' ? SME_PLANS : ACCOUNTANT_PLANS;
 
   return (
-    <div className="relative bg-black">
+    <div className="relative bg-black font-inter">
 
       {/* ════════════════════════════════════════════════════════════
           HERO
@@ -458,7 +443,7 @@ export default function LandingPage() {
             </div>
             <div className="hidden lg:flex items-center" style={{ gap: 12 }}>
               <Link href="/login" className="font-semibold transition-opacity hover:opacity-80" style={{ fontSize: 14, lineHeight: '22px', color: '#171717', background: '#ffffff', paddingLeft: 16, paddingRight: 16, paddingTop: 8, paddingBottom: 8, borderRadius: 8, border: '1px solid #d4d4d4' }}>Sign In</Link>
-              <Link href="/signup" className="font-semibold transition-opacity hover:opacity-90" style={{ fontSize: 14, lineHeight: '22px', color: '#fafafa', background: '#7b39fc', paddingLeft: 16, paddingRight: 16, paddingTop: 8, paddingBottom: 8, borderRadius: 8, boxShadow: '0px 4px 16px rgba(23,23,23,0.04)' }}>Get Started</Link>
+              <Link href="/signup" className="font-semibold transition-opacity hover:opacity-90" style={{ fontSize: 14, lineHeight: '22px', color: '#fafafa', background: '#4F46E5', paddingLeft: 16, paddingRight: 16, paddingTop: 8, paddingBottom: 8, borderRadius: 8, boxShadow: '0px 4px 16px rgba(23,23,23,0.04)' }}>Get Started</Link>
             </div>
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden text-white p-2 -mr-2" aria-label="Menu">
               {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -481,7 +466,7 @@ export default function LandingPage() {
                 ))}
                 <div className="flex gap-3 mt-4 pt-2">
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center font-semibold text-sm text-white py-2.5 rounded-xl border border-white/[0.12] bg-white/[0.04]">Sign In</Link>
-                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center font-semibold text-sm text-white py-2.5 rounded-xl bg-[#7b39fc]">Get Started</Link>
+                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center font-semibold text-sm text-white py-2.5 rounded-xl bg-[#4F46E5]">Get Started</Link>
                 </div>
               </div>
             </div>
@@ -497,8 +482,8 @@ export default function LandingPage() {
               Emiday handles your bookkeeping, tax compliance and FIRS filings, so you can run your business.
             </p>
             <div className="flex flex-row items-center gap-2.5 w-full max-w-[320px] md:max-w-none md:w-auto">
-              <Link href="/signup" className="font-semibold text-white transition-all hover:opacity-90 hover:-translate-y-0.5 flex-1 md:flex-none text-center text-[13px] md:text-[15px] py-2.5 md:py-3.5 px-5 md:px-7 rounded-full bg-[#7b39fc]">Start for Free</Link>
-              <Link href="#features" className="font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 flex-1 md:flex-none text-center text-[13px] md:text-[15px] text-[#f6f7f9] py-2.5 md:py-3.5 px-5 md:px-7 rounded-full bg-white/[0.08] border border-white/[0.12]">How It Works</Link>
+              <Link href="/signup" className="font-semibold text-white transition-all hover:opacity-90 hover:-translate-y-0.5 flex-1 md:flex-none text-center text-[13px] md:text-[15px] py-2.5 md:py-3.5 px-5 md:px-7 rounded-xl bg-[#4F46E5]">Start for Free</Link>
+              <Link href="#features" className="font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5 flex-1 md:flex-none text-center text-[13px] md:text-[15px] text-[#f6f7f9] py-2.5 md:py-3.5 px-5 md:px-7 rounded-xl bg-white/[0.08] border border-white/[0.12]">How It Works</Link>
             </div>
           </div>
 
@@ -518,7 +503,7 @@ export default function LandingPage() {
         <p className="text-center text-[11px] text-[#52525b] uppercase tracking-[0.2em] font-semibold mb-8">
           Works with the tools you already use
         </p>
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <div className="flex animate-slide-left" style={{ width: 'max-content' }}>
             {[...LOGOS, ...LOGOS].map((name, i) => (
               <span key={i} className="text-base font-semibold text-white/[0.15] whitespace-nowrap mx-10">{name}</span>
@@ -547,27 +532,27 @@ export default function LandingPage() {
       {/* ════════════════════════════════════════════════════════════
           FEATURES
           ════════════════════════════════════════════════════════════ */}
-      <section id="features" className="py-14 md:py-24 px-5 md:px-6 bg-[#030303]">
+      <section id="features" className="py-14 md:py-24 px-5 md:px-6 bg-[#030303] overflow-x-hidden">
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-10 md:mb-16">
             <p className="section-label mb-2 md:mb-3 text-[10px] md:text-xs">WHAT EMIDAY DOES</p>
-            <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15]">
+            <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15] !text-white">
               Your finance team,<br className="hidden md:block" /> without the headcount
             </h2>
-            <p className="section-desc mt-3 md:mt-4 max-w-lg mx-auto text-[13px] md:text-base">
+            <p className="section-desc mt-3 md:mt-4 !text-[#a1a1aa] max-w-lg mx-auto text-[13px] md:text-base">
               Bookkeeping, tax compliance, and financial reporting — handled by AI, reviewed by you.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-4 md:pb-0 -mx-5 px-5 md:mx-0 md:px-0 scrollbar-hide">
             {FEATURES.map((feature, i) => (
-              <div key={i} className="dark-card p-5 md:p-6 group">
-                <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-[#7b39fc]/10 flex items-center justify-center mb-3 md:mb-5 group-hover:bg-[#7b39fc]/20 transition-colors">
-                  <span className="text-[#a78bfa]">{feature.icon}</span>
+              <div key={i} className="dark-card p-5 md:p-6 group min-w-[260px] md:min-w-0 flex-shrink-0 md:flex-shrink snap-center">
+                <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-[#4F46E5]/10 flex items-center justify-center mb-3 md:mb-5 group-hover:bg-[#4F46E5]/20 transition-colors">
+                  <span className="text-[#818CF8]">{feature.icon}</span>
                 </div>
                 <h3 className="font-semibold text-white text-[15px] md:text-[17px] mb-1.5 md:mb-2">{feature.title}</h3>
                 <p className="text-[13px] md:text-sm leading-relaxed text-[#71717a]">{feature.body}</p>
-                <span className="inline-block mt-3 md:mt-5 text-[10px] md:text-[11px] font-semibold px-2.5 md:px-3 py-1 rounded-full bg-[#7b39fc]/8 text-[#a78bfa]/80 border border-[#7b39fc]/10">
+                <span className="inline-block mt-3 md:mt-5 text-[10px] md:text-[11px] font-semibold px-2.5 md:px-3 py-1 rounded-full bg-[#4F46E5]/8 text-[#818CF8]/80 border border-[#4F46E5]/10">
                   {feature.tag}
                 </span>
               </div>
@@ -583,10 +568,10 @@ export default function LandingPage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-8 md:mb-16">
             <p className="section-label mb-2 md:mb-3 text-[10px] md:text-xs">COMPLIANCE</p>
-            <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15]">
+            <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15] !text-white">
               We speak FIRS, GRA, and SARS
             </h2>
-            <p className="section-desc mt-3 md:mt-4 max-w-lg mx-auto text-[13px] md:text-base">
+            <p className="section-desc mt-3 md:mt-4 !text-[#a1a1aa] max-w-lg mx-auto text-[13px] md:text-base">
               Tax rules change by jurisdiction. Emiday stays current so you don&apos;t have to.
             </p>
           </div>
@@ -594,8 +579,8 @@ export default function LandingPage() {
           <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-2 md:pb-0 -mx-5 px-5 md:mx-0 md:px-0 scrollbar-hide">
             {[
               { flag: '🇳🇬', name: 'Nigeria', authority: 'FIRS', status: 'Available', statusColor: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20', items: ['VAT at 7.5% — auto-calculated', 'WHT — 10% on services, rent', 'PAYE — graduated bands per employee', 'Stamp Duty flagging', 'CAC annual return reminders', 'Tax calendar with FIRS deadlines'] },
-              { flag: '🇬🇭', name: 'Ghana', authority: 'GRA', status: 'Coming Soon', statusColor: 'text-[#a78bfa] bg-[#7b39fc]/10 border-[#7b39fc]/20', items: ['VAT at 15% + NHIL + GETFund', 'Corporate Income Tax (25%)', 'PAYE under Ghana bands', 'WHT on dividends, rent, services', 'GRA e-Tax exports'] },
-              { flag: '🇿🇦', name: 'South Africa', authority: 'SARS', status: 'Coming Soon', statusColor: 'text-[#a78bfa] bg-[#7b39fc]/10 border-[#7b39fc]/20', items: ['VAT at 15% — SARS-compliant', 'Provisional Tax (IRP6)', 'PAYE, UIF (1%), SDL (1%)', 'Company Tax at 27%', 'eFiling-compatible formats'] },
+              { flag: '🇬🇭', name: 'Ghana', authority: 'GRA', status: 'Coming Soon', statusColor: 'text-[#818CF8] bg-[#4F46E5]/10 border-[#4F46E5]/20', items: ['VAT at 15% + NHIL + GETFund', 'Corporate Income Tax (25%)', 'PAYE under Ghana bands', 'WHT on dividends, rent, services', 'GRA e-Tax exports'] },
+              { flag: '🇿🇦', name: 'South Africa', authority: 'SARS', status: 'Coming Soon', statusColor: 'text-[#818CF8] bg-[#4F46E5]/10 border-[#4F46E5]/20', items: ['VAT at 15% — SARS-compliant', 'Provisional Tax (IRP6)', 'PAYE, UIF (1%), SDL (1%)', 'Company Tax at 27%', 'eFiling-compatible formats'] },
             ].map((country) => (
               <div key={country.name} className="dark-card p-5 md:p-6 min-w-[280px] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                 <div className="flex items-center gap-3 mb-6">
@@ -626,13 +611,13 @@ export default function LandingPage() {
         <div className="max-w-[1000px] mx-auto">
           <div className="text-center mb-8 md:mb-16">
             <p className="section-label mb-2 md:mb-3 text-[10px] md:text-xs">HOW IT WORKS</p>
-            <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15]">From sign-up to compliant in 3 steps</h2>
+            <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15] !text-white">From sign-up to compliant in 3 steps</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
             {STEPS.map((step, i) => (
               <div key={step.num} className="dark-card p-5 md:p-6 relative flex md:flex-col items-start gap-4 md:gap-0">
-                <span className="text-3xl md:text-5xl font-bold bg-gradient-to-b from-[#7b39fc] to-[#7b39fc]/20 bg-clip-text text-transparent flex-shrink-0">{step.num}</span>
+                <span className="text-3xl md:text-5xl font-bold bg-gradient-to-b from-[#4F46E5] to-[#4F46E5]/20 bg-clip-text text-transparent flex-shrink-0">{step.num}</span>
                 <div>
                   <h3 className="font-semibold text-white text-[15px] md:mt-4 mb-1 md:mb-2">{step.title}</h3>
                   <p className="text-[13px] md:text-sm text-[#71717a] leading-relaxed">{step.desc}</p>
@@ -655,33 +640,33 @@ export default function LandingPage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-6 md:mb-10">
             <p className="section-label mb-2 md:mb-3 text-[10px] md:text-xs">PRICING</p>
-            <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15]">Simple pricing. Start free.</h2>
+            <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15] !text-white">Simple pricing. Start free.</h2>
           </div>
 
           {/* Tabs */}
           <div className="flex justify-center mb-5 md:mb-6">
             <div className="flex p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-              <button onClick={() => setPlanTab('sme')} className={`px-4 md:px-5 py-2 rounded-lg text-[13px] md:text-sm font-medium transition-all ${planTab === 'sme' ? 'bg-[#7b39fc] text-white' : 'text-[#71717a] hover:text-white'}`}>SME Plans</button>
-              <button onClick={() => setPlanTab('accountant')} className={`px-4 md:px-5 py-2 rounded-lg text-[13px] md:text-sm font-medium transition-all ${planTab === 'accountant' ? 'bg-[#7b39fc] text-white' : 'text-[#71717a] hover:text-white'}`}>Accountant Plans</button>
+              <button onClick={() => setPlanTab('sme')} className={`px-4 md:px-5 py-2 rounded-lg text-[13px] md:text-sm font-medium transition-all ${planTab === 'sme' ? 'bg-[#4F46E5] text-white' : 'text-[#71717a] hover:text-white'}`}>SME Plans</button>
+              <button onClick={() => setPlanTab('accountant')} className={`px-4 md:px-5 py-2 rounded-lg text-[13px] md:text-sm font-medium transition-all ${planTab === 'accountant' ? 'bg-[#4F46E5] text-white' : 'text-[#71717a] hover:text-white'}`}>Accountant Plans</button>
             </div>
           </div>
 
           {/* Annual toggle */}
           <div className="flex items-center justify-center gap-2.5 md:gap-3 mb-8 md:mb-10">
             <span className={`text-[13px] md:text-sm ${!annual ? 'font-medium text-white' : 'text-[#71717a]'}`}>Monthly</span>
-            <button onClick={() => setAnnual(!annual)} className={`relative w-11 h-[22px] md:w-12 md:h-6 rounded-full transition-all ${annual ? 'bg-[#7b39fc]' : 'bg-[#27272a]'}`}>
+            <button onClick={() => setAnnual(!annual)} className={`relative w-11 h-[22px] md:w-12 md:h-6 rounded-full transition-all ${annual ? 'bg-[#4F46E5]' : 'bg-[#27272a]'}`}>
               <div className={`w-[18px] h-[18px] md:w-5 md:h-5 bg-white rounded-full absolute top-0.5 transition-all ${annual ? 'left-[22px] md:left-[26px]' : 'left-0.5'}`} />
             </button>
             <span className={`text-[13px] md:text-sm ${annual ? 'font-medium text-white' : 'text-[#71717a]'}`}>Annual</span>
             <span className="text-[9px] md:text-[10px] font-semibold px-2 md:px-2.5 py-0.5 md:py-1 rounded-full bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">Save 2 months</span>
           </div>
 
-          {/* Plan Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+          {/* Plan Cards — horizontal scroll on mobile, grid on desktop */}
+          <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-4 md:pb-0">
             {plans.map((plan) => (
-              <div key={plan.name} className={`rounded-2xl bg-white/[0.02] border p-5 md:p-7 relative transition-all duration-300 hover:-translate-y-1 ${plan.popular ? 'border-[#7b39fc]' : 'border-white/[0.06]'}`}>
+              <div key={plan.name} className={`min-w-[280px] md:min-w-0 flex-shrink-0 snap-center rounded-2xl bg-white/[0.02] border p-5 md:p-7 relative transition-all duration-300 hover:-translate-y-1 ${plan.popular ? 'border-[#4F46E5]' : 'border-white/[0.06]'}`}>
                 {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] md:text-[10px] font-bold px-3 md:px-4 py-1 rounded-full bg-[#7b39fc] text-white">MOST POPULAR</span>
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] md:text-[10px] font-bold px-3 md:px-4 py-1 rounded-full bg-[#4F46E5] text-white">MOST POPULAR</span>
                 )}
                 <h3 className="font-semibold text-lg md:text-xl text-white">{plan.name}</h3>
                 <p className="text-[11px] md:text-xs text-[#71717a] mt-1">{plan.desc}</p>
@@ -700,7 +685,7 @@ export default function LandingPage() {
                   href="/signup"
                   className={`block text-center py-2.5 md:py-3 rounded-xl text-[13px] md:text-sm font-semibold transition-all ${
                     plan.popular
-                      ? 'bg-[#7b39fc] text-white hover:bg-[#6d28d9]'
+                      ? 'bg-[#4F46E5] text-white hover:bg-[#4338CA]'
                       : 'bg-white/[0.04] text-white hover:bg-white/[0.08] border border-white/[0.06]'
                   }`}
                 >
@@ -715,6 +700,12 @@ export default function LandingPage() {
                   ))}
                 </ul>
               </div>
+            ))}
+          </div>
+          {/* Swipe hint for mobile */}
+          <div className="flex md:hidden justify-center gap-1.5 mt-4">
+            {plans.map((_, i) => (
+              <div key={i} className={`w-1.5 h-1.5 rounded-full ${i === 1 ? 'bg-[#4F46E5]' : 'bg-white/20'}`} />
             ))}
           </div>
 
@@ -734,20 +725,20 @@ export default function LandingPage() {
           ════════════════════════════════════════════════════════════ */}
       <section className="py-16 md:py-28 px-5 md:px-6 text-center bg-[#030303] relative overflow-hidden">
         {/* Subtle glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[150px] md:h-[250px] rounded-full opacity-[0.08]" style={{ background: '#7b39fc', filter: 'blur(100px)' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[150px] md:h-[250px] rounded-full opacity-[0.08]" style={{ background: '#4F46E5', filter: 'blur(100px)' }} />
         <div className="max-w-2xl mx-auto relative">
-          <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15]">
+          <h2 className="section-heading text-[26px] md:text-[36px] leading-[1.15] !text-white">
             Your next tax deadline{' '}
             <span className="gradient-text">won&apos;t wait</span>
           </h2>
-          <p className="text-[#71717a] mt-3 md:mt-5 mb-6 md:mb-8 text-[13px] md:text-base max-w-sm md:max-w-none mx-auto">
+          <p className="text-[#64748B] mt-3 md:mt-5 mb-6 md:mb-8 text-[13px] md:text-base max-w-sm md:max-w-none mx-auto">
             Built for African businesses who refuse to leave compliance to chance. Set up in minutes, not weeks.
           </p>
           <div className="flex flex-row items-center justify-center gap-2.5 max-w-[320px] md:max-w-none mx-auto">
-            <Link href="/signup" className="inline-flex items-center justify-center font-semibold text-white transition-all hover:opacity-90 hover:-translate-y-0.5 flex-1 md:flex-none text-[13px] md:text-[15px] py-2.5 md:py-3.5 px-5 md:px-7 rounded-full bg-[#7b39fc]">
+            <Link href="/signup" className="inline-flex items-center justify-center font-semibold text-white transition-all hover:opacity-90 hover:-translate-y-0.5 flex-1 md:flex-none text-[13px] md:text-[15px] py-2.5 md:py-3.5 px-5 md:px-7 rounded-xl bg-[#4F46E5]">
               Get Started <ArrowRight size={14} className="ml-1.5" />
             </Link>
-            <Link href="#pricing" className="inline-flex items-center justify-center font-semibold transition-all hover:opacity-90 flex-1 md:flex-none text-[13px] md:text-[15px] text-[#a1a1aa] py-2.5 md:py-3.5 px-5 md:px-7 rounded-full border border-white/[0.08]">
+            <Link href="#pricing" className="inline-flex items-center justify-center font-semibold transition-all hover:opacity-90 flex-1 md:flex-none text-[13px] md:text-[15px] text-[#a1a1aa] py-2.5 md:py-3.5 px-5 md:px-7 rounded-xl border border-white/[0.08]">
               View Pricing
             </Link>
           </div>

@@ -67,7 +67,7 @@ export default function PrivacyPage() {
 
         <section>
           <h2 className="text-lg font-semibold text-white mb-3">9. Contact</h2>
-          <p>For privacy-related inquiries, contact our data protection officer at <a href="mailto:hello@emiday.africa" className="text-[#7b39fc] hover:underline">hello@emiday.africa</a>.</p>
+          <p>For privacy-related inquiries, contact our data protection officer at <a href="mailto:hello@emiday.africa" className="text-[#5B21B6] hover:underline">hello@emiday.africa</a>.</p>
         </section>
       </div>
     </div>

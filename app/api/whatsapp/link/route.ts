@@ -19,7 +19,7 @@ async function sendVerificationCode(phone: string, code: string) {
   await twilio.messages.create({
     from,
     to: `whatsapp:${phone}`,
-    body: `🔐 Your Emiday Books verification code is: *${code}*\n\nReply with this code to link your WhatsApp.`,
+    body: `🔐 Your Emiday verification code is: *${code}*\n\nReply with this code to link your WhatsApp.`,
   });
 }
 

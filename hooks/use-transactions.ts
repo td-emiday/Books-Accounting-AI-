@@ -45,6 +45,8 @@ export function useTransactions(filters?: {
       return { data: data || [], count: count || 0 };
     },
     enabled: !!workspace?.id,
+    refetchInterval: 30_000,
+    staleTime: 15_000,
   });
 }
 

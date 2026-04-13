@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const productLinks = [
   { label: 'Features', href: '#features' },
@@ -24,8 +25,8 @@ export function MarketingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="font-instrument-serif italic text-xl text-transparent bg-clip-text bg-gradient-to-r from-[#6B21A8] to-[#E040A0]">
-              emiday
+            <Link href="/" className="flex items-center">
+              <Image src="/logo.png" alt="Emiday" width={160} height={44} className="h-11 w-auto brightness-0 invert" />
             </Link>
             <p className="text-sm text-[#71717a] mt-3 leading-relaxed max-w-xs">
 

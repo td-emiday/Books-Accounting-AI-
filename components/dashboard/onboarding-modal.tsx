@@ -42,8 +42,8 @@ interface UploadedDoc {
   error?: string;
 }
 
-const inputClass = "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/20 focus:border-[#7b39fc]/40 text-sm text-gray-900 placeholder:text-gray-400 transition-all";
-const selectClass = "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/20 focus:border-[#7b39fc]/40 text-sm text-gray-900 transition-all";
+const inputClass = "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#5B21B6]/20 focus:border-[#5B21B6]/40 text-sm text-gray-900 placeholder:text-gray-400 transition-all";
+const selectClass = "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#5B21B6]/20 focus:border-[#5B21B6]/40 text-sm text-gray-900 transition-all";
 
 export function OnboardingModal() {
   const router = useRouter();
@@ -215,16 +215,16 @@ export function OnboardingModal() {
               <div key={i} className="flex items-center">
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                   i < step
-                    ? 'bg-[#7b39fc] text-white'
+                    ? 'bg-[#5B21B6] text-white'
                     : i === step
-                    ? 'bg-[#7b39fc]/10 text-[#7b39fc] ring-1 ring-[#7b39fc]/20'
+                    ? 'bg-[#5B21B6]/10 text-[#5B21B6] ring-1 ring-[#5B21B6]/20'
                     : 'bg-gray-100 text-gray-400'
                 }`}>
                   {i < step ? <Check size={12} /> : <s.icon size={12} />}
                   {s.label}
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={`w-8 h-px mx-2 ${i < step ? 'bg-[#7b39fc]' : 'bg-gray-200'}`} />
+                  <div className={`w-8 h-px mx-2 ${i < step ? 'bg-[#5B21B6]' : 'bg-gray-200'}`} />
                 )}
               </div>
             ))}
@@ -291,7 +291,7 @@ export function OnboardingModal() {
                           onClick={() => setFormData({ ...formData, jurisdiction: j.code })}
                           className={`p-3 rounded-xl border-2 text-center transition-all text-sm ${
                             formData.jurisdiction === j.code
-                              ? 'border-[#7b39fc] bg-[#7b39fc]/5'
+                              ? 'border-[#5B21B6] bg-[#5B21B6]/5'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
@@ -316,7 +316,7 @@ export function OnboardingModal() {
                         type="button"
                         onClick={() => setFormData({ ...formData, vatRegistered: true })}
                         className={`flex-1 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
-                          formData.vatRegistered ? 'border-[#7b39fc] bg-[#7b39fc]/5 text-[#7b39fc]' : 'border-gray-200 text-gray-700'
+                          formData.vatRegistered ? 'border-[#5B21B6] bg-[#5B21B6]/5 text-[#5B21B6]' : 'border-gray-200 text-gray-700'
                         }`}
                       >
                         Yes
@@ -325,7 +325,7 @@ export function OnboardingModal() {
                         type="button"
                         onClick={() => setFormData({ ...formData, vatRegistered: false })}
                         className={`flex-1 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
-                          !formData.vatRegistered ? 'border-[#7b39fc] bg-[#7b39fc]/5 text-[#7b39fc]' : 'border-gray-200 text-gray-700'
+                          !formData.vatRegistered ? 'border-[#5B21B6] bg-[#5B21B6]/5 text-[#5B21B6]' : 'border-gray-200 text-gray-700'
                         }`}
                       >
                         No
@@ -386,7 +386,7 @@ export function OnboardingModal() {
                   <label className="flex items-center gap-2.5 cursor-pointer group">
                     <div
                       className={`w-4.5 h-4.5 rounded border-2 flex items-center justify-center transition-all ${
-                        addTaxLater ? 'bg-[#7b39fc] border-[#7b39fc]' : 'border-gray-300 group-hover:border-gray-400'
+                        addTaxLater ? 'bg-[#5B21B6] border-[#5B21B6]' : 'border-gray-300 group-hover:border-gray-400'
                       }`}
                       onClick={() => {
                         setAddTaxLater(!addTaxLater);
@@ -431,8 +431,8 @@ export function OnboardingModal() {
                     </label>
                     {cacDoc ? (
                       <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50">
-                        <div className="w-10 h-10 rounded-lg bg-[#7b39fc]/10 flex items-center justify-center flex-shrink-0">
-                          <File size={18} className="text-[#7b39fc]" />
+                        <div className="w-10 h-10 rounded-lg bg-[#5B21B6]/10 flex items-center justify-center flex-shrink-0">
+                          <File size={18} className="text-[#5B21B6]" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900 truncate">{cacDoc.file.name}</p>
@@ -448,9 +448,9 @@ export function OnboardingModal() {
                     ) : (
                       <button
                         onClick={() => handleFileSelect('CAC')}
-                        className="w-full p-6 rounded-xl border-2 border-dashed border-gray-200 hover:border-[#7b39fc]/30 hover:bg-[#7b39fc]/[0.02] transition-all text-center group"
+                        className="w-full p-6 rounded-xl border-2 border-dashed border-gray-200 hover:border-[#5B21B6]/30 hover:bg-[#5B21B6]/[0.02] transition-all text-center group"
                       >
-                        <Upload size={20} className="mx-auto text-gray-400 group-hover:text-[#7b39fc] transition-colors mb-2" />
+                        <Upload size={20} className="mx-auto text-gray-400 group-hover:text-[#5B21B6] transition-colors mb-2" />
                         <p className="text-sm text-gray-600">Click to upload CAC document</p>
                         <p className="text-xs text-gray-400 mt-1">PDF, JPG or PNG — max 10MB</p>
                       </button>
@@ -465,8 +465,8 @@ export function OnboardingModal() {
                     </label>
                     {memartDoc ? (
                       <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50">
-                        <div className="w-10 h-10 rounded-lg bg-[#7b39fc]/10 flex items-center justify-center flex-shrink-0">
-                          <File size={18} className="text-[#7b39fc]" />
+                        <div className="w-10 h-10 rounded-lg bg-[#5B21B6]/10 flex items-center justify-center flex-shrink-0">
+                          <File size={18} className="text-[#5B21B6]" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900 truncate">{memartDoc.file.name}</p>
@@ -482,9 +482,9 @@ export function OnboardingModal() {
                     ) : (
                       <button
                         onClick={() => handleFileSelect('MEMART')}
-                        className="w-full p-6 rounded-xl border-2 border-dashed border-gray-200 hover:border-[#7b39fc]/30 hover:bg-[#7b39fc]/[0.02] transition-all text-center group"
+                        className="w-full p-6 rounded-xl border-2 border-dashed border-gray-200 hover:border-[#5B21B6]/30 hover:bg-[#5B21B6]/[0.02] transition-all text-center group"
                       >
-                        <Upload size={20} className="mx-auto text-gray-400 group-hover:text-[#7b39fc] transition-colors mb-2" />
+                        <Upload size={20} className="mx-auto text-gray-400 group-hover:text-[#5B21B6] transition-colors mb-2" />
                         <p className="text-sm text-gray-600">Click to upload MEMART</p>
                         <p className="text-xs text-gray-400 mt-1">PDF, JPG or PNG — max 10MB</p>
                       </button>
@@ -539,7 +539,7 @@ export function OnboardingModal() {
                   }
                 }}
                 disabled={(step === 0 && !isStep0Valid) || loading}
-                className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#7b39fc] hover:bg-[#6d28d9] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#5B21B6] hover:bg-[#4C1D95] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
               >
                 {loading ? (
                   <>

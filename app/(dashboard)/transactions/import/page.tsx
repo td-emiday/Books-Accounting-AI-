@@ -117,13 +117,13 @@ export default function ImportStatementPage() {
           <div key={i} className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${
               i < step ? 'bg-brand-gradient text-white' :
-              i === step ? 'bg-[#F5F3FF] text-[#7b39fc] ring-2 ring-[#7b39fc]/30' :
+              i === step ? 'bg-[#F5F3FF] text-[#5B21B6] ring-2 ring-[#5B21B6]/30' :
               'bg-[#F3F4F6] text-[#6B7280]'
             }`}>
               {i < step ? <Check size={14} /> : i + 1}
             </div>
             <span className="text-xs font-semibold text-[#374151] hidden sm:block">{label}</span>
-            {i < 2 && <div className={`w-12 h-0.5 ${i < step ? 'bg-[#7b39fc]' : 'bg-[#E5E7EB]'}`} />}
+            {i < 2 && <div className={`w-12 h-0.5 ${i < step ? 'bg-[#5B21B6]' : 'bg-[#E5E7EB]'}`} />}
           </div>
         ))}
       </div>
@@ -139,15 +139,15 @@ export default function ImportStatementPage() {
         <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 sm:p-8 relative">
           {loading && (
             <div className="absolute inset-0 bg-white/90 backdrop-blur-sm rounded-2xl z-10 flex flex-col items-center justify-center gap-3">
-              <Loader2 size={32} className="animate-spin text-[#7b39fc]" />
-              <p className="text-sm font-semibold text-[#7b39fc]">Parsing your bank statement...</p>
+              <Loader2 size={32} className="animate-spin text-[#5B21B6]" />
+              <p className="text-sm font-semibold text-[#5B21B6]">Parsing your bank statement...</p>
               <p className="text-xs text-[#6B7280]">AI is extracting transactions. This may take a moment.</p>
             </div>
           )}
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleFileDrop}
-            className="border-2 border-dashed border-[#DDD6FE] rounded-2xl p-6 sm:p-12 text-center hover:border-[#7b39fc] transition-colors cursor-pointer bg-[#FAFAFE]"
+            className="border-2 border-dashed border-[#DDD6FE] rounded-2xl p-6 sm:p-12 text-center hover:border-[#5B21B6] transition-colors cursor-pointer bg-[#FAFAFE]"
             onClick={() => document.getElementById('file-input')?.click()}
           >
             <Upload size={40} className="mx-auto text-[#A78BFA] mb-4" />
@@ -172,7 +172,7 @@ export default function ImportStatementPage() {
           {file && (
             <div className="mt-4 flex items-center justify-between p-4 rounded-xl bg-[#F5F3FF] border border-[#DDD6FE]">
               <div className="flex items-center gap-3">
-                <FileText size={18} className="text-[#7b39fc]" />
+                <FileText size={18} className="text-[#5B21B6]" />
                 <div>
                   <p className="text-sm font-semibold text-[#111827]">{file.name}</p>
                   <p className="text-xs text-[#6B7280]">{(file.size / 1024).toFixed(0)} KB</p>
@@ -205,7 +205,7 @@ export default function ImportStatementPage() {
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 flex flex-wrap gap-4 text-sm">
             <div><span className="text-[#6B7280]">Transactions:</span> <strong className="text-[#111827]">{parsed.length}</strong></div>
-            <div><span className="text-[#6B7280]">Currency:</span> <strong className="text-[#7b39fc]">{detectedCurrency}</strong></div>
+            <div><span className="text-[#6B7280]">Currency:</span> <strong className="text-[#5B21B6]">{detectedCurrency}</strong></div>
             <div><span className="text-[#6B7280]">Income:</span> <strong className="text-[#059669]">{getCurrencySymbol(detectedCurrency)}{totalIncome.toLocaleString()}</strong></div>
             <div><span className="text-[#6B7280]">Expenses:</span> <strong className="text-[#DC2626]">{getCurrencySymbol(detectedCurrency)}{totalExpense.toLocaleString()}</strong></div>
             {duplicateCount > 0 && (

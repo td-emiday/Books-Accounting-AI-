@@ -7,12 +7,12 @@ export default function TermsPage() {
       <div className="space-y-8 text-sm leading-relaxed">
         <section>
           <h2 className="text-lg font-semibold text-white mb-3">1. Acceptance of Terms</h2>
-          <p>By accessing or using Emiday Books (&quot;the Service&quot;), operated by Emiday AI Ltd, you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.</p>
+          <p>By accessing or using Emiday (&quot;the Service&quot;), operated by Emiday AI Ltd, you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.</p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-white mb-3">2. Description of Service</h2>
-          <p>Emiday Books is an AI-powered accounting and tax compliance platform designed for businesses in Nigeria, Ghana, and South Africa. The Service provides bookkeeping automation, tax estimation, financial reporting, and AI-assisted financial insights.</p>
+          <p>Emiday is an AI-powered accounting and tax compliance platform designed for businesses in Nigeria, Ghana, and South Africa. The Service provides bookkeeping automation, tax estimation, financial reporting, and AI-assisted financial insights.</p>
         </section>
 
         <section>
@@ -32,7 +32,7 @@ export default function TermsPage() {
 
         <section>
           <h2 className="text-lg font-semibold text-white mb-3">6. Data &amp; Privacy</h2>
-          <p>Your use of the Service is also governed by our <a href="/privacy" className="text-[#7b39fc] hover:underline">Privacy Policy</a>. We process your financial data solely to provide the Service and do not sell your data to third parties.</p>
+          <p>Your use of the Service is also governed by our <a href="/privacy" className="text-[#5B21B6] hover:underline">Privacy Policy</a>. We process your financial data solely to provide the Service and do not sell your data to third parties.</p>
         </section>
 
         <section>
@@ -52,7 +52,7 @@ export default function TermsPage() {
 
         <section>
           <h2 className="text-lg font-semibold text-white mb-3">10. Contact</h2>
-          <p>For questions about these Terms, contact us at <a href="mailto:hello@emiday.africa" className="text-[#7b39fc] hover:underline">hello@emiday.africa</a>.</p>
+          <p>For questions about these Terms, contact us at <a href="mailto:hello@emiday.africa" className="text-[#5B21B6] hover:underline">hello@emiday.africa</a>.</p>
         </section>
       </div>
     </div>

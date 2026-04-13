@@ -6,20 +6,27 @@ import type { LucideIcon } from 'lucide-react';
 
 type KPIVariant = 'revenue' | 'expenses' | 'profit' | 'tax' | 'default';
 
-const variantConfig: Record<KPIVariant, { iconBg: string; iconColor: string; accentGradient: string }> = {
-  revenue: { iconBg: 'bg-[#F5F3FF]', iconColor: 'text-[#7b39fc]', accentGradient: 'from-[#7b39fc] to-[#a78bfa]' },
-  expenses: { iconBg: 'bg-[#FEF2F2]', iconColor: 'text-[#DC2626]', accentGradient: 'from-[#EF4444] to-[#FCA5A5]' },
-  profit: { iconBg: 'bg-[#ECFDF5]', iconColor: 'text-[#059669]', accentGradient: 'from-[#059669] to-[#6EE7B7]' },
-  tax: { iconBg: 'bg-[#FFFBEB]', iconColor: 'text-[#D97706]', accentGradient: 'from-[#D97706] to-[#FCD34D]' },
-  default: { iconBg: 'bg-[#F5F3FF]', iconColor: 'text-[#7b39fc]', accentGradient: 'from-[#7b39fc] to-[#a78bfa]' },
+const variantConfig: Record<KPIVariant, {
+  iconBg: string;
+  iconColor: string;
+  accentColor: string;
+  sparklineColor: string;
+  gradientFrom: string;
+  gradientTo: string;
+}> = {
+  revenue:  { iconBg: 'bg-[#EEF2FF]', iconColor: 'text-[#4F46E5]', accentColor: '#4F46E5', sparklineColor: '#4F46E5', gradientFrom: '#4F46E5', gradientTo: '#818CF8' },
+  expenses: { iconBg: 'bg-[#FEF2F2]', iconColor: 'text-[#EF4444]', accentColor: '#EF4444', sparklineColor: '#EF4444', gradientFrom: '#EF4444', gradientTo: '#F87171' },
+  profit:   { iconBg: 'bg-[#ECFDF5]', iconColor: 'text-[#059669]', accentColor: '#059669', sparklineColor: '#059669', gradientFrom: '#059669', gradientTo: '#34D399' },
+  tax:      { iconBg: 'bg-[#FFFBEB]', iconColor: 'text-[#D97706]', accentColor: '#D97706', sparklineColor: '#D97706', gradientFrom: '#D97706', gradientTo: '#FBBF24' },
+  default:  { iconBg: 'bg-[#EEF2FF]', iconColor: 'text-[#4F46E5]', accentColor: '#4F46E5', sparklineColor: '#4F46E5', gradientFrom: '#4F46E5', gradientTo: '#818CF8' },
 };
 
 const variantIcons: Record<KPIVariant, LucideIcon> = {
-  revenue: BarChart3,
+  revenue:  BarChart3,
   expenses: Receipt,
-  profit: DollarSign,
-  tax: AlertTriangle,
-  default: BarChart3,
+  profit:   DollarSign,
+  tax:      AlertTriangle,
+  default:  BarChart3,
 };
 
 interface KPICardProps {
@@ -47,50 +54,59 @@ export function KPICard({
 }: KPICardProps) {
   const config = variantConfig[variant];
   const Icon = variantIcons[variant];
+  const resolvedSparkColor = sparklineColor ?? config.sparklineColor;
 
   return (
-    <div className={`metric-card metric-card--${variant} relative overflow-hidden`}>
-      {/* Gradient accent strip */}
-      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${config.accentGradient} rounded-t-2xl`} />
+    <div className={`metric-card metric-card--${variant} group relative overflow-hidden`}>
+      {/* Gradient top accent bar */}
+      <div
+        className="absolute top-0 left-4 right-4 h-[2px] rounded-full"
+        style={{
+          background: `linear-gradient(to right, ${config.gradientFrom}, ${config.gradientTo})`,
+        }}
+      />
 
-      <div className="flex items-start justify-between mb-2 md:mb-3">
-        <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl ${config.iconBg} flex items-center justify-center`}>
-          <Icon size={18} className={config.iconColor} />
+      {/* Top row: icon + label */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`w-11 h-11 rounded-xl ${config.iconBg} flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105`}>
+          <Icon size={19} className={config.iconColor} />
         </div>
+        <p className="text-sm font-medium text-[#64748B]">
+          {label}
+        </p>
+      </div>
+
+      {/* Big number */}
+      <p className="font-bold text-3xl md:text-[32px] leading-none text-[#0F172A] tabular-nums mb-3 tracking-tight">
+        {value}
+      </p>
+
+      {/* Trend + Badge */}
+      <div className="flex items-center justify-between gap-2 min-h-[20px]">
+        {change && (
+          <div className={`flex items-center gap-1.5 text-xs font-medium ${
+            changeType === 'positive'
+              ? 'text-[#059669]'
+              : changeType === 'negative'
+              ? 'text-[#EF4444]'
+              : 'text-[#94A3B8]'
+          }`}>
+            {changeType === 'positive' && <TrendingUp size={13} />}
+            {changeType === 'negative' && <TrendingDown size={13} />}
+            <span>{change}</span>
+          </div>
+        )}
         {badge && (
-          <span className={`badge-${badgeType} text-[9px] md:text-[10px] px-1.5 md:px-2 py-0.5`}>
+          <span className={`badge-${badgeType} text-[10px] px-2 py-0.5 ml-auto`}>
             {badge}
           </span>
         )}
       </div>
 
-      <p className="text-[11px] md:text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-1">
-        {label}
-      </p>
-
-      <p className="font-bold text-xl md:text-2xl text-[#111827] mb-1.5 tabular-nums">
-        {value}
-      </p>
-
-      <div className="flex items-center gap-2">
-        {change && (
-          <div className={`flex items-center gap-1 text-[10px] md:text-xs font-medium ${
-            changeType === 'positive'
-              ? 'text-[#059669]'
-              : changeType === 'negative'
-              ? 'text-[#DC2626]'
-              : 'text-[#6B7280]'
-          }`}>
-            {changeType === 'positive' && <TrendingUp size={12} />}
-            {changeType === 'negative' && <TrendingDown size={12} />}
-            <span>{change}</span>
-          </div>
-        )}
-      </div>
-
+      {/* Sparkline */}
       {sparklineData && sparklineData.length > 0 && (
-        <div className="mt-2 md:mt-3">
-          <Sparkline data={sparklineData} color={sparklineColor} height={28} />
+        <div className="mt-4 -mx-1">
+          <Sparkline data={sparklineData} color={resolvedSparkColor} height={36} />
         </div>
       )}
     </div>

@@ -57,14 +57,14 @@ export default function SignUpPage() {
     if (error) setError(error.message);
   };
 
-  const inputClass = "w-full px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/30 focus:border-[#7b39fc]/50 text-sm text-white placeholder:text-[#52525b] transition-all";
+  const inputClass = "w-full px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-[#5B21B6]/30 focus:border-[#5B21B6]/50 text-sm text-white placeholder:text-[#52525b] transition-all";
 
   // Email confirmation screen
   if (emailSent) {
     return (
       <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl p-8 mx-4 sm:mx-0">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-[#7b39fc]/10 flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 rounded-full bg-[#5B21B6]/10 flex items-center justify-center mx-auto mb-6">
             <Mail size={28} className="text-[#a78bfa]" />
           </div>
           <h1 className="font-inter font-bold text-2xl text-white mb-2">
@@ -77,7 +77,7 @@ export default function SignUpPage() {
 
           <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 mb-6">
             <div className="flex items-start gap-3 text-left">
-              <CheckCircle2 size={18} className="text-[#7b39fc] mt-0.5 flex-shrink-0" />
+              <CheckCircle2 size={18} className="text-[#5B21B6] mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-sm text-white font-medium">What&apos;s next?</p>
                 <p className="text-xs text-[#71717a] mt-1 leading-relaxed">
@@ -89,7 +89,7 @@ export default function SignUpPage() {
 
           <button
             onClick={() => setEmailSent(false)}
-            className="text-sm text-[#7b39fc] hover:underline"
+            className="text-sm text-[#5B21B6] hover:underline"
           >
             Didn&apos;t receive it? Try again
           </button>
@@ -97,7 +97,7 @@ export default function SignUpPage() {
 
         <p className="text-sm text-[#71717a] text-center mt-6">
           Already confirmed?{' '}
-          <Link href="/login" className="text-[#7b39fc] font-medium hover:underline">
+          <Link href="/login" className="text-[#5B21B6] font-medium hover:underline">
             Sign in
           </Link>
         </p>
@@ -108,9 +108,7 @@ export default function SignUpPage() {
   return (
     <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl p-8 mx-4 sm:mx-0">
       <div className="text-center mb-8">
-        <h1 className="font-inter font-bold text-2xl text-white mb-2">
-          Emiday Books
-        </h1>
+        <img src="/logo.png" alt="Emiday" className="h-14 w-auto mx-auto mb-4 brightness-0 invert" />
         <p className="text-[#71717a] text-sm font-inter">
           Create your account to get started
         </p>
@@ -177,7 +175,7 @@ export default function SignUpPage() {
               onClick={() => setFormData({ ...formData, role: 'SME_OWNER' })}
               className={`p-4 rounded-xl border-2 text-left transition-all ${
                 formData.role === 'SME_OWNER'
-                  ? 'border-[#7b39fc] bg-[#7b39fc]/10'
+                  ? 'border-[#5B21B6] bg-[#5B21B6]/10'
                   : 'border-white/[0.08] hover:border-white/[0.15]'
               }`}
             >
@@ -189,7 +187,7 @@ export default function SignUpPage() {
               onClick={() => setFormData({ ...formData, role: 'ACCOUNTANT' })}
               className={`p-4 rounded-xl border-2 text-left transition-all ${
                 formData.role === 'ACCOUNTANT'
-                  ? 'border-[#7b39fc] bg-[#7b39fc]/10'
+                  ? 'border-[#5B21B6] bg-[#5B21B6]/10'
                   : 'border-white/[0.08] hover:border-white/[0.15]'
               }`}
             >
@@ -202,7 +200,7 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 rounded-xl text-sm font-semibold text-white bg-[#7b39fc] hover:bg-[#6d28d9] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full py-3.5 rounded-xl text-sm font-semibold text-white bg-[#5B21B6] hover:bg-[#4C1D95] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {loading ? (
             <>
@@ -242,14 +240,14 @@ export default function SignUpPage() {
 
       <p className="text-xs text-[#52525b] text-center mt-6">
         By creating an account you agree to our{' '}
-        <Link href="/terms" className="underline hover:text-[#7b39fc]">Terms of Service</Link>
+        <Link href="/terms" className="underline hover:text-[#5B21B6]">Terms of Service</Link>
         {' '}and{' '}
-        <Link href="/privacy" className="underline hover:text-[#7b39fc]">Privacy Policy</Link>
+        <Link href="/privacy" className="underline hover:text-[#5B21B6]">Privacy Policy</Link>
       </p>
 
       <p className="text-sm text-[#71717a] text-center mt-4">
         Already have an account?{' '}
-        <Link href="/login" className="text-[#7b39fc] font-medium hover:underline">
+        <Link href="/login" className="text-[#5B21B6] font-medium hover:underline">
           Sign in
         </Link>
       </p>

@@ -176,12 +176,12 @@ export default function DocumentsSettingsPage() {
 
       {/* Settings navigation */}
       <div className="flex flex-wrap gap-2 border-b border-[rgba(108,63,232,0.08)] pb-3">
-        <a href="/settings" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#7b39fc]/5">General</a>
-        <a href="/settings/billing" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#7b39fc]/5">Billing</a>
-        <a href="/settings/team" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#7b39fc]/5">Team</a>
-        <a href="/settings/notifications" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#7b39fc]/5">Notifications</a>
-        <a href="/settings/whatsapp" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#7b39fc]/5">WhatsApp</a>
-        <span className="px-3 py-1.5 rounded-lg bg-[#7b39fc]/10 text-[#7b39fc] text-sm font-medium cursor-default">Documents</span>
+        <a href="/settings" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#5B21B6]/5">General</a>
+        <a href="/settings/billing" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#5B21B6]/5">Billing</a>
+        <a href="/settings/team" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#5B21B6]/5">Team</a>
+        <a href="/settings/notifications" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#5B21B6]/5">Notifications</a>
+        <a href="/settings/whatsapp" className="px-3 py-1.5 rounded-lg text-[#6B7280] text-sm font-medium hover:bg-[#5B21B6]/5">WhatsApp</a>
+        <span className="px-3 py-1.5 rounded-lg bg-[#5B21B6]/10 text-[#5B21B6] text-sm font-medium cursor-default">Documents</span>
       </div>
 
       {message && (
@@ -197,7 +197,7 @@ export default function DocumentsSettingsPage() {
 
       {/* Info banner */}
       <div className="bg-[#F5F3FF] border border-[#DDD6FE] rounded-xl p-4 flex items-start gap-3">
-        <ShieldCheck size={18} className="text-[#7b39fc] flex-shrink-0 mt-0.5" />
+        <ShieldCheck size={18} className="text-[#5B21B6] flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-medium text-[#374151]">Secure Document Vault</p>
           <p className="text-xs text-[#6B7280] mt-0.5">
@@ -208,7 +208,7 @@ export default function DocumentsSettingsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-[#7b39fc]" />
+          <Loader2 size={24} className="animate-spin text-[#5B21B6]" />
         </div>
       ) : (
         <div className="space-y-4">
@@ -227,7 +227,7 @@ export default function DocumentsSettingsPage() {
                   <button
                     onClick={() => handleUpload(type)}
                     disabled={isUploading}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#7b39fc] bg-[#F5F3FF] border border-[#DDD6FE] hover:bg-[#EDE9FE] transition-all disabled:opacity-60 flex-shrink-0"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#5B21B6] bg-[#F5F3FF] border border-[#DDD6FE] hover:bg-[#EDE9FE] transition-all disabled:opacity-60 flex-shrink-0"
                   >
                     {isUploading ? (
                       <Loader2 size={13} className="animate-spin" />
@@ -244,7 +244,7 @@ export default function DocumentsSettingsPage() {
                     <p className="text-sm text-[#9CA3AF]">No {info.label} uploaded yet</p>
                     <button
                       onClick={() => handleUpload(type)}
-                      className="mt-3 text-xs text-[#7b39fc] hover:underline font-medium"
+                      className="mt-3 text-xs text-[#5B21B6] hover:underline font-medium"
                     >
                       Upload now →
                     </button>
@@ -254,7 +254,7 @@ export default function DocumentsSettingsPage() {
                     {typeDocs.map((doc) => (
                       <div key={doc.id} className="px-5 py-3.5 flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-[#F5F3FF] flex items-center justify-center flex-shrink-0">
-                          <File size={16} className="text-[#7b39fc]" />
+                          <File size={16} className="text-[#5B21B6]" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-[#111827] truncate">{doc.file_name}</p>
@@ -265,7 +265,7 @@ export default function DocumentsSettingsPage() {
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <button
                             onClick={() => handleView(doc)}
-                            className="p-2 rounded-lg text-[#6B7280] hover:text-[#7b39fc] hover:bg-[#F5F3FF] transition-colors"
+                            className="p-2 rounded-lg text-[#6B7280] hover:text-[#5B21B6] hover:bg-[#F5F3FF] transition-colors"
                             title="View document"
                           >
                             <ExternalLink size={15} />

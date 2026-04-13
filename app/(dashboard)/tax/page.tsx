@@ -157,7 +157,7 @@ export default function TaxPage() {
               onClick={() => setPeriod(p.value)}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 period === p.value
-                  ? 'bg-[#7b39fc] text-white shadow-sm'
+                  ? 'bg-[#5B21B6] text-white shadow-sm'
                   : 'text-[#6B7280] hover:text-[#111827]'
               }`}
             >
@@ -215,6 +215,42 @@ export default function TaxPage() {
             badgeType="warning"
             variant="tax"
           />
+        </div>
+      </div>
+
+      {/* Ready to Pay — moved above breakdown */}
+      <div className="glass-card p-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <p className="font-semibold text-[#111827] mb-0.5">Ready to pay?</p>
+            <p className="text-xs text-[#6B7280]">Your estimated total tax liability is <strong className="text-[#5B21B6]">{formatCurrency(totalTax, currency)}</strong>. Pay directly via the official portal.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 flex-shrink-0">
+            {paymentLinks.map((link, i) => (
+              <div key={i} className="flex flex-wrap gap-2">
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#5B21B6] hover:bg-[#4C1D95] transition-all"
+                >
+                  {link.label}
+                  <ExternalLink size={14} />
+                </a>
+                {link.secondary && (
+                  <a
+                    href={link.secondary.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-[#5B21B6] bg-[#F5F3FF] border border-[#DDD6FE] hover:bg-[#EDE9FE] transition-all"
+                  >
+                    {link.secondary.label}
+                    <ExternalLink size={14} />
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -301,7 +337,7 @@ export default function TaxPage() {
             <tfoot>
               <tr className="bg-[#F5F3FF] border-t-2 border-[#DDD6FE]">
                 <td colSpan={2} className="px-5 py-4 font-bold text-[#111827]">Total Estimated Tax</td>
-                <td className="px-5 py-4 text-right font-bold text-xl text-[#7b39fc]">{formatCurrency(totalTax, currency)}</td>
+                <td className="px-5 py-4 text-right font-bold text-xl text-[#5B21B6]">{formatCurrency(totalTax, currency)}</td>
                 <td className="px-5 py-4 hidden md:table-cell" />
               </tr>
             </tfoot>
@@ -336,7 +372,7 @@ export default function TaxPage() {
                       <td className="px-4 py-2.5 text-xs text-[#6B7280] whitespace-nowrap">{tx.date}</td>
                       <td className="px-4 py-2.5 text-sm text-[#111827] font-medium truncate max-w-[200px]">{tx.description}</td>
                       <td className="px-4 py-2.5 text-right text-sm font-medium text-[#111827]">{formatCurrency(tx.amount, currency)}</td>
-                      <td className="px-4 py-2.5 text-right text-sm font-semibold text-[#7b39fc]">{formatCurrency(tx.amount * 0.075, currency)}</td>
+                      <td className="px-4 py-2.5 text-right text-sm font-semibold text-[#5B21B6]">{formatCurrency(tx.amount * 0.075, currency)}</td>
                       <td className="px-4 py-2.5 text-center">
                         {tx.type === 'INCOME'
                           ? <span className="badge-success text-[9px]">Output</span>
@@ -356,7 +392,7 @@ export default function TaxPage() {
       <div>
         <h2 className="text-sm font-semibold text-[#6B7280] uppercase tracking-wide mb-3">
           How to Pay Your Taxes
-          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F5F3FF] text-[#7b39fc] border border-[#DDD6FE]">
+          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F5F3FF] text-[#5B21B6] border border-[#DDD6FE]">
             {jurisdiction === 'GH' ? 'Ghana GRA' : jurisdiction === 'ZA' ? 'South Africa SARS' : 'Nigeria FIRS'}
           </span>
         </h2>
@@ -367,51 +403,15 @@ export default function TaxPage() {
               <div key={s.step} className="glass-card p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-8 h-8 rounded-xl bg-[#F5F3FF] flex items-center justify-center flex-shrink-0">
-                    <Icon size={16} className="text-[#7b39fc]" />
+                    <Icon size={16} className="text-[#5B21B6]" />
                   </div>
-                  <span className="text-xs font-bold text-[#7b39fc] uppercase tracking-wide">Step {s.step}</span>
+                  <span className="text-xs font-bold text-[#5B21B6] uppercase tracking-wide">Step {s.step}</span>
                 </div>
                 <p className="font-semibold text-[#111827] text-sm mb-1">{s.title}</p>
                 <p className="text-xs text-[#6B7280] leading-relaxed">{s.desc}</p>
               </div>
             );
           })}
-        </div>
-
-        {/* Payment action buttons */}
-        <div className="glass-card p-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold text-[#111827] mb-0.5">Ready to pay?</p>
-              <p className="text-xs text-[#6B7280]">Your estimated total tax liability is <strong className="text-[#7b39fc]">{formatCurrency(totalTax, currency)}</strong>. Pay directly via the official portal.</p>
-            </div>
-            <div className="flex flex-wrap gap-2 flex-shrink-0">
-              {paymentLinks.map((link, i) => (
-                <div key={i} className="flex flex-wrap gap-2">
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#7b39fc] hover:bg-[#6d28d9] transition-all"
-                  >
-                    {link.label}
-                    <ExternalLink size={14} />
-                  </a>
-                  {link.secondary && (
-                    <a
-                      href={link.secondary.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-[#7b39fc] bg-[#F5F3FF] border border-[#DDD6FE] hover:bg-[#EDE9FE] transition-all"
-                    >
-                      {link.secondary.label}
-                      <ExternalLink size={14} />
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         {jurisdiction === 'NG' && (

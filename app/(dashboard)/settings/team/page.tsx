@@ -69,7 +69,7 @@ export default function TeamPage() {
 
       <div className="glass-card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-inter font-bold text-base">Members</h2>
+          <h2 className="font-inter font-bold text-base text-[#111827]">Members</h2>
           <button onClick={() => setShowInvite(true)} className="btn-primary px-4 py-2 text-xs">
             <UserPlus size={14} className="mr-1.5" /> Invite Member
           </button>
@@ -85,7 +85,7 @@ export default function TeamPage() {
                   {member.profiles?.full_name?.charAt(0) || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{member.profiles?.full_name || 'Unknown'}</p>
+                  <p className="text-sm font-medium text-[#111827]">{member.profiles?.full_name || 'Unknown'}</p>
                   <p className="text-xs text-text-muted">{member.profiles?.email}</p>
                 </div>
                 <span className={`badge-${member.role === 'OWNER' ? 'info' : member.role === 'ACCOUNTANT' ? 'success' : 'warning'} text-[10px]`}>
@@ -112,17 +112,17 @@ export default function TeamPage() {
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50" onClick={() => setShowInvite(false)} />
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] glass-card p-6 z-50">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-inter font-bold text-lg">Invite Member</h3>
+              <h3 className="font-inter font-bold text-lg text-[#111827]">Invite Member</h3>
               <button onClick={() => setShowInvite(false)} className="p-1 rounded-lg hover:bg-brand-1/5"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Email</label>
+                <label className="block text-sm font-medium mb-1.5 text-[#111827]">Email</label>
                 <input type="email" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-[rgba(108,63,232,0.12)] bg-white focus:outline-none focus:ring-2 focus:ring-brand-2/30 text-sm" placeholder="colleague@company.com" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">Role</label>
+                <label className="block text-sm font-medium mb-1.5 text-[#111827]">Role</label>
                 <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value as any)}
                   className="w-full px-4 py-3 rounded-xl border border-[rgba(108,63,232,0.12)] bg-white focus:outline-none focus:ring-2 focus:ring-brand-2/30 text-sm">
                   <option value="ACCOUNTANT">Accountant</option>

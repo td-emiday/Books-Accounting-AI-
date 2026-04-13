@@ -54,7 +54,7 @@ export default function LoginPage() {
   if (authenticated) {
     return (
       <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-        <div className="w-12 h-12 rounded-full border-[3px] border-[#7b39fc]/20 border-t-[#7b39fc] animate-spin mb-6" />
+        <div className="w-12 h-12 rounded-full border-[3px] border-[#5B21B6]/20 border-t-[#5B21B6] animate-spin mb-6" />
         <p className="font-instrument-serif italic text-2xl text-white mb-2">Welcome back</p>
         <p className="text-sm text-[#71717a]">Loading your dashboard...</p>
       </div>
@@ -64,9 +64,7 @@ export default function LoginPage() {
   return (
     <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl p-8">
       <div className="text-center mb-8">
-        <h1 className="font-instrument-serif italic text-3xl text-white mb-2">
-          Emiday Books
-        </h1>
+        <img src="/logo.png" alt="Emiday" className="h-14 w-auto mx-auto mb-4 brightness-0 invert" />
         <p className="text-[#71717a] text-sm">
           Welcome back. Sign in to your account.
         </p>
@@ -88,7 +86,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/30 focus:border-[#7b39fc]/50 text-sm text-white placeholder:text-[#52525b] transition-all"
+            className="w-full px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-[#5B21B6]/30 focus:border-[#5B21B6]/50 text-sm text-white placeholder:text-[#52525b] transition-all"
             placeholder="you@company.com"
           />
         </div>
@@ -98,7 +96,7 @@ export default function LoginPage() {
             <label className="text-sm font-medium text-[#a1a1aa]">
               Password
             </label>
-            <Link href="/forgot-password" className="text-xs text-[#7b39fc] hover:underline">
+            <Link href="/forgot-password" className="text-xs text-[#5B21B6] hover:underline">
               Forgot password?
             </Link>
           </div>
@@ -108,7 +106,7 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-[#7b39fc]/30 focus:border-[#7b39fc]/50 text-sm text-white placeholder:text-[#52525b] transition-all pr-11"
+              className="w-full px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-[#5B21B6]/30 focus:border-[#5B21B6]/50 text-sm text-white placeholder:text-[#52525b] transition-all pr-11"
               placeholder="Your password"
             />
             <button
@@ -124,7 +122,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 rounded-xl text-sm font-semibold text-white bg-[#7b39fc] hover:bg-[#6d28d9] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full py-3.5 rounded-xl text-sm font-semibold text-white bg-[#5B21B6] hover:bg-[#4C1D95] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {loading ? (
             <>
@@ -161,7 +159,7 @@ export default function LoginPage() {
 
       <p className="text-sm text-[#71717a] text-center mt-6">
         Don&apos;t have an account?{' '}
-        <Link href="/signup" className="text-[#7b39fc] font-medium hover:underline">
+        <Link href="/signup" className="text-[#5B21B6] font-medium hover:underline">
           Sign up
         </Link>
       </p>

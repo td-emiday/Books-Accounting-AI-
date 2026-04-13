@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Menu, X } from 'lucide-react';
 
 const navLinks = [
@@ -18,8 +19,8 @@ export function MarketingNavbar() {
     <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
       <nav className="glass-navbar px-6 py-3 flex items-center gap-6 w-fit">
         {/* Logo */}
-        <Link href="/" className="font-instrument-serif italic text-xl gradient-text whitespace-nowrap">
-          Emiday Books
+        <Link href="/" className="flex items-center whitespace-nowrap">
+          <Image src="/logo.png" alt="Emiday" width={160} height={44} className="h-11 w-auto" priority />
         </Link>
 
         {/* Desktop Nav */}
@@ -68,7 +69,7 @@ export function MarketingNavbar() {
                 {link.label}
               </Link>
             ))}
-            <hr className="border-[rgba(108,63,232,0.1)] my-1" />
+            <hr className="border-white/[0.06] my-1" />
             <Link href="/login" onClick={() => setMobileOpen(false)} className="px-3 py-2 text-sm font-medium text-text-secondary">
               Sign In
             </Link>
