@@ -129,26 +129,25 @@ html {
     border-color: var(--border-hover);
   }
 
-  /* ── Metric Cards ── */
+  /* ── Metric Cards — Clean Ledger ── */
   .metric-card {
     @apply transition-all duration-200;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 20px;
-    box-shadow: var(--shadow-xs);
+    padding: 20px 20px 20px 20px;
+    box-shadow: none;
   }
 
   @media (min-width: 768px) {
     .metric-card {
-      padding: 24px;
+      padding: 24px 24px 24px 24px;
     }
   }
 
   .metric-card:hover {
-    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
-    border-color: var(--border-hover);
+    box-shadow: var(--hover-shadow, var(--shadow-md));
   }
 
   /* ── Sidebar ── */
@@ -294,8 +293,8 @@ html {
 
 .theme-light .metric-card {
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  box-shadow: var(--shadow-xs);
+  border: 1px solid #F1F5F9;
+  box-shadow: none;
   border-radius: var(--radius-lg);
   padding: 20px;
   transition: all 0.2s ease;
@@ -309,15 +308,7 @@ html {
 
 .theme-light .metric-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  border-color: #CBD5E1;
-}
-
-.theme-light .metric-card--revenue,
-.theme-light .metric-card--expenses,
-.theme-light .metric-card--profit,
-.theme-light .metric-card--tax {
-  background: #FFFFFF;
+  box-shadow: var(--hover-shadow, 0 8px 24px -4px rgba(0,0,0,0.08));
   border-color: #E2E8F0;
 }
 
@@ -439,8 +430,8 @@ html {
 
 .theme-dark .metric-card {
   background: #1E293B;
-  border: 1px solid #334155;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border: 1px solid #283548;
+  box-shadow: none;
   border-radius: var(--radius-lg);
   padding: 20px;
   transition: all 0.2s ease;
@@ -454,16 +445,8 @@ html {
 
 .theme-dark .metric-card:hover {
   transform: translateY(-2px);
-  border-color: #475569;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.theme-dark .metric-card--revenue,
-.theme-dark .metric-card--expenses,
-.theme-dark .metric-card--profit,
-.theme-dark .metric-card--tax {
-  background: #1E293B;
   border-color: #334155;
+  box-shadow: var(--hover-shadow, 0 8px 24px -4px rgba(0,0,0,0.4));
 }
 
 .theme-dark .sidebar {
