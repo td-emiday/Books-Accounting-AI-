@@ -31,11 +31,11 @@ export function Clients({ clients }: { clients: Client[] }) {
       <div className="hero">
         <div>
           <h1>
-            Clients. <em>{clients.length} workspaces, one view.</em>
+            Clients. <em>{clients.length} workspaces, all in one view.</em>
           </h1>
           <p className="sub">
-            Every client&apos;s books, filings and flagged items — so you can
-            spend the hour where it matters.
+            Books, filings and flagged items for every client — so you can
+            spend the hour where it really matters.
           </p>
         </div>
         <div className="right">
@@ -118,6 +118,7 @@ export function Clients({ clients }: { clients: Client[] }) {
             }}
           >
             <div
+              className="cli-search"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -196,6 +197,7 @@ export function Clients({ clients }: { clients: Client[] }) {
         </div>
 
         <div
+          className="cli-head"
           style={{
             display: "grid",
             gridTemplateColumns: "2fr 1fr 1fr 1.2fr 1fr 60px",

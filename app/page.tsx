@@ -80,11 +80,11 @@ export default function LandingPage() {
             {link.label}
           </a>
         ))}
-        <Link className="login" href="/app">
+        <Link className="login" href="/sign-in">
           Sign in
         </Link>
-        <Link className="cta" href="/app">
-          Open app →
+        <Link className="cta" href="/sign-up">
+          Get started →
         </Link>
         <MobileMenu links={NAV_LINKS} />
       </nav>
@@ -99,19 +99,18 @@ export default function LandingPage() {
             {HERO_BADGE.body}
           </div>
           <h1>
-            Your books, <span>quietly done.</span>
+            Run the business. <span>Not the books.</span>
           </h1>
           <p>
-            Emiday is an AI accountant for Nigerian SMEs. It reads your bank
-            statement, categorises every Naira, prepares your FIRS returns and
-            pays them; so you can run the business.
+            Emiday reads your bank feeds, files VAT and PAYE on time,
+            and answers every numbers question in plain English.
           </p>
           <div className="lp-ctas">
-            <Link className="lp-cta-primary" href="/app">
-              Start free for 30 days <Arrow />
+            <Link className="lp-cta-primary" href="/sign-up">
+              Get started <Arrow />
             </Link>
-            <a className="lp-cta-ghost" href="#product">
-              <Play /> Watch 90s demo
+            <a className="lp-cta-ghost" href="#how">
+              <Play /> See it work
             </a>
           </div>
           <div className="lp-hero-foot">{HERO_FOOT}</div>
@@ -122,6 +121,7 @@ export default function LandingPage() {
         {/* LOGOS */}
         <section className="lp-logos">
           <p>Trusted by operators at</p>
+          {/* Logos row scrolls on mobile via lp-logos-row, no copy change */}
           <div className="lp-logos-row">
             {CUSTOMER_LOGOS.map((l) => (
               <span key={l.name}>{l.name}</span>
@@ -136,14 +136,13 @@ export default function LandingPage() {
             Everything an accountant does. <span>None of the waiting.</span>
           </h2>
           <p className="lead">
-            Bank feeds, categorisation, VAT, PAYE, CIT, reports — Emiday handles
-            the whole cycle and hands you clean books every morning.
+            The whole cycle, handled. Clean books every morning.
           </p>
 
           <div className="lp-features">
             <Feature
-              title="Bank feeds, auto-categorised"
-              body="Connect GTBank, Zenith, Access and Paystack. Every transaction lands categorised with an explainable confidence score — you just confirm."
+              title="Bank feeds, auto-sorted"
+              body="GTBank, Zenith, Access, Paystack. Every transaction lands categorised — you just confirm."
               icon={
                 <svg
                   width={18}
@@ -189,8 +188,8 @@ export default function LandingPage() {
             />
 
             <Feature
-              title="FIRS-ready filings, drafted for you"
-              body="VAT, CIT, PAYE, Pension, WHT — Emiday prepares every return the night before it's due and walks you through the numbers."
+              title="FIRS-ready filings"
+              body="VAT, CIT, PAYE, Pension, WHT — drafted the night before they're due."
               icon={
                 <svg
                   width={18}
@@ -226,7 +225,7 @@ export default function LandingPage() {
 
             <Feature
               title="Pay taxes in one click"
-              body="Authorise from any connected account. NIBSS-secured, settled in seconds, receipts filed to your books automatically."
+              body="NIBSS-secured, settled in seconds. Receipts filed automatically."
               icon={
                 <svg
                   width={18}
@@ -290,7 +289,7 @@ export default function LandingPage() {
 
             <Feature
               title="Live reports, not month-end"
-              body="P&L, Balance Sheet and Cashflow regenerate as your books update. Export to PDF or share with your external accountant."
+              body="P&L, Balance Sheet, Cashflow — rebuilt every time your books move."
               icon={
                 <svg
                   width={18}
@@ -336,7 +335,7 @@ export default function LandingPage() {
 
             <Feature
               title="A CFO in your pocket"
-              body={`Ask "what's my runway?" or "why did expenses spike?" — and get a numbers-first answer, not a chatbot paragraph.`}
+              body={`Ask "what's my runway?" — get a numbers-first answer with the source lines.`}
               icon={
                 <svg
                   width={18}
@@ -381,7 +380,7 @@ export default function LandingPage() {
 
             <Feature
               title="Made for accountants too"
-              body="Manage multiple client books from one workspace. Emiday does the heavy lifting; you review, advise and bill for the hours you got back."
+              body="Manage every client from one workspace. You review and advise — Emiday does the rest."
               icon={
                 <svg
                   width={18}
@@ -468,7 +467,7 @@ export default function LandingPage() {
               <span className="lp-eyebrow">WhatsApp-first</span>
               <h3>Snap a receipt. It&apos;s booked before you lock your phone.</h3>
               <p className="lead">
-                Forward any receipt, invoice or question to{" "}
+                Forward to{" "}
                 <b
                   style={{
                     color: "var(--ink)",
@@ -477,7 +476,7 @@ export default function LandingPage() {
                 >
                   {WHATSAPP_NUMBER}
                 </b>
-                . Emiday reads it, matches it to a transaction, and files it.
+                . Emiday reads, matches, files.
               </p>
               <div className="lp-panel-art">
                 <div className="mini-wa" style={{ width: 280 }}>
@@ -496,10 +495,9 @@ export default function LandingPage() {
 
             <div className="lp-panel dark">
               <span className="lp-eyebrow">Ask anything</span>
-              <h3>The CFO who remembers every line item.</h3>
+              <h3>The CFO who remembers every line.</h3>
               <p className="lead">
-                Ask in plain English. Emiday answers with your actual numbers,
-                the source transactions, and what to do next.
+                Plain English in. Real numbers and the next step out.
               </p>
               <div
                 className="lp-panel-art"
@@ -549,11 +547,10 @@ export default function LandingPage() {
         <section className="lp-section" id="pricing" style={{ paddingTop: 0 }}>
           <span className="lp-eyebrow">Pricing</span>
           <h2>
-            One flat fee. <span>No per-transaction surprises.</span>
+            One flat fee. <span>No surprises.</span>
           </h2>
           <p className="lead">
-            All tiers include bank feeds, filings, payments and WhatsApp. Cancel
-            anytime.
+            Every tier includes bank feeds, filings, payments, WhatsApp.
           </p>
 
           <div className="lp-pricing">
@@ -572,16 +569,21 @@ export default function LandingPage() {
                   {tier.tag && <span className="lp-tier-tag">{tier.tag}</span>}
                 </div>
                 <div className="lp-tier-price">
-                  {formatPrice(tier.priceNgn)}
-                  <span>/month</span>
+                  {tier.priceLabel ?? formatPrice(tier.priceNgn)}
+                  {!tier.priceLabel && <span>/month</span>}
                 </div>
                 <ul>
-                  {tier.features.map((f) => (
-                    <li key={f}>
-                      <Check />
-                      {f}
-                    </li>
-                  ))}
+                  {tier.features.map((f) => {
+                    const label = typeof f === "string" ? f : f.label;
+                    const soon = typeof f !== "string" && f.tag === "soon";
+                    return (
+                      <li key={label}>
+                        <Check />
+                        <span>{label}</span>
+                        {soon && <span className="lp-tier-soon">soon</span>}
+                      </li>
+                    );
+                  })}
                 </ul>
                 <Link className="lp-tier-cta" href={tier.ctaHref}>
                   {tier.cta}
@@ -596,13 +598,10 @@ export default function LandingPage() {
           <h2>
             Start tonight. <span>Wake up to clean books.</span>
           </h2>
-          <p>
-            Connect your first bank in 2 minutes. We&apos;ll have April
-            categorised by morning.
-          </p>
+          <p>Connect your bank in 2 minutes.</p>
           <div className="lp-ctas">
-            <Link className="lp-cta-primary" href="/app">
-              Open the app
+            <Link className="lp-cta-primary" href="/sign-up">
+              Get started free
             </Link>
             <a className="lp-cta-ghost" href="#pricing">
               See pricing

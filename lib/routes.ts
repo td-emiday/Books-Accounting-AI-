@@ -9,8 +9,8 @@ export type RouteDef = {
 
 export const WORKSPACE_ROUTES: RouteDef[] = [
   { href: "/app", title: "Overview", icon: "home" },
-  { href: "/app/bank", title: "Bank & Cash", icon: "bank", badge: "12" },
-  { href: "/app/tax", title: "Tax & Compliance", icon: "shield", badge: "3" },
+  { href: "/app/transactions", title: "Transactions", icon: "bank" },
+  { href: "/app/tax", title: "Tax & Compliance", icon: "shield" },
   { href: "/app/reports", title: "Reports", icon: "chart" },
   { href: "/app/invoices", title: "Invoices", icon: "receipt" },
   { href: "/app/documents", title: "Documents", icon: "file" },
@@ -24,7 +24,7 @@ export const TEAM_ROUTES: RouteDef[] = [
 export const ALL_ROUTES: RouteDef[] = [...WORKSPACE_ROUTES, ...TEAM_ROUTES];
 
 export function titleFor(pathname: string): string {
-  // Find the longest matching route prefix so /app/bank wins over /app.
+  // Find the longest matching route prefix so /app/transactions wins over /app.
   const match = [...ALL_ROUTES]
     .sort((a, b) => b.href.length - a.href.length)
     .find(

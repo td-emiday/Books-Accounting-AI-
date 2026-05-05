@@ -53,7 +53,7 @@ export function LandingPreview() {
       <div className="lp-preview-inner">
         <iframe
           ref={frameRef}
-          src="/app"
+          src="/demo"
           title="Emiday dashboard preview"
           loading="lazy"
           // Keep keyboard focus from getting trapped in the preview.

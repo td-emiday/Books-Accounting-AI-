@@ -14,8 +14,8 @@ type Tab = { href: string; label: string; icon: IconName; badge?: string };
 
 const PRIMARY: Tab[] = [
   { href: "/app",         label: "Home",    icon: "home" },
-  { href: "/app/bank",    label: "Bank",    icon: "bank",   badge: "12" },
-  { href: "/app/tax",     label: "Tax",     icon: "shield", badge: "3" },
+  { href: "/app/transactions", label: "Txns",   icon: "bank" },
+  { href: "/app/tax",     label: "Tax",     icon: "shield" },
   { href: "/app/reports", label: "Reports", icon: "chart" },
 ];
 

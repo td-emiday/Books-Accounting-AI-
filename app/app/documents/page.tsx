@@ -1,6 +1,7 @@
 import { Documents } from "@/components/documents";
-import { DOCUMENTS } from "@/lib/data/documents";
+import { getDocuments } from "@/lib/queries/documents";
 
-export default function DocumentsPage() {
-  return <Documents documents={DOCUMENTS} />;
+export default async function DocumentsPage() {
+  const documents = await getDocuments();
+  return <Documents documents={documents} />;
 }

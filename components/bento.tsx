@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { Icon } from "./icon";
-import { useDashboardData } from "./dashboard-data-context";
+import { useDashboardData, useToday } from "./dashboard-data-context";
 import {
   AUTHORITIES,
   COMPLIANCE,
@@ -241,12 +241,13 @@ function pctChange(current: number, prev: number): { trend: "up" | "down"; pct: 
 
 export function Bento() {
   const { transactions, period } = useDashboardData();
+  const today = useToday();
 
   const { revenueKpi, expensesKpi, monthly } = useMemo(() => {
-    const win = windowFor(period);
+    const win = windowFor(period, today);
     const prev = previousWindow(win);
 
-    const cur = filterByPeriod(transactions, period);
+    const cur = filterByPeriod(transactions, period, today);
     const prevTxns = filterByRange(transactions, prev.startIso, prev.endIso);
 
     const curSum = summarize(cur);
@@ -286,7 +287,7 @@ export function Bento() {
       } satisfies KpiData,
       monthly: cashflow12m(transactions),
     };
-  }, [transactions, period]);
+  }, [transactions, period, today]);
 
   const totalLiability = TAX_LIABILITY.total.toLocaleString("en-NG");
 

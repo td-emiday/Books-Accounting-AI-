@@ -17,7 +17,7 @@ export const mail = (subject: string) =>
 export type NavLink = { label: string; href: string; external?: boolean };
 
 export const NAV_LINKS: NavLink[] = [
-  { label: "Product",       href: "#product" },
+  { label: "Product",       href: "#how" },
   { label: "How it works",  href: "#how" },
   { label: "Pricing",       href: "#pricing" },
   { label: "Docs",          href: mail("Docs access — early") },
@@ -25,11 +25,11 @@ export const NAV_LINKS: NavLink[] = [
 
 export const HERO_BADGE = {
   tag: "NEW",
-  body: "WhatsApp receipts are live — forward, forget, filed.",
+  body: "Snap a receipt on WhatsApp — I'll file it.",
 };
 
 export const HERO_FOOT =
-  "No card required · Cancel anytime · Data stays in Nigeria";
+  "Setup in 2 minutes · Cancel anytime · Data in Nigeria";
 
 export type Logo = { name: string };
 
@@ -47,25 +47,29 @@ export type Step = { n: string; title: string; body: string };
 export const STEPS: Step[] = [
   {
     n: "01",
-    title: "Connect your bank",
-    body: "Read-only feeds from GTBank, Zenith, Access, UBA and Paystack. Takes 2 minutes.",
+    title: "Tell me about the business",
+    body: "Two-minute setup. Industry, jurisdiction, primary bank.",
   },
   {
     n: "02",
-    title: "Emiday learns your books",
-    body: "Ingests 90 days of history, builds your chart of accounts, and proposes categorisation rules.",
+    title: "I learn your books",
+    body: "I read 90 days of history and start categorising.",
   },
   {
     n: "03",
-    title: "Daily clean books",
-    body: "Every transaction is categorised by 8am. Forward receipts on WhatsApp and they're matched instantly.",
+    title: "Clean books by 8am",
+    body: "Every transaction sorted overnight. Receipts match on the spot.",
   },
   {
     n: "04",
-    title: "File & pay, in-app",
-    body: "VAT, PAYE, CIT and pension drafted for you. One click to pay directly to FIRS.",
+    title: "Filings, ready to pay",
+    body: "VAT, PAYE, CIT drafted before they're due. One-click FIRS.",
   },
 ];
+
+/** Feature line. Plain string renders as-is; object form lets us flag
+ *  roadmap items with a small inline pill (e.g. "soon"). */
+export type TierFeature = string | { label: string; tag?: "soon" };
 
 export type Tier = {
   id: string;
@@ -73,7 +77,13 @@ export type Tier = {
   desc: string;
   /** Numeric monthly price in Naira. Formatted at render time. */
   priceNgn: number;
-  features: string[];
+  /**
+   * Optional override for tiers whose price isn't a fixed monthly number
+   * (e.g. "Custom"). When set, takes precedence over priceNgn and the
+   * "/month" suffix is suppressed.
+   */
+  priceLabel?: string;
+  features: TierFeature[];
   cta: string;
   /** href the tier CTA points at — usually /app, but can be a mailto. */
   ctaHref: string;
@@ -83,47 +93,60 @@ export type Tier = {
 
 export const PRICING: Tier[] = [
   {
-    id: "starter",
-    name: "Starter",
-    desc: "For solo founders & freelancers.",
-    priceNgn: 18_000,
-    features: [
-      "1 bank account, up to 200 txns / mo",
-      "VAT, PIT & withholding filings",
-      "WhatsApp receipts",
-    ],
-    cta: "Start free",
-    ctaHref: "/app",
-  },
-  {
     id: "growth",
     name: "Growth",
-    desc: "For growing SMEs with payroll.",
+    desc: "For SMEs running their own books.",
     priceNgn: 85_000,
     tag: "Popular",
     featured: true,
     features: [
-      "Up to 5 accounts, 2,000 txns / mo",
-      "PAYE, Pension, NSITF & CIT",
-      "One-click pay from dashboard",
-      "CFO chat & live reports",
+      "1 business · 5 bank/wallet accounts",
+      "2,000 transactions / month",
+      "2 seats (founder + accountant)",
+      { label: "WhatsApp receipts", tag: "soon" },
+      "VAT, PAYE, Pension, NSITF, CIT",
+      "One-click FIRS pay",
+      "Every report: P&L, BS, Cashflow, VAT, Payroll",
+      { label: "CFO chat in plain English", tag: "soon" },
+      "Email support",
     ],
-    cta: "Start 30-day trial",
-    ctaHref: "/app",
+    cta: "Get started",
+    ctaHref: "/sign-up?plan=growth",
   },
   {
     id: "pro",
     name: "Pro",
-    desc: "For firms managing clients.",
-    priceNgn: 140_000,
+    desc: "For SMEs with a finance team.",
+    priceNgn: 150_000,
     features: [
-      "Up to 15 client workspaces",
-      "Team seats & role permissions",
-      "White-label reports",
-      "Priority support",
+      "Everything in Growth, plus:",
+      "Unlimited bank accounts",
+      "10,000 transactions / month",
+      "Unlimited seats with roles",
+      "White-label PDF reports",
+      "Audit log + change history",
+      "Priority support · 24h response",
     ],
-    cta: "Talk to us",
-    ctaHref: mail("Pro plan — interested"),
+    cta: "Get started",
+    ctaHref: "/sign-up?plan=pro",
+  },
+  {
+    id: "custom",
+    name: "Custom",
+    desc: "Firms, multi-entity, enterprise.",
+    priceNgn: 0,
+    priceLabel: "Custom",
+    features: [
+      "Everything in Pro, plus:",
+      "Unlimited client workspaces",
+      "Multi-entity consolidation",
+      "Bespoke integrations (ERP, payroll)",
+      "SSO + advanced audit",
+      "Dedicated success manager + SLA",
+      "Migration from QuickBooks / Sage",
+    ],
+    cta: "Request a quote",
+    ctaHref: mail("Custom plan — request"),
   },
 ];
 
@@ -141,7 +164,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
   {
     title: "Product",
     items: [
-      { label: "Dashboard",   href: "#product" },
+      { label: "Dashboard",   href: "#how" },
       { label: "WhatsApp",    href: WHATSAPP_URL, external: true },
       { label: "Tax filing",  href: "/app/tax" },
       { label: "Reports",     href: "/app/reports" },
@@ -167,7 +190,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
 ];
 
 export const FOOTER_TAGLINE =
-  "An AI accountant built in Lagos for Nigerian businesses. Your books, quietly done.";
+  "The AI accountant for Nigerian SMEs. Built in Lagos.";
 
 export const COPYRIGHT = {
   line: "© 2026 Emiday Technologies Ltd · RC 7748210",

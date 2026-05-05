@@ -59,11 +59,11 @@ export function Invoices({ invoices }: { invoices: Invoice[] }) {
       <div className="hero">
         <div>
           <h1>
-            Invoices. <em>Get paid faster.</em>
+            Invoices. <em>Sent, tracked, paid.</em>
           </h1>
           <p className="sub">
-            Emiday drafts, sends and chases your invoices — with WhatsApp
-            reminders when clients are past due.
+            I draft, send and follow up on every invoice — with friendly
+            WhatsApp nudges when a client is past due.
           </p>
         </div>
         <div className="right">
@@ -194,6 +194,7 @@ export function Invoices({ invoices }: { invoices: Invoice[] }) {
 
         {/* Column headers */}
         <div
+          className="inv-head"
           style={{
             display: "grid",
             gridTemplateColumns: "120px 1fr 90px 90px 130px 120px 42px",
@@ -219,6 +220,7 @@ export function Invoices({ invoices }: { invoices: Invoice[] }) {
         {rows.map((inv) => (
           <div
             key={inv.id}
+            className="inv-row txn"
             style={{
               display: "grid",
               gridTemplateColumns: "120px 1fr 90px 90px 130px 120px 42px",
@@ -227,7 +229,6 @@ export function Invoices({ invoices }: { invoices: Invoice[] }) {
               borderBottom: "1px solid var(--line)",
               transition: "background 0.1s",
             }}
-            className="txn"
           >
             <div
               style={{

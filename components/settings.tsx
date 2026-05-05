@@ -2,7 +2,12 @@
 
 import { useState, type ReactNode } from "react";
 import { Icon, type IconName } from "./icon";
-import { WORKSPACE } from "@/lib/data/workspace";
+import { TelegramConnect } from "./telegram-connect";
+import { useWorkspaceContext } from "./dashboard-data-context";
+import {
+  seedDemoDataAction,
+  clearDemoDataAction,
+} from "@/app/app/settings/actions";
 import {
   BILLING_INVOICES,
   CONNECTED_BANKS,
@@ -10,8 +15,8 @@ import {
   INTEGRATIONS,
   PLAN,
   TAX_PROFILE,
-  TEAM_MEMBERS,
   USAGE,
+  type TeamMember,
 } from "@/lib/data/settings";
 
 type TabId =
@@ -33,19 +38,20 @@ const TABS: { id: TabId; label: string; icon: IconName }[] = [
   { id: "security",     label: "Security",            icon: "shield"    },
 ];
 
-export function Settings() {
+export function Settings({ team }: { team: TeamMember[] }) {
   const [tab, setTab] = useState<TabId>("profile");
+  const { workspace: WORKSPACE } = useWorkspaceContext();
 
   return (
     <>
       <div className="hero">
         <div>
           <h1>
-            Settings. <em>Tune Emiday to your business.</em>
+            Settings. <em>Tune me to your business.</em>
           </h1>
           <p className="sub">
-            Bank connections, tax identifiers, team access — everything Emiday
-            needs to keep your books clean.
+            Bank connections, tax IDs, team access — everything I need to
+            keep your books clean and your filings on time.
           </p>
         </div>
       </div>
@@ -68,7 +74,7 @@ export function Settings() {
           {tab === "profile"      && <ProfileTab />}
           {tab === "banks"        && <BanksTab />}
           {tab === "tax"          && <TaxTab />}
-          {tab === "members"      && <MembersTab />}
+          {tab === "members"      && <MembersTab team={team} />}
           {tab === "integrations" && <IntegrationsTab />}
           {tab === "billing"      && <BillingTab />}
           {tab === "security"     && <SecurityTab />}
@@ -198,7 +204,69 @@ function Toggle({ on = false }: { on?: boolean }) {
   );
 }
 
+function DemoDataSection() {
+  const [busy, setBusy] = useState<"none" | "seeding" | "clearing">("none");
+  const [msg, setMsg] = useState<string | null>(null);
+
+  async function onSeed() {
+    setBusy("seeding");
+    setMsg(null);
+    try {
+      await seedDemoDataAction();
+      setMsg("Demo data seeded — refresh the dashboard to see it.");
+    } catch (e: unknown) {
+      setMsg("Seed failed: " + (e instanceof Error ? e.message : String(e)));
+    } finally {
+      setBusy("none");
+    }
+  }
+
+  async function onClear() {
+    setBusy("clearing");
+    setMsg(null);
+    try {
+      await clearDemoDataAction();
+      setMsg("Workspace data cleared.");
+    } catch (e: unknown) {
+      setMsg("Clear failed: " + (e instanceof Error ? e.message : String(e)));
+    } finally {
+      setBusy("none");
+    }
+  }
+
+  return (
+    <SettingsSection
+      title="Demo data"
+      desc="Populate the dashboard with sample clients, invoices, transactions and documents so it looks alive while you're setting up. Safe to run multiple times."
+    >
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button
+          type="button"
+          className="btn"
+          onClick={onSeed}
+          disabled={busy !== "none"}
+        >
+          {busy === "seeding" ? "Seeding…" : "Seed demo data"}
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={onClear}
+          disabled={busy !== "none"}
+          style={{ color: "var(--danger)" }}
+        >
+          {busy === "clearing" ? "Clearing…" : "Clear workspace data"}
+        </button>
+      </div>
+      {msg && (
+        <p style={{ marginTop: 10, fontSize: 13, color: "var(--ink-2)" }}>{msg}</p>
+      )}
+    </SettingsSection>
+  );
+}
+
 function ProfileTab() {
+  const { workspace: WORKSPACE } = useWorkspaceContext();
   return (
     <>
       <SettingsSection
@@ -273,13 +341,54 @@ function ProfileTab() {
           </div>
         </div>
       </SettingsSection>
+
+      <DemoDataSection />
     </>
   );
 }
 
 function BanksTab() {
+  const { workspace } = useWorkspaceContext();
+  const myBanks = workspace.banks ?? [];
+
   return (
     <>
+      <SettingsSection
+        title="Banks you use"
+        desc="From onboarding. Drives feed prioritisation, transaction filters, and report letterhead. Edit any time."
+      >
+        {myBanks.length === 0 ? (
+          <div
+            className="muted"
+            style={{ padding: "12px 0", fontSize: 13 }}
+          >
+            No banks selected yet.{" "}
+            <a href="/onboarding" style={{ color: "var(--ink)" }}>
+              Pick yours →
+            </a>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              padding: "8px 0 4px",
+            }}
+          >
+            {myBanks.map((b) => (
+              <span
+                key={b}
+                className="chip"
+                style={{ fontSize: 12.5, padding: "5px 12px" }}
+              >
+                {b}
+              </span>
+            ))}
+          </div>
+        )}
+      </SettingsSection>
+
       <SettingsSection
         title="Connected accounts"
         desc="Read-only feeds via Mono. Nightly sync at 2am WAT."
@@ -434,13 +543,13 @@ function TaxTab() {
   );
 }
 
-function MembersTab() {
+function MembersTab({ team }: { team: TeamMember[] }) {
   return (
     <SettingsSection
       title="Team members"
       desc="Invite teammates or your external accountant. Role-based access."
     >
-      {TEAM_MEMBERS.map((m) => (
+      {team.map((m) => (
         <div
           key={m.email}
           style={{
@@ -498,11 +607,20 @@ function MembersTab() {
 }
 
 function IntegrationsTab() {
+  const { channels } = useWorkspaceContext();
   return (
-    <SettingsSection
-      title="Apps & integrations"
-      desc="Connect Emiday to the rest of your stack."
-    >
+    <>
+      <SettingsSection
+        title="Messaging"
+        desc="Forward receipts to a chat — they land in your books as drafts."
+      >
+        <TelegramConnect channels={channels} />
+      </SettingsSection>
+
+      <SettingsSection
+        title="Apps & integrations"
+        desc="Connect Emiday to the rest of your stack."
+      >
       <div
         style={{
           display: "grid",
@@ -554,11 +672,50 @@ function IntegrationsTab() {
           </div>
         ))}
       </div>
-    </SettingsSection>
+      </SettingsSection>
+    </>
   );
 }
 
 function BillingTab() {
+  const { workspace } = useWorkspaceContext();
+  const tierLabel =
+    workspace.planTier === "GROWTH"
+      ? "Growth"
+      : workspace.planTier === "PRO" || workspace.planTier === "BUSINESS"
+        ? "Pro"
+        : workspace.planTier === "ENTERPRISE" || workspace.planTier === "FIRM"
+          ? "Custom"
+          : "Starter";
+  const monthly =
+    tierLabel === "Growth" ? 85_000 : tierLabel === "Pro" ? 150_000 : 0;
+  const cycleLabel =
+    workspace.billingCycle === "ANNUAL" ? "Annual" : "Monthly";
+
+  const status = workspace.subscriptionStatus;
+  const renewDate = workspace.currentPeriodEnd
+    ? new Date(workspace.currentPeriodEnd).toLocaleDateString("en-NG", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : status === "active"
+      ? "next cycle"
+      : "—";
+  const isPaidPublic = tierLabel === "Growth" || tierLabel === "Pro";
+  const checkoutPlan = tierLabel === "Pro" ? "pro" : "growth";
+
+  const statusCopy =
+    status === "active"
+      ? `Active · renews ${renewDate}`
+      : status === "non_renewing"
+        ? `Cancelled · access until ${renewDate}`
+        : status === "past_due"
+          ? "Past due — last payment failed"
+          : status === "cancelled"
+            ? "Cancelled"
+            : "Not yet billed";
+
   return (
     <>
       <SettingsSection title="Current plan">
@@ -571,9 +728,10 @@ function BillingTab() {
             background: "var(--ink)",
             color: "var(--bg)",
             borderRadius: 12,
+            flexWrap: "wrap",
           }}
         >
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div
               style={{
                 fontSize: 11,
@@ -592,14 +750,78 @@ function BillingTab() {
                 letterSpacing: "-0.02em",
               }}
             >
-              {PLAN.tier} · ₦{PLAN.monthly.toLocaleString("en-NG")}/mo
+              {tierLabel}
+              {monthly > 0
+                ? ` · ₦${monthly.toLocaleString("en-NG")}/${
+                    cycleLabel === "Annual" ? "yr" : "mo"
+                  }`
+                : ""}
             </div>
             <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>
-              Renews {PLAN.renewDate} · billed via {PLAN.billingAccount}
+              {cycleLabel} billing · {statusCopy}
             </div>
           </div>
-          <button type="button" className="btn">Change plan</button>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {isPaidPublic && status !== "active" && status !== "non_renewing" && (
+              <form method="POST" action="/api/paystack/checkout">
+                <input type="hidden" name="plan"  value={checkoutPlan} />
+                <input type="hidden" name="cycle" value={workspace.billingCycle} />
+                <button type="submit" className="btn primary">
+                  {status === "past_due" ? "Retry payment" : "Set up billing"}
+                </button>
+              </form>
+            )}
+            {status === "active" && (
+              <form method="POST" action="/api/paystack/cancel">
+                <button type="submit" className="btn">Cancel plan</button>
+              </form>
+            )}
+            <a href="/#pricing" className="btn">Change plan</a>
+          </div>
         </div>
+
+        {/* Pending plan change banner — shown until cron applies it
+            on the renewal date. Read-only here; surfaced so the user
+            knows what's coming next. */}
+        {workspace.pendingPlanChange && (
+          <div className="pending-change">
+            <div>
+              <div className="pending-change-kicker">Scheduled change</div>
+              <div className="pending-change-body">
+                Switching to{" "}
+                <strong>
+                  {workspace.pendingPlanChange.publicId === "pro" ? "Pro" : "Growth"}
+                </strong>{" "}
+                ({workspace.pendingPlanChange.cycle === "ANNUAL" ? "annual" : "monthly"})
+                on{" "}
+                <strong>
+                  {workspace.pendingPlanChange.effectiveAt
+                    ? new Date(
+                        workspace.pendingPlanChange.effectiveAt,
+                      ).toLocaleDateString("en-NG", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "next renewal"}
+                </strong>
+                .
+              </div>
+            </div>
+            <form method="POST" action="/api/paystack/cancel-change" style={{ marginLeft: "auto" }}>
+              <button type="submit" className="btn">Undo</button>
+            </form>
+          </div>
+        )}
+
+        {/* Change-plan picker — only when there's an active sub.
+            Schedules the swap for end-of-cycle; cron does the rest. */}
+        {status === "active" && !workspace.pendingPlanChange && (
+          <SchedulePlanChange
+            currentPlan={tierLabel === "Pro" ? "pro" : "growth"}
+            currentCycle={workspace.billingCycle === "ANNUAL" ? "ANNUAL" : "MONTHLY"}
+          />
+        )}
       </SettingsSection>
 
       <SettingsSection title="Usage this cycle">
@@ -752,5 +974,45 @@ function SecurityTab() {
         </Field>
       </SettingsSection>
     </>
+  );
+}
+
+// Picker for scheduling a plan change at end-of-cycle. Disabled
+// options match what the user is already on (no-op).
+function SchedulePlanChange({
+  currentPlan,
+  currentCycle,
+}: {
+  currentPlan: "growth" | "pro";
+  currentCycle: "MONTHLY" | "ANNUAL";
+}) {
+  return (
+    <form
+      method="POST"
+      action="/api/paystack/schedule-change"
+      className="schedule-change"
+    >
+      <div className="schedule-change-head">
+        <strong>Change plan</strong>
+        <span>Takes effect at the end of your current billing cycle.</span>
+      </div>
+      <div className="schedule-change-row">
+        <label>
+          <span>Plan</span>
+          <select name="plan" defaultValue={currentPlan}>
+            <option value="growth">Growth — ₦85,000/mo</option>
+            <option value="pro">Pro — ₦150,000/mo</option>
+          </select>
+        </label>
+        <label>
+          <span>Billing</span>
+          <select name="cycle" defaultValue={currentCycle}>
+            <option value="MONTHLY">Monthly</option>
+            <option value="ANNUAL">Annual (save 2 months)</option>
+          </select>
+        </label>
+        <button type="submit" className="btn primary">Schedule change</button>
+      </div>
+    </form>
   );
 }

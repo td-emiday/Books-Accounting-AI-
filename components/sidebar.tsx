@@ -10,7 +10,7 @@ import {
   isActive,
   type RouteDef,
 } from "@/lib/routes";
-import { ACTIVE_USER, WORKSPACE } from "@/lib/data/workspace";
+import { useWorkspaceContext } from "./dashboard-data-context";
 
 function NavLink({ route, pathname }: { route: RouteDef; pathname: string }) {
   const active = isActive(pathname, route.href);
@@ -31,6 +31,7 @@ function NavLink({ route, pathname }: { route: RouteDef; pathname: string }) {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { workspace: WORKSPACE, user: ACTIVE_USER } = useWorkspaceContext();
 
   return (
     <aside className="sidebar">

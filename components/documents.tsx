@@ -75,11 +75,12 @@ export function Documents({ documents }: { documents: Document[] }) {
       <div className="hero">
         <div>
           <h1>
-            Documents. <em>Every paper, in one place.</em>
+            Documents. <em>Filed and findable.</em>
           </h1>
           <p className="sub">
-            Receipts from WhatsApp, tax certificates, contracts — Emiday files
-            them automatically and links each one to the right transaction.
+            Receipts you forward on WhatsApp, tax certificates, contracts —
+            I file each one and link it to the right transaction so you
+            never lose a paper trail.
           </p>
         </div>
         <div className="right">
@@ -157,6 +158,7 @@ export function Documents({ documents }: { documents: Document[] }) {
           }}
         >
           <div
+            className="doc-search"
             style={{
               display: "flex",
               alignItems: "center",
@@ -194,6 +196,7 @@ export function Documents({ documents }: { documents: Document[] }) {
 
         {/* Column headers */}
         <div
+          className="doc-head"
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 110px 100px 90px 130px 42px",
@@ -218,7 +221,7 @@ export function Documents({ documents }: { documents: Document[] }) {
         {rows.map((doc) => (
           <div
             key={doc.id}
-            className="txn"
+            className="doc-row"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 110px 100px 90px 130px 42px",

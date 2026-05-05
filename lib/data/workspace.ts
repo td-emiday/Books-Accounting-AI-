@@ -15,6 +15,33 @@ export type Workspace = {
   phone: string;
   fiscalYearEnd: string;
   baseCurrency: string;
+  /** DB plan_tier value: STARTER | GROWTH | BUSINESS | PRO | FIRM | ENTERPRISE.
+   *  Resolve to feature flags / quotas via lib/tiers.ts → tierFor(). */
+  planTier: string;
+  /** Billing cadence: MONTHLY | ANNUAL. */
+  billingCycle: string;
+  /** Banks the business uses, captured during onboarding. Source of truth
+   *  for the Settings → Banking panel and the Bank Feeds prioritisation. */
+  banks: string[];
+  /** Paystack subscription state. */
+  subscriptionStatus:
+    | "pending"
+    | "active"
+    | "past_due"
+    | "cancelled"
+    | "non_renewing";
+  /** Next renewal date (ISO) — null until first successful charge. */
+  currentPeriodEnd: string | null;
+  /** Timestamp the user dismissed/finished the post-onboarding tour. */
+  tourCompletedAt: string | null;
+  /** Plan change scheduled to apply at end of current cycle. */
+  pendingPlanChange:
+    | {
+        publicId: "growth" | "pro" | "custom";
+        cycle: "MONTHLY" | "ANNUAL";
+        effectiveAt: string | null;
+      }
+    | null;
 };
 
 export type ActiveUser = {
@@ -42,6 +69,13 @@ export const WORKSPACE: Workspace = {
   phone: "+234 803 004 1182",
   fiscalYearEnd: "31 December",
   baseCurrency: "Nigerian Naira (₦)",
+  planTier: "GROWTH",
+  billingCycle: "MONTHLY",
+  banks: ["GTBank", "Zenith"],
+  subscriptionStatus: "active",
+  currentPeriodEnd: "2026-05-15T00:00:00Z",
+  tourCompletedAt: "2026-04-25T10:00:00Z",
+  pendingPlanChange: null,
 };
 
 export const ACTIVE_USER: ActiveUser = {

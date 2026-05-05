@@ -40,6 +40,9 @@ export type TeamMember = {
   avatarColor: string;
 };
 
+// Mock fallback for the unauthenticated preview path. The live Settings
+// page reads from getTeamMembers() (lib/queries/team.ts) which pulls
+// real workspace_members joined with profiles.
 export const TEAM_MEMBERS: TeamMember[] = [
   { name: "Adaeze Okafor",          email: "adaeze@kadarafoods.ng",   role: "Owner",               avatarColor: "#d8d2c4" },
   { name: "Ibrahim Yusuf",          email: "ibrahim@kadarafoods.ng",  role: "Finance lead",        avatarColor: "#c4d8d2" },
@@ -70,8 +73,8 @@ export type PlanInfo = {
 };
 
 export const PLAN: PlanInfo = {
-  tier: "Business",
-  monthly: 62_000,
+  tier: "Growth",
+  monthly: 85_000,
   renewDate: "16 May 2026",
   billingAccount: "GTBank **2041",
 };
@@ -100,9 +103,9 @@ export type BillingInvoice = {
 };
 
 export const BILLING_INVOICES: BillingInvoice[] = [
-  { period: "Apr 2026", number: "INV-0042", amount: 62_000, status: "paid" },
-  { period: "Mar 2026", number: "INV-0041", amount: 62_000, status: "paid" },
-  { period: "Feb 2026", number: "INV-0040", amount: 62_000, status: "paid" },
+  { period: "Apr 2026", number: "INV-0042", amount: 85_000, status: "paid" },
+  { period: "Mar 2026", number: "INV-0041", amount: 85_000, status: "paid" },
+  { period: "Feb 2026", number: "INV-0040", amount: 85_000, status: "paid" },
 ];
 
 export type DeviceSession = {

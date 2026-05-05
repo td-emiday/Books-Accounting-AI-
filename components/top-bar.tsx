@@ -6,6 +6,11 @@ import { titleFor } from "@/lib/routes";
 import { useDashboardData } from "./dashboard-data-context";
 import { windowFor } from "@/lib/period";
 
+function parseIso(iso: string): Date {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
 const PERIODS = ["Today", "Week", "Month", "Quarter", "Year"] as const;
 export type Period = (typeof PERIODS)[number];
 
@@ -19,8 +24,8 @@ type Props = {
 export function TopBar({ dark, setDark, tweaksOpen, setTweaksOpen }: Props) {
   const pathname = usePathname();
   const title = titleFor(pathname);
-  const { period, setPeriod } = useDashboardData();
-  const win = windowFor(period);
+  const { period, setPeriod, todayIso } = useDashboardData();
+  const win = windowFor(period, parseIso(todayIso));
 
   return (
     <div className="topbar">
@@ -31,15 +36,7 @@ export function TopBar({ dark, setDark, tweaksOpen, setTweaksOpen }: Props) {
         </div>
       </div>
 
-      <div className="pill search-pill" style={{ marginLeft: "auto" }}>
-        <div className="search">
-          <Icon name="search" size={14} />
-          <span>Ask Emiday or search…</span>
-          <span className="k">⌘K</span>
-        </div>
-      </div>
-
-      <div className="pill">
+      <div className="pill" style={{ marginLeft: "auto" }}>
         <div className="seg">
           {PERIODS.map((p) => (
             <button

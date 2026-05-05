@@ -1,6 +1,7 @@
 import { Clients } from "@/components/clients";
-import { CLIENTS } from "@/lib/data/clients";
+import { getClients } from "@/lib/queries/clients";
 
-export default function ClientsPage() {
-  return <Clients clients={CLIENTS} />;
+export default async function ClientsPage() {
+  const clients = await getClients();
+  return <Clients clients={clients} />;
 }

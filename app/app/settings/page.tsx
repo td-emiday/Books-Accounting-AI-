@@ -1,5 +1,7 @@
 import { Settings } from "@/components/settings";
+import { getTeamMembers } from "@/lib/queries/team";
 
-export default function SettingsPage() {
-  return <Settings />;
+export default async function SettingsPage() {
+  const team = await getTeamMembers();
+  return <Settings team={team} />;
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Report, ReportShape } from "@/lib/data/reports";
 
 function Preview({ shape }: { shape: ReportShape }) {
@@ -132,7 +133,13 @@ export function Reports({ reports }: { reports: Report[] }) {
   return (
     <div className="reports-grid">
       {reports.map((r) => (
-        <div key={r.title} className="card report">
+        <Link
+          key={r.title}
+          href={`/reports/${r.shape}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="card report"
+        >
           <div className="preview">
             <Preview shape={r.shape} />
           </div>
@@ -145,7 +152,7 @@ export function Reports({ reports }: { reports: Report[] }) {
               {r.status === "ready" ? "Ready" : "Draft"}
             </span>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );

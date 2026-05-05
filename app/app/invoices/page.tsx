@@ -1,6 +1,7 @@
 import { Invoices } from "@/components/invoices";
-import { INVOICES } from "@/lib/data/invoices";
+import { getInvoices } from "@/lib/queries/invoices";
 
-export default function InvoicesPage() {
-  return <Invoices invoices={INVOICES} />;
+export default async function InvoicesPage() {
+  const invoices = await getInvoices();
+  return <Invoices invoices={invoices} />;
 }

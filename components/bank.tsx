@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Icon } from "./icon";
-import { useDashboardData } from "./dashboard-data-context";
+import { useDashboardData, useToday } from "./dashboard-data-context";
 import {
   CATEGORIES,
   fmtDate,
@@ -26,6 +26,7 @@ type Props = {
 
 export function Bank({ preview = false, limit }: Props) {
   const { transactions, period } = useDashboardData();
+  const today = useToday();
   // Local override map: { txnId -> applied category id }.
   // We don't mutate context — categorisation is UI-only.
   const [overrides, setOverrides] = useState<Record<number, string>>({});
@@ -35,8 +36,8 @@ export function Bank({ preview = false, limit }: Props) {
     overrides[t.id] !== undefined ? overrides[t.id] : t.applied;
 
   const periodTxns = useMemo(
-    () => filterByPeriod(transactions, period),
-    [transactions, period],
+    () => filterByPeriod(transactions, period, today),
+    [transactions, period, today],
   );
 
   const cap = limit ?? (preview ? 12 : 200);
@@ -47,7 +48,7 @@ export function Bank({ preview = false, limit }: Props) {
     (t) => applied(t) === null && t.conf >= 85,
   );
 
-  const win = windowFor(period);
+  const win = windowFor(period, today);
   const totals = summarize(periodTxns);
   const net = totals.net;
 

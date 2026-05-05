@@ -86,6 +86,15 @@ export function filterByPeriod(
   return txns.filter((t) => t.date >= w.startIso && t.date <= w.endIso);
 }
 
+/** Sums in/out/net over a single period window. Convenience wrapper. */
+export function summarizeForPeriod(
+  txns: Transaction[],
+  period: Period,
+  today: Date = TODAY,
+) {
+  return summarize(filterByPeriod(txns, period, today));
+}
+
 export function filterByRange(
   txns: Transaction[],
   startIso: string,

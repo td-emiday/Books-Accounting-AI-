@@ -18,21 +18,29 @@ import {
 } from "react";
 import type { Transaction } from "@/lib/data/transactions";
 import type { Period } from "./top-bar";
+import type { WorkspaceContext } from "@/lib/queries/workspace";
 
 type Ctx = {
   transactions: Transaction[];
   addTransactions: (extra: Transaction[]) => void;
   period: Period;
   setPeriod: (p: Period) => void;
+  workspaceContext: WorkspaceContext;
+  /** ISO date used as "today" for period windows. Pinned for /demo, real for /app. */
+  todayIso: string;
 };
 
 const DashboardDataCtx = createContext<Ctx | null>(null);
 
 export function DashboardDataProvider({
   initialTransactions,
+  workspaceContext,
+  todayIso,
   children,
 }: {
   initialTransactions: Transaction[];
+  workspaceContext: WorkspaceContext;
+  todayIso: string;
   children: ReactNode;
 }) {
   const [transactions, setTransactions] = useState<Transaction[]>(
@@ -52,8 +60,15 @@ export function DashboardDataProvider({
   }, []);
 
   const value = useMemo(
-    () => ({ transactions, addTransactions, period, setPeriod }),
-    [transactions, addTransactions, period],
+    () => ({
+      transactions,
+      addTransactions,
+      period,
+      setPeriod,
+      workspaceContext,
+      todayIso,
+    }),
+    [transactions, addTransactions, period, workspaceContext, todayIso],
   );
 
   return (
@@ -71,4 +86,15 @@ export function useDashboardData(): Ctx {
     );
   }
   return ctx;
+}
+
+export function useWorkspaceContext(): WorkspaceContext {
+  return useDashboardData().workspaceContext;
+}
+
+/** Parses the shell's todayIso into a UTC Date for period helpers. */
+export function useToday(): Date {
+  const { todayIso } = useDashboardData();
+  const [y, m, d] = todayIso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d));
 }

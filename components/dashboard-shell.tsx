@@ -7,15 +7,20 @@ import { MobileTabs } from "./mobile-tabs";
 import { Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
 import type { Transaction } from "@/lib/data/transactions";
+import type { WorkspaceContext } from "@/lib/queries/workspace";
 
 type Accent = "indigo" | "green" | "amber" | "mono";
 type Density = "airy" | "balanced" | "dense";
 
 export function DashboardShell({
   initialTransactions,
+  workspaceContext,
+  todayIso,
   children,
 }: {
   initialTransactions: Transaction[];
+  workspaceContext: WorkspaceContext;
+  todayIso: string;
   children: React.ReactNode;
 }) {
   const [dark, setDark] = useState(false);
@@ -32,7 +37,11 @@ export function DashboardShell({
   }, [dark, accent, density]);
 
   return (
-    <DashboardDataProvider initialTransactions={initialTransactions}>
+    <DashboardDataProvider
+      initialTransactions={initialTransactions}
+      workspaceContext={workspaceContext}
+      todayIso={todayIso}
+    >
       <div className="app">
         <Sidebar />
         <main className="main">
