@@ -5,6 +5,11 @@ import { getTransactions } from "@/lib/queries/transactions";
 import { TODAY_ISO as MOCK_TODAY_ISO } from "@/lib/data/transactions";
 import { trialStateFor } from "@/lib/trial";
 
+// Subscription state, tour completion, and trial countdown all change
+// out-of-band (Paystack callback, webhook, cron). Force a fresh server
+// render on every visit so the user sees current state immediately.
+export const dynamic = "force-dynamic";
+
 // Note on onboarding gating:
 // Onboarding is a sign-up-only experience — see app/auth/actions.ts where
 // signUpAction sends new users to /onboarding before they ever hit /app.

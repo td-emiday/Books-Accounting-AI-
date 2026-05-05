@@ -16,11 +16,7 @@ import {
   type BillingCycle,
   type PublicTierId,
 } from "@/lib/tiers";
-
-function siteUrl(req: Request): string {
-  // Prefer the configured public URL; fall back to the request origin.
-  return process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin;
-}
+import { getSiteOrigin } from "@/lib/site-url";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -75,7 +71,7 @@ export async function POST(req: Request) {
     .update({ tour_completed_at: new Date().toISOString() })
     .eq("id", membership.workspace_id);
 
-  const callbackUrl = `${siteUrl(req)}/api/paystack/callback`;
+  const callbackUrl = `${getSiteOrigin(req)}/api/paystack/callback`;
 
   try {
     const txn = await initializeTransaction({

@@ -7,6 +7,7 @@
 // hop. The webhook is still the long-term source of truth.
 
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyTransaction, listSubscriptionsForCustomer } from "@/lib/paystack";
 import {
@@ -14,15 +15,14 @@ import {
   publicTierFromPlanCode,
   type BillingCycle,
 } from "@/lib/tiers";
+import { getSiteOrigin } from "@/lib/site-url";
 
-function siteOrigin(req: Request): string {
-  return process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin;
-}
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const reference = url.searchParams.get("reference") || url.searchParams.get("trxref");
-  const home = siteOrigin(req);
+  const home = getSiteOrigin(req);
 
   if (!reference) {
     return NextResponse.redirect(`${home}/app?billing=missing_reference`, 303);
@@ -91,6 +91,13 @@ export async function GET(req: Request) {
   // session cookie was dropped during the Paystack hop.
   const admin = createAdminClient();
   await admin.from("workspaces").update(patch).eq("id", workspaceId);
+
+  // Bust any RSC cache for /app so the workspace context the dashboard
+  // reads on landing reflects the just-written subscription_status +
+  // tour_completed_at — otherwise the user sees the tour again and
+  // billing banners appear in stale states.
+  revalidatePath("/app", "layout");
+  revalidatePath("/app/settings");
 
   // Always land on the dashboard. If the session is intact, they're
   // signed in. If not, the proxy will route them through sign-in and

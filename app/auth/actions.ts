@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TIERS, type PublicTierId } from "@/lib/tiers";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export async function signInAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
@@ -51,7 +52,7 @@ export async function signUpAction(formData: FormData) {
       // back even if the redirect query string is lost.
       data: { full_name: fullName, role: "SME_OWNER", plan },
       emailRedirectTo:
-        (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3004") +
+        getSiteOrigin() +
         `/auth/callback?next=${encodeURIComponent(`/onboarding?plan=${plan}`)}`,
     },
   });

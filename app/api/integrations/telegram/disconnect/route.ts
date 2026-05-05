@@ -4,17 +4,16 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export async function POST() {
+  const home = getSiteOrigin();
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.redirect(
-      new URL("/sign-in", process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3004"),
-      303,
-    );
+    return NextResponse.redirect(`${home}/sign-in`, 303);
   }
 
   const admin = createAdminClient();
@@ -25,10 +24,7 @@ export async function POST() {
     .eq("provider", "telegram");
 
   return NextResponse.redirect(
-    new URL(
-      "/app/settings?tab=integrations&channel=disconnected",
-      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3004",
-    ),
+    `${home}/app/settings?tab=integrations&channel=disconnected`,
     303,
   );
 }

@@ -18,6 +18,7 @@ import {
 } from "@/lib/telegram";
 import { extractReceipt } from "@/lib/ocr";
 import { createTransaction } from "@/lib/transactions/create";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 // Receipts can take ~3-8s through OCR; allow generous Vercel timeout.
@@ -40,7 +41,7 @@ type TgUpdate = {
 };
 
 function siteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.emiday.io";
+  return getSiteOrigin();
 }
 
 export async function POST(req: Request) {
