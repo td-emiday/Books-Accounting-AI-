@@ -23,6 +23,7 @@ export function UploadButton({
         type="button"
         className={`btn ${variant === "primary" ? "primary" : ""}`.trim()}
         onClick={() => setOpen(true)}
+        data-tour="upload"
       >
         <Icon name="upload" size={13} /> {label}
       </button>

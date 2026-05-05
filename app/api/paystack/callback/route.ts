@@ -1,13 +1,13 @@
 // GET /api/paystack/callback?reference=...
 //
 // Paystack redirects the customer here after the hosted checkout
-// resolves. We verify the transaction server-side and, on success,
-// update the workspace's plan + subscription state. The webhook is
-// the long-term source of truth, but this gives the user instant
-// feedback by updating the workspace before the redirect into /app.
+// resolves. We verify server-side and update the workspace using the
+// service-role client — that way the redirect always lands on /app
+// even if the user's session cookie was dropped during the Paystack
+// hop. The webhook is still the long-term source of truth.
 
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyTransaction, listSubscriptionsForCustomer } from "@/lib/paystack";
 import {
   planTierFromPublicId,
@@ -15,11 +15,17 @@ import {
   type BillingCycle,
 } from "@/lib/tiers";
 
+function siteOrigin(req: Request): string {
+  return process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin;
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const reference = url.searchParams.get("reference") || url.searchParams.get("trxref");
+  const home = siteOrigin(req);
+
   if (!reference) {
-    return NextResponse.redirect(new URL("/app/settings?billing=missing_reference", req.url), 303);
+    return NextResponse.redirect(`${home}/app?billing=missing_reference`, 303);
   }
 
   let txn;
@@ -28,25 +34,13 @@ export async function GET(req: Request) {
   } catch (e) {
     const msg = e instanceof Error ? e.message : "verify_failed";
     return NextResponse.redirect(
-      new URL(`/app/settings?billing=error&reason=${encodeURIComponent(msg)}`, req.url),
+      `${home}/app?billing=error&reason=${encodeURIComponent(msg)}`,
       303,
     );
   }
 
   if (txn.status !== "success") {
-    return NextResponse.redirect(
-      new URL(`/app/settings?billing=${txn.status}`, req.url),
-      303,
-    );
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    // Session expired during the Paystack hop — send to sign-in.
-    return NextResponse.redirect(new URL("/sign-in", req.url), 303);
+    return NextResponse.redirect(`${home}/app?billing=${txn.status}`, 303);
   }
 
   const meta = (txn.metadata ?? {}) as Record<string, unknown>;
@@ -54,14 +48,11 @@ export async function GET(req: Request) {
     typeof meta.workspace_id === "string" ? meta.workspace_id : null;
 
   if (!workspaceId) {
-    return NextResponse.redirect(
-      new URL("/app/settings?billing=missing_workspace", req.url),
-      303,
-    );
+    return NextResponse.redirect(`${home}/app?billing=missing_workspace`, 303);
   }
 
-  // Resolve which plan + cycle was actually billed using the plan code
-  // Paystack returned (don't trust the metadata we set client-side).
+  // Resolve plan + cycle from the plan code Paystack returned (don't
+  // trust client-supplied metadata for the tier itself).
   const planCode = txn.plan_object?.plan_code ?? txn.plan ?? null;
   const resolved = publicTierFromPlanCode(planCode);
   const planTier = resolved ? planTierFromPublicId(resolved.publicId) : null;
@@ -81,12 +72,14 @@ export async function GET(req: Request) {
       nextPaymentDate = match.next_payment_date;
     }
   } catch {
-    // Non-fatal: the webhook will reconcile.
+    // Non-fatal: the webhook reconciles.
   }
 
   const patch: Record<string, unknown> = {
     paystack_customer_code: txn.customer.customer_code,
     subscription_status: "active",
+    // Tour is implicitly complete once payment lands.
+    tour_completed_at: new Date().toISOString(),
   };
   if (planTier) patch.plan_tier = planTier;
   patch.billing_cycle = cycle;
@@ -94,7 +87,13 @@ export async function GET(req: Request) {
   if (emailToken) patch.paystack_email_token = emailToken;
   if (nextPaymentDate) patch.current_period_end = nextPaymentDate;
 
-  await supabase.from("workspaces").update(patch).eq("id", workspaceId);
+  // Service-role client: bypasses RLS and works even when the user's
+  // session cookie was dropped during the Paystack hop.
+  const admin = createAdminClient();
+  await admin.from("workspaces").update(patch).eq("id", workspaceId);
 
-  return NextResponse.redirect(new URL("/app?billing=success", req.url), 303);
+  // Always land on the dashboard. If the session is intact, they're
+  // signed in. If not, the proxy will route them through sign-in and
+  // straight back here.
+  return NextResponse.redirect(`${home}/app?billing=success`, 303);
 }

@@ -14,10 +14,13 @@ import { useWorkspaceContext } from "./dashboard-data-context";
 
 function NavLink({ route, pathname }: { route: RouteDef; pathname: string }) {
   const active = isActive(pathname, route.href);
+  // Mark a few key nav items so the welcome tour can spotlight them.
+  const tourKey = TOUR_BY_HREF[route.href];
   return (
     <Link
       href={route.href}
       className={`nav-item ${active ? "active" : ""}`}
+      data-tour={tourKey}
       prefetch
     >
       <span className="ic">
@@ -28,6 +31,11 @@ function NavLink({ route, pathname }: { route: RouteDef; pathname: string }) {
     </Link>
   );
 }
+
+const TOUR_BY_HREF: Record<string, string | undefined> = {
+  "/app/tax": "tax",
+  "/app/reports": "reports",
+};
 
 export function Sidebar() {
   const pathname = usePathname();

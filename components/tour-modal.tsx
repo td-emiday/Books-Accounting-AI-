@@ -6,7 +6,7 @@
 // flow. Skipping at any time still marks the tour complete (we don't
 // want to nag), but leaves the billing banner up so they can pay later.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "./icon";
 
 type Plan = {
@@ -21,6 +21,10 @@ type Props = {
   plan: Plan;
 };
 
+// `target` is a CSS selector for an element on the dashboard. When set,
+// the tour highlights that element with a glowing ring + dimmed scrim.
+// Most steps target sidebar links — those are always rendered, so the
+// spotlight works even on a freshly-onboarded empty workspace.
 const STEPS = [
   {
     title: (firstName: string) => `Welcome, ${firstName}.`,
@@ -28,6 +32,7 @@ const STEPS = [
       "Two minutes to show you around. Skip any time — you can always come back to this from the help menu.",
     icon: "sparkle" as const,
     cta: "Show me around",
+    target: null,
   },
   {
     title: () => "Upload your statements.",
@@ -35,6 +40,7 @@ const STEPS = [
       "Drop in 6 months of bank PDFs, CSVs, or screenshots. I'll categorise every line and rebuild your books overnight.",
     icon: "upload" as const,
     cta: "Next",
+    target: '[data-tour="upload"]',
   },
   {
     title: () => "Tax & filings, drafted on time.",
@@ -42,6 +48,7 @@ const STEPS = [
       "VAT, PAYE, Pension, NSITF, CIT — I draft every return when it's due and let you pay in one click.",
     icon: "shield" as const,
     cta: "Next",
+    target: '[data-tour="tax"]',
   },
   {
     title: () => "Reports that update themselves.",
@@ -49,6 +56,7 @@ const STEPS = [
       "P&L, Balance Sheet, Cashflow — rebuilt every time your books move. Export to PDF or share with your accountant.",
     icon: "chart" as const,
     cta: "Next",
+    target: '[data-tour="reports"]',
   },
   {
     title: () => "Ask your CFO anything.",
@@ -56,6 +64,7 @@ const STEPS = [
       "Question about your numbers? Ask in plain English. I'll answer with the line items behind the answer.",
     icon: "chat" as const,
     cta: "Next",
+    target: '[data-tour="chat"]',
   },
   {
     title: () => "Last step — set up billing.",
@@ -63,20 +72,39 @@ const STEPS = [
       "Activate your plan to keep using Emiday. We use Paystack — pay with card, bank transfer, or USSD. Cancel any time.",
     icon: "receipt" as const,
     cta: "Pay & start using Emiday",
+    target: null,
   },
 ] as const;
 
 async function markComplete() {
   try {
-    await fetch("/api/tour/complete", { method: "POST" });
+    // keepalive lets the request finish even if the page is navigating
+    // away (e.g. user clicked "Pay & start using Emiday" → Paystack).
+    await fetch("/api/tour/complete", { method: "POST", keepalive: true });
   } catch {
-    // Non-fatal: the modal closes regardless. Worst case it shows once more.
+    // Non-fatal — the Paystack checkout route also marks the tour
+    // complete server-side as a safety net.
   }
 }
 
 export function TourModal({ firstName, plan }: Props) {
   const [step, setStep] = useState(0);
   const [closed, setClosed] = useState(false);
+
+  // Spotlight: find the target for this step, scroll it into view, and
+  // toggle a CSS class that lifts it above the scrim with a halo.
+  useEffect(() => {
+    if (closed) return;
+    const sel = STEPS[step]?.target;
+    if (!sel) return;
+    const el = document.querySelector<HTMLElement>(sel);
+    if (!el) return;
+    el.classList.add("tour-target-on");
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    return () => {
+      el.classList.remove("tour-target-on");
+    };
+  }, [step, closed]);
 
   if (closed) return null;
   const total = STEPS.length;
@@ -93,9 +121,11 @@ export function TourModal({ firstName, plan }: Props) {
     setStep((i) => i + 1);
   }
 
+  const hasTarget = Boolean(current.target);
+
   return (
     <div
-      className="tour-scrim"
+      className={`tour-scrim${hasTarget ? " has-target" : ""}`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="tour-title"

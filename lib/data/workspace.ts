@@ -34,6 +34,9 @@ export type Workspace = {
   currentPeriodEnd: string | null;
   /** Timestamp the user dismissed/finished the post-onboarding tour. */
   tourCompletedAt: string | null;
+  /** End of the 24-hour free-trial window. Null only on legacy data
+   *  (the migration backfills, but we keep the type lenient). */
+  trialEndsAt: string | null;
   /** Plan change scheduled to apply at end of current cycle. */
   pendingPlanChange:
     | {
@@ -75,6 +78,7 @@ export const WORKSPACE: Workspace = {
   subscriptionStatus: "active",
   currentPeriodEnd: "2026-05-15T00:00:00Z",
   tourCompletedAt: "2026-04-25T10:00:00Z",
+  trialEndsAt: null,
   pendingPlanChange: null,
 };
 

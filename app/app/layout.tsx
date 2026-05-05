@@ -1,7 +1,9 @@
+import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { getWorkspaceContext } from "@/lib/queries/workspace";
 import { getTransactions } from "@/lib/queries/transactions";
 import { TODAY_ISO as MOCK_TODAY_ISO } from "@/lib/data/transactions";
+import { trialStateFor } from "@/lib/trial";
 
 // Note on onboarding gating:
 // Onboarding is a sign-up-only experience — see app/auth/actions.ts where
@@ -19,6 +21,18 @@ export default async function DashboardLayout({
     getWorkspaceContext(),
     getTransactions(),
   ]);
+
+  // Trial gate. Once the 24h window closes and there's no active sub,
+  // any /app/* visit redirects to the upgrade page. Settings stays
+  // reachable so the user can pay without a flicker dance.
+  const trial = trialStateFor({
+    subscriptionStatus: workspaceContext.workspace.subscriptionStatus,
+    trialEndsAt: workspaceContext.workspace.trialEndsAt,
+    planTier: workspaceContext.workspace.planTier,
+  });
+  if (trial.status === "locked") {
+    redirect("/trial-expired");
+  }
 
   // For real workspaces use the actual current date so period labels
   // ("May 2026 · month-to-date") match wall-clock reality. For empty

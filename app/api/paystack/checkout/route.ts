@@ -65,6 +65,16 @@ export async function POST(req: Request) {
     return NextResponse.redirect(new URL("/onboarding", req.url), 303);
   }
 
+  // Mark the tour complete here. Whether the user clicked "Pay & start
+  // using Emiday" inside the tour, or "Set up billing" from the banner
+  // or settings, they've left the welcome flow either way. Doing this
+  // server-side avoids the fire-and-forget /api/tour/complete fetch
+  // racing against the redirect to Paystack.
+  await supabase
+    .from("workspaces")
+    .update({ tour_completed_at: new Date().toISOString() })
+    .eq("id", membership.workspace_id);
+
   const callbackUrl = `${siteUrl(req)}/api/paystack/callback`;
 
   try {

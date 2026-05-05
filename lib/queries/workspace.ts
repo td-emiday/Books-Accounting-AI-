@@ -87,7 +87,7 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext> {
   const { data: membership } = await supabase
     .from("workspace_members")
     .select(
-      "role, workspace:workspaces (id, name, jurisdiction, industry, currency, rc_number, address, business_type, onboarded_at, plan_tier, billing_cycle, banks, subscription_status, current_period_end, tour_completed_at, pending_plan_change)",
+      "role, workspace:workspaces (id, name, jurisdiction, industry, currency, rc_number, address, business_type, onboarded_at, plan_tier, billing_cycle, banks, subscription_status, current_period_end, tour_completed_at, pending_plan_change, trial_ends_at)",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true })
@@ -115,6 +115,7 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext> {
       cycle?: string;
       effective_at?: string;
     } | null;
+    trial_ends_at: string | null;
   };
 
   // Supabase types the embedded relation as an array; we ordered+limited
@@ -202,6 +203,7 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext> {
       | "non_renewing",
     currentPeriodEnd: ws.current_period_end,
     tourCompletedAt: ws.tour_completed_at,
+    trialEndsAt: ws.trial_ends_at,
     pendingPlanChange:
       ws.pending_plan_change &&
       typeof ws.pending_plan_change.public_id === "string"

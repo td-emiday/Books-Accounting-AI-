@@ -6,6 +6,7 @@ import { DashboardDataProvider } from "./dashboard-data-context";
 import { MobileTabs } from "./mobile-tabs";
 import { Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
+import { TrialBanner } from "./trial-banner";
 import type { Transaction } from "@/lib/data/transactions";
 import type { WorkspaceContext } from "@/lib/queries/workspace";
 
@@ -51,6 +52,7 @@ export function DashboardShell({
             tweaksOpen={tweaksOpen}
             setTweaksOpen={setTweaksOpen}
           />
+          <TrialBanner />
           {children}
         </main>
 

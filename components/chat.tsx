@@ -42,7 +42,7 @@ export function Chat({ open, setOpen }: Props) {
 
   if (!open) {
     return (
-      <div className="chat-fab">
+      <div className="chat-fab" data-tour="chat">
         <button type="button" className="chat-bubble" onClick={() => setOpen(true)}>
           <span className="pulse" />
           Ask your CFO
