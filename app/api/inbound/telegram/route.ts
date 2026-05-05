@@ -75,20 +75,30 @@ export async function POST(req: Request) {
     await sendMessage({
       chat_id: chatId,
       text:
-        "👋 Welcome to Emiday. To connect this chat to your workspace, " +
-        "open the app → Settings → Integrations → Connect Telegram.",
+        "👋 Welcome to Emiday.\n\n" +
+        "To connect, send me your 8-character pairing code. Get one at " +
+        `${siteUrl()}/app/settings → Integrations → Connect Telegram.`,
     });
     return NextResponse.json({ ok: true });
   }
 
-  // For everything else, we need a paired chat.
+  // Forgiving pairing: if the chat isn't paired yet but the message
+  // looks like our pair-code shape (8 chars, A-Z2-9), try to consume it
+  // as a code. This is what saves users who tapped the deep-link but
+  // didn't tap "Start" (Telegram doesn't auto-send /start <code> for
+  // first-time bot interactions on some clients).
   const channel = await lookupChannel(chatId);
   if (!channel) {
+    if (looksLikePairCode(text)) {
+      await handlePair(chatId, text, msg);
+      return NextResponse.json({ ok: true });
+    }
     await sendMessage({
       chat_id: chatId,
       text:
         "This chat isn't connected to a workspace yet.\n\n" +
-        `Open ${siteUrl()}/app/settings → Integrations to pair.`,
+        "Send me your 8-character pairing code, or grab a fresh one at\n" +
+        `${siteUrl()}/app/settings → Integrations.`,
     });
     return NextResponse.json({ ok: true });
   }
@@ -196,6 +206,14 @@ async function lookupChannel(chatId: TgChatId): Promise<Channel | null> {
     .eq("external_id", String(chatId))
     .maybeSingle();
   return data ?? null;
+}
+
+// Pair codes are 8 chars from the unambiguous A-Z23456789 alphabet
+// (omits 0/O, 1/I). Match that exact shape so a one-word receipt
+// description like "Shoprite" doesn't get mistakenly consumed.
+function looksLikePairCode(text: string): boolean {
+  const s = text.toUpperCase();
+  return /^[A-HJ-NP-Z2-9]{8}$/.test(s);
 }
 
 function isImageDoc(mime?: string | null): boolean {

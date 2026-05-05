@@ -19,6 +19,7 @@ type StartResp = {
   ok: boolean;
   code?: string;
   url?: string;
+  qrDataUrl?: string | null;
   botUsername?: string;
   expires_at?: string;
   reason?: string;
@@ -114,36 +115,67 @@ export function TelegramConnect({
 
       {pending?.url && pending.code && (
         <div className="pair-block">
-          <ol className="pair-steps">
-            <li>
-              Tap the button below. Telegram opens with a one-tap{" "}
-              <code>/start</code> message.
-            </li>
-            <li>
-              Or paste this code if you&apos;re on another device:{" "}
-              <code className="pair-code">{pending.code}</code>
-            </li>
-          </ol>
-          <div className="pair-actions">
-            <a
-              className="btn primary"
-              href={pending.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open Telegram <Icon name="arrowUp" size={11} />
-            </a>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => {
-                if (pending.code) navigator.clipboard?.writeText(pending.code);
-              }}
-            >
-              Copy code
-            </button>
+          <div className="pair-grid">
+            <div className="pair-grid-main">
+              <ol className="pair-steps">
+                <li>
+                  <strong>On this device:</strong> tap{" "}
+                  <em>Open Telegram</em> below, then tap <em>Start</em> in the
+                  bot chat.
+                </li>
+                <li>
+                  <strong>On your phone:</strong> scan the QR code with your
+                  camera or Telegram&apos;s built-in QR scanner.
+                </li>
+                <li>
+                  <strong>If neither works:</strong> open{" "}
+                  {pending.botUsername ? (
+                    <code>@{pending.botUsername}</code>
+                  ) : (
+                    "the bot"
+                  )}{" "}
+                  manually and send your code:
+                </li>
+              </ol>
+              <div className="pair-code-row">
+                <code className="pair-code-big" aria-label="Pairing code">
+                  {pending.code}
+                </code>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    if (pending.code) navigator.clipboard?.writeText(pending.code);
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
+              <div className="pair-actions">
+                <a
+                  className="btn primary"
+                  href={pending.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open Telegram <Icon name="arrowUp" size={11} />
+                </a>
+              </div>
+              <p className="pair-foot muted">Expires in 15 minutes.</p>
+            </div>
+            {pending.qrDataUrl && (
+              <div className="pair-qr">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={pending.qrDataUrl}
+                  alt="Scan to open Emiday bot in Telegram"
+                  width={180}
+                  height={180}
+                />
+                <span>Scan to pair</span>
+              </div>
+            )}
           </div>
-          <p className="pair-foot muted">Expires in 15 minutes.</p>
         </div>
       )}
     </div>

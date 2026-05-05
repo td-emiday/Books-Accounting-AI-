@@ -5,6 +5,7 @@
 // the user can click to open the bot pre-loaded with `/start <code>`.
 
 import { NextResponse } from "next/server";
+import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -69,11 +70,27 @@ export async function POST(req: Request) {
     );
   }
 
+  const url = `https://t.me/${username}?start=${code}`;
+
+  // Render QR as data-URL so the UI can show it inline without an
+  // extra round-trip. ~3 KB; cached in browser memory only.
+  let qrDataUrl: string | null = null;
+  try {
+    qrDataUrl = await QRCode.toDataURL(url, {
+      margin: 1,
+      width: 240,
+      color: { dark: "#15151a", light: "#ffffff" },
+    });
+  } catch {
+    /* non-fatal — UI falls back to the deep-link button */
+  }
+
   return NextResponse.json({
     ok: true,
     code,
     expires_at: expiresAt,
-    url: `https://t.me/${username}?start=${code}`,
+    url,
+    qrDataUrl,
     botUsername: username,
   });
 }
