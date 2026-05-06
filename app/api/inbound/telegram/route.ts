@@ -253,23 +253,19 @@ async function handlePair(chatId: TgChatId, code: string, msg: TgMessage) {
 
   const wsName = ws?.name ?? "your workspace";
   const firstName = msg.from?.first_name?.trim();
-  const greeting = firstName ? `Hi ${firstName}, ` : "";
+  const opener = firstName ? `Welcome, *${firstName}*` : "Welcome";
   await sendMessage({
     chat_id: chatId,
     text:
-      `✅ ${greeting}your Emiday account is connected to *${wsName}*.\n\n` +
-      "*Here's what I can do for you:*\n\n" +
-      "📸 *Snap a receipt* — send me a photo and I'll OCR it, categorise " +
-      "it, and add a draft transaction to your books.\n\n" +
-      "💬 *Ask me anything about your books* — \"what's my revenue this " +
-      "month?\", \"how much did I spend on rent?\", \"am I profitable?\". " +
-      "I read your books and answer in plain English.\n\n" +
-      "💵 *Track spending in real time* — every receipt you forward " +
-      "shows up instantly at " + siteUrl() + "/app/transactions.\n\n" +
-      "🧾 *Coming soon*\n" +
-      "  • Forward bank statement PDFs to import in bulk\n" +
-      "  • Daily summaries + filing reminders\n\n" +
-      "Try it now — send a receipt photo, or just ask me a question. /help any time.",
+      `✅ ${opener} — you're connected to *${wsName}*.\n\n` +
+      "Two things to start:\n\n" +
+      "📸 *Send a receipt* — any photo. I'll OCR it and log a draft " +
+      "transaction.\n\n" +
+      "💬 *Ask me anything* — \"what's my net this month?\", \"biggest " +
+      "expense last week?\", \"do I owe VAT?\". I answer from your real " +
+      "numbers, in plain English.\n\n" +
+      "Go on — try one now. /help any time.\n\n" +
+      "_Coming soon: bank statement PDFs, daily summaries, filing reminders._",
     parse_mode: "Markdown",
     disable_web_page_preview: true,
   });
