@@ -1,11 +1,11 @@
 import { Heading, Section, Text } from "@react-email/components";
-import { CtaButton, Layout } from "./layout";
+import { CtaButton, Layout, s } from "./layout";
 
 export type WelcomeProps = {
   firstName: string;
   workspaceName: string;
-  appUrl: string;          // e.g. https://www.emiday.io/app
-  telegramBot?: string;    // e.g. EmidayBot
+  appUrl: string;
+  telegramBot?: string;
 };
 
 export function WelcomeEmail({
@@ -14,46 +14,63 @@ export function WelcomeEmail({
   appUrl,
   telegramBot,
 }: WelcomeProps) {
+  const items = [
+    {
+      title: "Upload a bank statement",
+      body: "I'll have a P&L for you in about four minutes.",
+    },
+    {
+      title: "Connect Telegram",
+      body: telegramBot
+        ? `Snap any receipt to @${telegramBot} — I'll OCR and log it as a draft transaction.`
+        : "Snap any receipt to the bot — I'll OCR and log it as a draft transaction.",
+    },
+    {
+      title: "Ask me anything",
+      body:
+        "“Net this month?” · “Owe VAT?” · “Biggest expense last week?” — answers from your real numbers.",
+    },
+  ];
+
   return (
     <Layout
       preview={`Welcome to Emiday, ${firstName} — your 10 days starts now`}
     >
-      <Heading className="m-0 mb-4 text-[24px] font-semibold tracking-[-0.015em] text-ink">
+      <Text style={s.kicker}>Welcome · 10 days free</Text>
+      <Heading as="h1" style={s.h1}>
         Welcome, {firstName}.
       </Heading>
 
-      <Text className="m-0 mb-4 text-[15px] leading-[1.55] text-ink">
-        Your workspace <strong>{workspaceName}</strong> is live, and your
-        10-day free trial just started. Use everything Emiday does, no
-        card needed.
+      <Text style={s.lead}>
+        Your workspace <strong style={{ color: "#15151a", fontWeight: 600 }}>{workspaceName}</strong>{" "}
+        is live and your 10-day free trial just started. Use everything Emiday
+        does, no card needed.
       </Text>
 
-      <Text className="m-0 mb-3 text-[15px] leading-[1.55] text-ink">
-        Three things that get you the most out of the next ten days:
+      <Text
+        style={{
+          margin: "28px 0 14px",
+          fontSize: "13px",
+          fontWeight: 600,
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+          color: "#15151a",
+        }}
+      >
+        What to try first
       </Text>
 
-      <Section className="mb-6">
-        <Text className="m-0 mb-2 text-[14px] leading-[1.5] text-ink">
-          <strong>1. Upload a bank statement.</strong> I&apos;ll have a
-          P&amp;L for you in about 4 minutes.
-        </Text>
-        <Text className="m-0 mb-2 text-[14px] leading-[1.5] text-ink">
-          <strong>2. Connect Telegram.</strong> Snap any receipt to{" "}
-          {telegramBot ? `@${telegramBot}` : "the bot"} — I&apos;ll OCR
-          and log it as a draft transaction.
-        </Text>
-        <Text className="m-0 mb-2 text-[14px] leading-[1.5] text-ink">
-          <strong>3. Ask me anything.</strong> &quot;What&apos;s my net
-          this month?&quot; · &quot;Biggest expense last week?&quot; ·
-          &quot;Do I owe VAT?&quot; — answers from your real numbers.
-        </Text>
-      </Section>
+      {items.map((it, i) => (
+        <Section key={it.title} style={s.itemRow}>
+          <Text style={s.itemIndex}>{String(i + 1).padStart(2, "0")}</Text>
+          <Text style={s.itemTitle}>{it.title}</Text>
+          <Text style={s.itemBody}>{it.body}</Text>
+        </Section>
+      ))}
 
-      <Section className="mb-2">
-        <CtaButton href={appUrl}>Open my dashboard →</CtaButton>
-      </Section>
+      <CtaButton href={appUrl}>Open my dashboard →</CtaButton>
 
-      <Text className="m-0 mt-6 text-[14px] leading-[1.55] text-ink2">
+      <Text style={{ ...s.smallMuted, marginTop: "28px" }}>
         If anything looks off, hit reply — a real person reads it.
       </Text>
     </Layout>

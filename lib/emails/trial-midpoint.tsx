@@ -1,11 +1,11 @@
-import { Heading, Section, Text } from "@react-email/components";
-import { CtaButton, Layout } from "./layout";
+import { Heading, Text } from "@react-email/components";
+import { CtaButton, Layout, s, tokens } from "./layout";
 
 export type TrialMidpointProps = {
   firstName: string;
   workspaceName: string;
   daysLeft: number;
-  txnsLogged: number;        // total transactions this trial
+  txnsLogged: number;
   topCategory?: string | null;
   topCategoryAmount?: number | null;
   appUrl: string;
@@ -24,6 +24,7 @@ export function TrialMidpointEmail({
   appUrl,
 }: TrialMidpointProps) {
   const hasData = txnsLogged > 0;
+  const dayLabel = `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left`;
 
   return (
     <Layout
@@ -33,7 +34,8 @@ export function TrialMidpointEmail({
           : `${daysLeft} days left in your trial`
       }
     >
-      <Heading className="m-0 mb-4 text-[24px] font-semibold tracking-[-0.015em] text-ink">
+      <Text style={s.kicker}>Trial · {dayLabel}</Text>
+      <Heading as="h1" style={s.h1}>
         {hasData
           ? `Halfway there, ${firstName}.`
           : `${daysLeft} days left, ${firstName}.`}
@@ -41,49 +43,59 @@ export function TrialMidpointEmail({
 
       {hasData ? (
         <>
-          <Text className="m-0 mb-4 text-[15px] leading-[1.55] text-ink">
-            Quick check-in on <strong>{workspaceName}</strong> — you&apos;ve
-            logged <strong>{txnsLogged}</strong> transaction
-            {txnsLogged === 1 ? "" : "s"} so far this trial.
+          <Text style={s.lead}>
+            Quick check-in on{" "}
+            <strong style={{ color: tokens.ink, fontWeight: 600 }}>
+              {workspaceName}
+            </strong>
+            . You&apos;ve logged{" "}
+            <strong style={{ color: tokens.ink, fontWeight: 600 }}>
+              {txnsLogged}
+            </strong>{" "}
+            transaction{txnsLogged === 1 ? "" : "s"} on this trial.
           </Text>
 
           {topCategory && topCategoryAmount ? (
-            <Text className="m-0 mb-4 text-[15px] leading-[1.55] text-ink">
+            <Text style={s.body}>
               Your biggest expense category is{" "}
-              <strong>{topCategory}</strong> at{" "}
-              <strong>{ngn(topCategoryAmount)}</strong>. That&apos;s the
-              kind of insight you&apos;d normally pay an accountant a
-              week to surface.
+              <strong style={{ color: tokens.ink, fontWeight: 600 }}>
+                {topCategory}
+              </strong>{" "}
+              at{" "}
+              <strong style={{ color: tokens.ink, fontWeight: 600 }}>
+                {ngn(topCategoryAmount)}
+              </strong>
+              .
             </Text>
           ) : null}
 
-          <Text className="m-0 mb-6 text-[15px] leading-[1.55] text-ink">
-            Five days left. If you haven&apos;t tried asking me a
-            question yet, give it a go: &quot;what&apos;s my net so
-            far?&quot; or &quot;biggest expense this week?&quot; — in
-            the chat panel or on Telegram.
+          <Text style={s.body}>
+            Five days left. Try asking me a question if you haven&apos;t —{" "}
+            &ldquo;what&apos;s my net so far?&rdquo; or &ldquo;biggest expense
+            this week?&rdquo; — in the chat panel or on Telegram.
           </Text>
         </>
       ) : (
         <>
-          <Text className="m-0 mb-4 text-[15px] leading-[1.55] text-ink">
-            Your workspace <strong>{workspaceName}</strong> hasn&apos;t
-            seen a transaction yet — and that&apos;s where Emiday earns
-            its keep.
+          <Text style={s.lead}>
+            Your workspace{" "}
+            <strong style={{ color: tokens.ink, fontWeight: 600 }}>
+              {workspaceName}
+            </strong>{" "}
+            hasn&apos;t seen a transaction yet — and that&apos;s where Emiday
+            earns its keep.
           </Text>
-          <Text className="m-0 mb-6 text-[15px] leading-[1.55] text-ink">
+          <Text style={s.body}>
             One bank statement is enough to unlock everything: live P&amp;L,
-            VAT drafts, monthly reports, plain-English answers. Drop one
-            in and I&apos;ll have your books mapped in about 4 minutes.
+            VAT drafts, monthly reports, plain-English answers. Drop one in
+            and I&apos;ll have your books mapped in about four minutes.
           </Text>
         </>
       )}
 
-      <Section className="mb-2">
-        <CtaButton href={appUrl}>
-          {hasData ? "See your numbers" : "Upload a statement"} →
-        </CtaButton>
-      </Section>
+      <CtaButton href={appUrl}>
+        {hasData ? "See your numbers" : "Upload a statement"} →
+      </CtaButton>
     </Layout>
   );
 }

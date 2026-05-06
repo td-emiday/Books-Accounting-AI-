@@ -1,14 +1,14 @@
 import { Heading, Section, Text } from "@react-email/components";
-import { CtaButton, Layout } from "./layout";
+import { CtaButton, Layout, s, tokens } from "./layout";
 
 export type TrialEndingProps = {
   firstName: string;
   workspaceName: string;
   hoursLeft: number;
   txnsLogged: number;
-  planLabel: string;        // "Growth" | "Pro"
-  priceLabel: string;       // "₦85,000/mo"
-  billingUrl: string;       // /api/paystack/checkout-style URL OR /app/settings?tab=billing
+  planLabel: string;
+  priceLabel: string;
+  billingUrl: string;
 };
 
 export function TrialEndingEmail({
@@ -20,43 +20,96 @@ export function TrialEndingEmail({
   priceLabel,
   billingUrl,
 }: TrialEndingProps) {
+  const hours = Math.max(1, Math.round(hoursLeft));
   return (
     <Layout
-      preview={`Your trial ends in about ${Math.round(hoursLeft)} hours`}
+      preview={`Your trial ends in about ${hours} hours`}
     >
-      <Heading className="m-0 mb-4 text-[24px] font-semibold tracking-[-0.015em] text-ink">
+      <Text style={s.kicker}>Trial ends in ~{hours} hours</Text>
+      <Heading as="h1" style={s.h1}>
         Your trial ends tomorrow.
       </Heading>
 
-      <Text className="m-0 mb-4 text-[15px] leading-[1.55] text-ink">
-        {firstName}, in roughly <strong>{Math.round(hoursLeft)} hours</strong>{" "}
-        your access to <strong>{workspaceName}</strong> drops to read-only
-        until billing is active.
+      <Text style={s.lead}>
+        {firstName}, in roughly{" "}
+        <strong style={{ color: tokens.ink, fontWeight: 600 }}>{hours} hours</strong>{" "}
+        your access to{" "}
+        <strong style={{ color: tokens.ink, fontWeight: 600 }}>{workspaceName}</strong>{" "}
+        drops to read-only until billing is active.
       </Text>
 
+      <Section
+        style={{
+          margin: "8px 0 22px",
+          padding: "16px 20px",
+          border: `1px solid ${tokens.line}`,
+          borderRadius: "12px",
+        }}
+      >
+        <Text
+          style={{
+            margin: 0,
+            fontSize: "11px",
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: tokens.muted,
+          }}
+        >
+          Your trial so far
+        </Text>
+        <Text
+          style={{
+            margin: "8px 0 0",
+            fontSize: "32px",
+            lineHeight: "36px",
+            fontWeight: 600,
+            letterSpacing: "-0.022em",
+            color: tokens.ink,
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {txnsLogged.toLocaleString("en-NG")}{" "}
+          <span
+            style={{
+              fontSize: "14px",
+              fontWeight: 500,
+              letterSpacing: "0",
+              color: tokens.muted,
+            }}
+          >
+            transactions logged
+          </span>
+        </Text>
+      </Section>
+
       {txnsLogged > 0 ? (
-        <Text className="m-0 mb-4 text-[15px] leading-[1.55] text-ink">
-          You&apos;ve logged <strong>{txnsLogged}</strong> transactions
-          on this trial. The categorisation and reports are yours either
-          way — activating just keeps the lights on going forward.
+        <Text style={s.body}>
+          The categorisation and reports are yours either way — activating
+          just keeps the lights on going forward.
         </Text>
       ) : (
-        <Text className="m-0 mb-4 text-[15px] leading-[1.55] text-ink">
-          You haven&apos;t uploaded data yet — but the trial doesn&apos;t
-          extend, and your workspace is set up. Activate to keep it.
+        <Text style={s.body}>
+          You haven&apos;t uploaded data yet, but the trial doesn&apos;t
+          extend and your workspace is set up. Activate to keep it.
         </Text>
       )}
 
-      <Text className="m-0 mb-6 text-[15px] leading-[1.55] text-ink">
-        Your plan is <strong>{planLabel}</strong> at{" "}
-        <strong>{priceLabel}</strong>. Cancel anytime from Settings.
+      <Text style={s.body}>
+        You&apos;re on{" "}
+        <strong style={{ color: tokens.ink, fontWeight: 600 }}>
+          {planLabel}
+        </strong>{" "}
+        at{" "}
+        <strong style={{ color: tokens.ink, fontWeight: 600 }}>
+          {priceLabel}
+        </strong>
+        . Cancel any time from Settings.
       </Text>
 
-      <Section className="mb-2">
-        <CtaButton href={billingUrl}>Activate {planLabel} →</CtaButton>
-      </Section>
+      <CtaButton href={billingUrl}>Activate {planLabel} →</CtaButton>
 
-      <Text className="m-0 mt-6 text-[14px] leading-[1.55] text-ink2">
+      <Text style={{ ...s.smallMuted, marginTop: "28px" }}>
         Want to switch plans or chat first? Reply to this email.
       </Text>
     </Layout>
