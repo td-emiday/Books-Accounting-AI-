@@ -14,6 +14,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { planTierFromPublicId, TIERS } from "@/lib/tiers";
+import { sendMail } from "@/lib/mail";
+import { getSiteOrigin } from "@/lib/site-url";
 
 const ALLOWED_BUSINESS_TYPES = new Set([
   "SOLE_TRADER",
@@ -172,6 +174,36 @@ export async function completeOnboardingAction(formData: FormData) {
       "/onboarding?error=" +
         encodeURIComponent(error.message || "Couldn't save your details."),
     );
+  }
+
+  // Welcome email — fire-and-forget. We don't await the send result
+  // because Resend can take 200-800ms and we don't want to block the
+  // user-visible redirect on it. Failures land in email_log + console
+  // so we'll see them. Skip on custom plans (sales-handoff path).
+  if (planTier !== TIERS.custom.planTier) {
+    const toEmail = user.email;
+    if (toEmail) {
+      const firstName =
+        (user.user_metadata?.full_name as string | undefined)?.split(/\s+/)[0] ??
+        toEmail.split("@")[0];
+      const wsName = (tradingName?.trim() || firstName) + "";
+      const appUrl = `${getSiteOrigin()}/app`;
+      const telegramBot = process.env.TELEGRAM_BOT_USERNAME?.trim() || undefined;
+      void sendMail({
+        template: "welcome",
+        to: toEmail,
+        subject: `Welcome to Emiday, ${firstName} — your 10 days starts now`,
+        workspaceId: membership.workspace_id,
+        userId: user.id,
+        dedupeWithinHours: 24 * 30, // never resend a welcome
+        props: {
+          firstName,
+          workspaceName: wsName,
+          appUrl,
+          telegramBot,
+        },
+      });
+    }
   }
 
   // Custom plans: divert to a quote-confirmation page so we can pick up the

@@ -11,6 +11,8 @@ import {
   planTierFromPublicId,
   publicTierFromPlanCode,
 } from "@/lib/tiers";
+import { sendMail } from "@/lib/mail";
+import { getSiteOrigin } from "@/lib/site-url";
 
 type PaystackEvent = {
   event: string;
@@ -111,6 +113,25 @@ export async function POST(req: Request) {
       const reusable = evt.data.authorization?.reusable;
       if (authCode && reusable !== false) patch.paystack_authorization_code = authCode;
       await admin.from("workspaces").update(patch).eq("id", workspaceId);
+
+      // Receipt email — fire-and-forget. Idempotent on
+      // (workspace_id, template) within 12h, so a retried Paystack
+      // webhook doesn't double-mail. We pull the workspace name +
+      // owner email after the update lands.
+      void sendReceiptEmail({
+        admin,
+        workspaceId,
+        amountKobo: evt.data.amount ?? 0,
+        currency: evt.data.currency ?? "NGN",
+        reference: evt.data.reference ?? `ps_${Date.now()}`,
+        paidAt: evt.data.paid_at ?? new Date().toISOString(),
+        planTier,
+        cycle: resolved?.cycle ?? "MONTHLY",
+        nextPaymentDate: typeof evt.data.next_payment_date === "string"
+          ? evt.data.next_payment_date
+          : null,
+        customerEmail: evt.data.customer?.email ?? null,
+      });
       break;
     }
 
@@ -147,6 +168,13 @@ export async function POST(req: Request) {
         .from("workspaces")
         .update({ subscription_status: "past_due" })
         .eq("id", workspaceId);
+
+      void sendDunningEmail({
+        admin,
+        workspaceId,
+        customerEmail: evt.data.customer?.email ?? null,
+        planCode: planCode ?? null,
+      });
       break;
     }
 
@@ -156,4 +184,156 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ ok: true });
+}
+
+// ────────────────────── email helpers ────────────────────────────────
+
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+async function workspaceEmailTarget(
+  admin: AdminClient,
+  workspaceId: string,
+  customerEmail: string | null,
+): Promise<{ to: string; firstName: string; workspaceName: string; ownerId: string | null } | null> {
+  // Prefer the workspace owner's profile email; fall back to whatever
+  // Paystack tells us about the customer.
+  const { data: ws } = await admin
+    .from("workspaces")
+    .select("name, owner_id")
+    .eq("id", workspaceId)
+    .maybeSingle();
+
+  if (!ws) return null;
+
+  let ownerEmail: string | null = null;
+  let fullName: string | null = null;
+  if (ws.owner_id) {
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("email, full_name")
+      .eq("id", ws.owner_id)
+      .maybeSingle();
+    ownerEmail = profile?.email ?? null;
+    fullName = profile?.full_name ?? null;
+  }
+
+  const to = ownerEmail ?? customerEmail;
+  if (!to) return null;
+
+  const firstName = (fullName ?? to).split(/[\s@]/)[0] || "there";
+  return {
+    to,
+    firstName,
+    workspaceName: (ws.name as string) ?? "your workspace",
+    ownerId: ws.owner_id ?? null,
+  };
+}
+
+function planLabelFor(planTier: string | null): "Growth" | "Pro" {
+  if (planTier === "PRO" || planTier === "BUSINESS") return "Pro";
+  return "Growth";
+}
+
+function priceLabelFor(planTier: string | null, cycle: string): string {
+  const label = planLabelFor(planTier);
+  const monthly = label === "Pro" ? 150_000 : 85_000;
+  if (cycle === "ANNUAL") {
+    return `₦${(monthly * 10).toLocaleString("en-NG")}/yr`;
+  }
+  return `₦${monthly.toLocaleString("en-NG")}/mo`;
+}
+
+async function sendReceiptEmail(args: {
+  admin: AdminClient;
+  workspaceId: string;
+  amountKobo: number;
+  currency: string;
+  reference: string;
+  paidAt: string;
+  planTier: string | null;
+  cycle: string;
+  nextPaymentDate: string | null;
+  customerEmail: string | null;
+}) {
+  try {
+    const target = await workspaceEmailTarget(
+      args.admin,
+      args.workspaceId,
+      args.customerEmail,
+    );
+    if (!target) return;
+    const planLabel = planLabelFor(args.planTier);
+    await sendMail({
+      template: "receipt",
+      to: target.to,
+      subject: `Receipt — ₦${Math.round(args.amountKobo / 100).toLocaleString("en-NG")} · Emiday ${planLabel}`,
+      workspaceId: args.workspaceId,
+      userId: target.ownerId,
+      // Idempotent: same reference within 12h is a duplicate webhook.
+      dedupeWithinHours: 12,
+      metadata: { reference: args.reference },
+      props: {
+        firstName: target.firstName,
+        workspaceName: target.workspaceName,
+        amountKobo: args.amountKobo,
+        currency: args.currency,
+        reference: args.reference,
+        paidAt: args.paidAt,
+        planLabel,
+        cycleLabel: args.cycle === "ANNUAL" ? "Annual" : "Monthly",
+        nextBillingDate: args.nextPaymentDate,
+        billingUrl: `${getSiteOrigin()}/app/settings?tab=billing`,
+      },
+    });
+  } catch (e) {
+    console.error("[paystack] receipt email failed", {
+      workspace: args.workspaceId,
+      reference: args.reference,
+      error: e instanceof Error ? e.message : String(e),
+    });
+  }
+}
+
+async function sendDunningEmail(args: {
+  admin: AdminClient;
+  workspaceId: string;
+  customerEmail: string | null;
+  planCode: string | null;
+}) {
+  try {
+    const target = await workspaceEmailTarget(
+      args.admin,
+      args.workspaceId,
+      args.customerEmail,
+    );
+    if (!target) return;
+    const resolved = publicTierFromPlanCode(args.planCode);
+    const planTier = resolved
+      ? planTierFromPublicId(resolved.publicId)
+      : null;
+    const cycle = resolved?.cycle ?? "MONTHLY";
+    const planLabel = planLabelFor(planTier);
+    await sendMail({
+      template: "payment_failed",
+      to: target.to,
+      subject: "We couldn't charge your card — let's fix that",
+      workspaceId: args.workspaceId,
+      userId: target.ownerId,
+      // Don't dunning-mail the same workspace more than once a day.
+      dedupeWithinHours: 24,
+      props: {
+        firstName: target.firstName,
+        workspaceName: target.workspaceName,
+        planLabel,
+        priceLabel: priceLabelFor(planTier, cycle),
+        retryUrl: `${getSiteOrigin()}/app/settings?tab=billing`,
+        daysOfDataRetention: 7,
+      },
+    });
+  } catch (e) {
+    console.error("[paystack] dunning email failed", {
+      workspace: args.workspaceId,
+      error: e instanceof Error ? e.message : String(e),
+    });
+  }
 }
