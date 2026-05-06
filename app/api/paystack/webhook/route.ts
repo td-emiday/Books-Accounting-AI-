@@ -69,17 +69,33 @@ export async function POST(req: Request) {
     case "charge.success": {
       // Append a payment row + (re)mark the workspace active.
       if (!workspaceId) break;
-      await admin.from("payments").insert({
-        workspace_id: workspaceId,
-        paystack_reference: evt.data.reference ?? `ps_${Date.now()}`,
-        paystack_event: evt.event,
-        amount_kobo: evt.data.amount ?? 0,
-        currency: evt.data.currency ?? "NGN",
-        status: evt.data.status ?? "success",
-        channel: evt.data.channel ?? null,
-        paid_at: evt.data.paid_at ?? new Date().toISOString(),
-        raw: evt.data,
-      });
+      // Idempotent on paystack_reference (UNIQUE in migration 010).
+      // Paystack retries webhooks aggressively — without an upsert
+      // here, a retried charge.success would 23505 and we'd 500
+      // back to Paystack, kicking off more retries.
+      const { error: payErr } = await admin
+        .from("payments")
+        .upsert(
+          {
+            workspace_id: workspaceId,
+            paystack_reference: evt.data.reference ?? `ps_${Date.now()}`,
+            paystack_event: evt.event,
+            amount_kobo: evt.data.amount ?? 0,
+            currency: evt.data.currency ?? "NGN",
+            status: evt.data.status ?? "success",
+            channel: evt.data.channel ?? null,
+            paid_at: evt.data.paid_at ?? new Date().toISOString(),
+            raw: evt.data,
+          },
+          { onConflict: "paystack_reference", ignoreDuplicates: true },
+        );
+      if (payErr) {
+        console.error("[paystack] payments upsert failed", {
+          workspace: workspaceId,
+          reference: evt.data.reference,
+          error: payErr.message,
+        });
+      }
 
       const resolved = publicTierFromPlanCode(planCode);
       const planTier = resolved ? planTierFromPublicId(resolved.publicId) : null;

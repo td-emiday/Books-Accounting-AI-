@@ -39,7 +39,7 @@ export default async function TrialExpiredPage() {
       <div className="lock-card">
         <div className="lock-kicker">Trial ended</div>
         <h1 className="lock-title">
-          Your 24-hour preview is up, {ctx.firstName}.
+          Your 10-day free trial is up, {ctx.firstName}.
         </h1>
         <p className="lock-body">
           Activate your{" "}

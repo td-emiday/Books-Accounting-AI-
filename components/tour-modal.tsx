@@ -67,11 +67,11 @@ const STEPS = [
     target: '[data-tour="chat"]',
   },
   {
-    title: () => "Last step — set up billing.",
+    title: () => "Your 10-day free trial starts now.",
     body:
-      "Activate your plan to keep using Emiday. We use Paystack — pay with card, bank transfer, or USSD. Cancel any time.",
-    icon: "receipt" as const,
-    cta: "Pay & start using Emiday",
+      "Use everything Emiday does for 10 days, no card needed. Add billing whenever you're ready — we use Paystack for cards, bank transfer or USSD. Cancel any time.",
+    icon: "sparkle" as const,
+    cta: "Start using Emiday",
     target: null,
   },
 ] as const;
@@ -188,23 +188,17 @@ export function TourModal({ firstName, plan }: Props) {
             Step {step + 1} of {total}
           </span>
           {isLast ? (
-            <form
-              method="POST"
-              action="/api/paystack/checkout"
-              onSubmit={() => {
-                // Paystack hosted checkout takes over the tab; mark
-                // the tour complete server-side first so the user
-                // doesn't see it again on return.
-                void markComplete();
-              }}
-              className="tour-cta-form"
+            // 10-day trial flow: the last step doesn't push the user
+            // into Paystack — it just closes the tour and drops them
+            // on the dashboard. They can activate billing any time
+            // from the trial banner or Settings → Billing.
+            <button
+              type="button"
+              className="auth-primary tour-cta"
+              onClick={close}
             >
-              <input type="hidden" name="plan"  value={plan.publicId} />
-              <input type="hidden" name="cycle" value={plan.cycle} />
-              <button type="submit" className="auth-primary tour-cta">
-                {current.cta} →
-              </button>
-            </form>
+              {current.cta} →
+            </button>
           ) : (
             <button
               type="button"

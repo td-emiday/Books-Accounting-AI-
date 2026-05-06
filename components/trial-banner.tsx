@@ -1,7 +1,7 @@
 "use client";
 
 // Thin status banner shown across /app/* while a workspace is in its
-// 24-hour trial. Updates every 60s client-side so the countdown is
+// 10-day trial. Updates every 60s client-side so the countdown is
 // fresh without re-rendering the rest of the dashboard.
 
 import Link from "next/link";

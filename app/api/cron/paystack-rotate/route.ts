@@ -42,7 +42,16 @@ type WorkspaceRow = {
 
 function authorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
-  if (!secret) return true; // dev convenience; set in prod
+  // In prod we *require* a configured secret. Returning 200 with no
+  // auth previously meant anyone could rotate every workspace's
+  // subscription — that was a real security hole. Local dev still
+  // gets a courtesy bypass via `CRON_BYPASS=1`.
+  if (!secret) {
+    if (process.env.CRON_BYPASS === "1" && process.env.NODE_ENV !== "production") {
+      return true;
+    }
+    return false;
+  }
   const got = req.headers.get("authorization") ?? "";
   return got === `Bearer ${secret}`;
 }

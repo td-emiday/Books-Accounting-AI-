@@ -46,12 +46,14 @@ export function trialStateFor(input: {
   };
 }
 
-/** "23h 14m" / "47m" / "Trial ends in 38s" — for the banner. */
+/** "9d 4h" / "23h 14m" / "47m" / "38s" — for the banner. */
 export function formatTrialLeft(msLeft: number): string {
   if (msLeft <= 0) return "Trial ended";
   const sec = Math.floor(msLeft / 1000);
   const min = Math.floor(sec / 60);
   const hr = Math.floor(min / 60);
+  const day = Math.floor(hr / 24);
+  if (day >= 1) return `${day}d ${hr % 24}h left`;
   if (hr >= 1) return `${hr}h ${min % 60}m left`;
   if (min >= 1) return `${min}m left`;
   return `${sec}s left`;

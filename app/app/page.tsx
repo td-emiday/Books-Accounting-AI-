@@ -30,13 +30,12 @@ export default async function OverviewPage({
   const isWelcome = welcome === "1" || welcome === "custom";
   const billingSuccess = billing === "success";
 
-  // Show the "add billing" banner when the workspace is on a paid public
-  // tier but Paystack hasn't confirmed payment yet. STARTER + ENTERPRISE
-  // (custom) skip this — Starter is free, custom is invoiced manually.
+  // Show the "fix payment" banner only when something's actually
+  // wrong (a charge failed). During the 10-day free trial we let the
+  // TrialBanner alone do the nudge — stacking both was double-asking.
   const needsBilling =
     !billingSuccess &&
-    workspace.subscriptionStatus !== "active" &&
-    workspace.subscriptionStatus !== "non_renewing" &&
+    workspace.subscriptionStatus === "past_due" &&
     (workspace.planTier === "GROWTH" || workspace.planTier === "PRO");
   const billingPlanPublic =
     workspace.planTier === "PRO" ? "pro" : "growth";

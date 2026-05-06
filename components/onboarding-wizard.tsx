@@ -326,8 +326,8 @@ export function OnboardingWizard({
             {step === 1 && (
               <Panel
                 kicker={`Welcome, ${firstName}`}
-                title="Confirm your plan."
-                hint="You can change this later from Settings → Billing."
+                title="Pick a plan."
+                hint="You won't be charged today — your first 10 days are on us. Cancel any time."
                 body={
                   <>
                     <Field label="Plan">
