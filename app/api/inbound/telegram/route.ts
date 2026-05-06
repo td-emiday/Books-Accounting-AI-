@@ -16,7 +16,7 @@ import {
   sendMessage,
   type TgChatId,
 } from "@/lib/telegram";
-import { extractReceipt } from "@/lib/ocr";
+import { extractReceipt, OcrError } from "@/lib/ocr";
 import { createTransaction } from "@/lib/transactions/create";
 import { getSiteOrigin } from "@/lib/site-url";
 
@@ -105,12 +105,21 @@ export async function POST(req: Request) {
 
   if (msg.photo?.length || (msg.document && isImageDoc(msg.document.mime_type))) {
     await handleReceipt(channel, msg).catch(async (e) => {
+      // Log the full error to Vercel runtime logs so we can debug,
+      // but tailor the user-facing message to the failure mode.
+      console.error("[telegram] receipt failed", {
+        chatId,
+        workspace: channel.workspace_id,
+        error: e instanceof Error ? e.message : String(e),
+        stack: e instanceof Error ? e.stack : undefined,
+      });
+
+      const text = receiptErrorReply(e);
       await sendMessage({
         chat_id: chatId,
-        text:
-          "Sorry, I couldn't read that receipt. Try again or upload it via " +
-          `${siteUrl()}/app/transactions.\n\n_${(e as Error).message}_`,
+        text,
         parse_mode: "Markdown",
+        disable_web_page_preview: true,
       });
     });
     return NextResponse.json({ ok: true });
@@ -184,12 +193,25 @@ async function handlePair(chatId: TgChatId, code: string, msg: TgMessage) {
     .eq("id", pairing.workspace_id)
     .maybeSingle();
 
+  const wsName = ws?.name ?? "your workspace";
+  const firstName = msg.from?.first_name?.trim();
+  const greeting = firstName ? `Hi ${firstName}, ` : "";
   await sendMessage({
     chat_id: chatId,
     text:
-      `✅ Connected to *${ws?.name ?? "your workspace"}*.\n\n` +
-      "Send me a receipt photo and I'll log it for you. /help for commands.",
+      `✅ ${greeting}your Emiday account is connected to *${wsName}*.\n\n` +
+      "*Here's what I can do for you:*\n\n" +
+      "📸 *Snap a receipt* — send me a photo of any receipt and I'll " +
+      "OCR it, categorise it, and add a draft transaction to your books.\n\n" +
+      "💵 *Track spending in real time* — every receipt you forward " +
+      "shows up instantly at " + siteUrl() + "/app/transactions.\n\n" +
+      "🧾 *Coming soon*\n" +
+      "  • Forward bank statement PDFs to import in bulk\n" +
+      "  • Ask me anything about your books in plain English\n" +
+      "  • Daily summaries + filing reminders\n\n" +
+      "Try it now — send me a photo of any receipt. Type /help any time.",
     parse_mode: "Markdown",
+    disable_web_page_preview: true,
   });
 }
 
@@ -206,6 +228,51 @@ async function lookupChannel(chatId: TgChatId): Promise<Channel | null> {
     .eq("external_id", String(chatId))
     .maybeSingle();
   return data ?? null;
+}
+
+// Map OCR / pipeline errors to user-friendly chat replies. We name the
+// real cause when it's actionable (format, config), but keep generic
+// "try again" copy for transient/unknown errors.
+function receiptErrorReply(e: unknown): string {
+  const home = siteUrl();
+  if (e instanceof OcrError) {
+    switch (e.code) {
+      case "missing_key":
+        return (
+          "Receipt scanning isn't switched on in this environment yet — " +
+          "the team has been notified. Try again in a few minutes."
+        );
+      case "unsupported_format":
+        return (
+          "I can't read that file type. Send it as a regular *photo* " +
+          "(JPEG/PNG) — not a HEIC or PDF document.\n\n" +
+          "On iPhone: tap the camera icon, take/pick a photo, then send. " +
+          "Avoid the paperclip → File option."
+        );
+      case "openai_401":
+      case "openai_403":
+        return (
+          "Receipt scanning isn't authorised in this environment. " +
+          "Ping the team — the OpenAI key needs a refresh."
+        );
+      case "openai_429":
+        return "I'm rate-limited right now. Try the same receipt again in 30s.";
+      case "openai_400":
+        return (
+          "OpenAI rejected the image. Try a clearer photo (good lighting, " +
+          "receipt flat on a contrasting surface)."
+        );
+      case "bad_json":
+        return "I couldn't parse the receipt. Try a clearer photo.";
+      case "network":
+        return "I couldn't reach my OCR service. Try again in a moment.";
+    }
+  }
+  const detail = e instanceof Error ? e.message : "unknown error";
+  return (
+    "Sorry, I couldn't read that receipt. Try again or upload it at\n" +
+    `${home}/app/transactions.\n\n_${detail.slice(0, 200)}_`
+  );
 }
 
 // Pair codes are 8 chars from the unambiguous A-Z23456789 alphabet
