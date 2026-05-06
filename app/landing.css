@@ -273,6 +273,15 @@ body:has(.lp-root) { background: #f7f6f2; }
   max-width: 720px;
 }
 .lp-section h2 span { color: var(--muted); font-weight: 500; font-style: italic; }
+/* Single-line variant — used on "How it works" so the header doesn't
+   wrap. Keep the same tracking + weight as the default h2. */
+.lp-section h2.lp-h2-oneline {
+  white-space: nowrap;
+  font-size: 40px;
+}
+@media (max-width: 720px) {
+  .lp-section h2.lp-h2-oneline { white-space: normal; font-size: 30px; }
+}
 .lp-section .lead {
   font-size: 16px;
   color: var(--muted);
@@ -338,10 +347,15 @@ body:has(.lp-root) { background: #f7f6f2; }
   border: 1px solid var(--line);
   border-radius: 16px;
 }
+/* Step numbers — deep green pull-through. One of three intentional
+   green accents on the page; pulls the eye down through the four
+   steps without competing with the ink/purple palette elsewhere. */
 .lp-step-n {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--positive-deep, #16502b);
   font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.02em;
   margin-bottom: 16px;
 }
 .lp-step h4 {
@@ -391,6 +405,15 @@ body:has(.lp-root) { background: #f7f6f2; }
   max-width: 340px;
 }
 .lp-panel .lead { margin: 0; font-size: 14px; }
+/* Subtitle row — sits between the h3 and the lead, slightly muted. */
+.lp-panel-sub {
+  margin: 4px 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: -0.01em;
+}
+.lp-panel.dark .lp-panel-sub { color: rgba(255, 255, 255, 0.75); }
 .lp-panel-art { margin-top: auto; align-self: center; }
 
 /* pricing */
@@ -408,11 +431,37 @@ body:has(.lp-root) { background: #f7f6f2; }
   display: flex;
   flex-direction: column;
   gap: 16px;
+  /* Hover swap — any tier card briefly takes the dark "featured"
+     treatment when the cursor lands on it. Pro stays dark by
+     default; hovering Growth or Custom transiently applies the
+     same look, returning smoothly when the cursor leaves. */
+  transition:
+    background 200ms ease-out,
+    color 200ms ease-out,
+    border-color 200ms ease-out,
+    transform 160ms ease-out;
 }
-.lp-tier.featured {
+.lp-tier.featured,
+.lp-tier:hover {
   background: var(--ink);
   color: #fff;
   border-color: var(--ink);
+}
+.lp-tier:hover { transform: translateY(-2px); }
+@media (hover: none) {
+  /* On touch devices :hover is sticky after tap and feels broken.
+     Disable the hover treatment there — Pro stays dark via .featured. */
+  .lp-tier:hover {
+    background: #fff;
+    color: var(--ink);
+    border-color: var(--line);
+    transform: none;
+  }
+  .lp-tier.featured:hover {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
 }
 .lp-tier-head {
   display: flex;
@@ -430,7 +479,8 @@ body:has(.lp-root) { background: #f7f6f2; }
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
-.lp-tier.featured .lp-tier-tag {
+.lp-tier.featured .lp-tier-tag,
+.lp-tier:hover .lp-tier-tag {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
@@ -446,9 +496,11 @@ body:has(.lp-root) { background: #f7f6f2; }
   font-weight: 500;
   margin-left: 4px;
 }
-.lp-tier.featured .lp-tier-price span { color: rgba(255, 255, 255, 0.6); }
+.lp-tier.featured .lp-tier-price span,
+.lp-tier:hover .lp-tier-price span { color: rgba(255, 255, 255, 0.6); }
 .lp-tier-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
-.lp-tier.featured .lp-tier-desc { color: rgba(255, 255, 255, 0.7); }
+.lp-tier.featured .lp-tier-desc,
+.lp-tier:hover .lp-tier-desc { color: rgba(255, 255, 255, 0.7); }
 .lp-tier ul {
   list-style: none;
   padding: 0;
@@ -459,8 +511,9 @@ body:has(.lp-root) { background: #f7f6f2; }
   font-size: 13px;
 }
 .lp-tier li { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
-.lp-tier li svg { color: var(--positive); flex-shrink: 0; margin-top: 2px; }
-.lp-tier.featured li svg { color: #a8e4b5; }
+.lp-tier li svg { color: var(--positive-deep, #16502b); flex-shrink: 0; margin-top: 2px; }
+.lp-tier.featured li svg,
+.lp-tier:hover li svg { color: #a8e4b5; }
 .lp-tier-soon {
   margin-left: 4px;
   font-size: 10px;
@@ -474,7 +527,8 @@ body:has(.lp-root) { background: #f7f6f2; }
   align-self: center;
   line-height: 1.4;
 }
-.lp-tier.featured .lp-tier-soon {
+.lp-tier.featured .lp-tier-soon,
+.lp-tier:hover .lp-tier-soon {
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
 }
@@ -493,12 +547,14 @@ body:has(.lp-root) { background: #f7f6f2; }
   display: block;
 }
 .lp-tier .lp-tier-cta:hover { background: var(--hover); }
-.lp-tier.featured .lp-tier-cta {
+.lp-tier.featured .lp-tier-cta,
+.lp-tier:hover .lp-tier-cta {
   background: #fff;
   color: var(--ink);
   border-color: #fff;
 }
-.lp-tier.featured .lp-tier-cta:hover { opacity: 0.9; background: #fff; }
+.lp-tier.featured .lp-tier-cta:hover,
+.lp-tier:hover .lp-tier-cta:hover { opacity: 0.9; background: #fff; }
 
 /* CTA */
 .lp-bigcta {

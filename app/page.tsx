@@ -7,12 +7,10 @@ import {
   CUSTOMER_LOGOS,
   FOOTER_COLUMNS,
   FOOTER_TAGLINE,
-  HERO_BADGE,
   HERO_FOOT,
   NAV_LINKS,
   PRICING,
   STEPS,
-  WHATSAPP_NUMBER,
   formatPrice,
 } from "@/lib/data/landing";
 import "./landing.css";
@@ -94,16 +92,11 @@ export default function LandingPage() {
       <main className="lp">
         {/* HERO */}
         <section className="lp-hero">
-          <div className="lp-badge">
-            <span className="tag">{HERO_BADGE.tag}</span>
-            {HERO_BADGE.body}
-          </div>
           <h1>
-            Run the business. <span>Not the books.</span>
+            You build. <span>We balance.</span>
           </h1>
           <p>
-            Emiday reads your bank feeds, files VAT and PAYE on time,
-            and answers every numbers question in plain English.
+            Focus on growth. We&apos;ll handle the books.
           </p>
           <div className="lp-ctas">
             <Link className="lp-cta-primary" href="/sign-up">
@@ -142,7 +135,7 @@ export default function LandingPage() {
           <div className="lp-features">
             <Feature
               title="Bank feeds, auto-sorted"
-              body="GTBank, Zenith, Access, Paystack. Every transaction lands categorised — you just confirm."
+              body="Every transaction lands categorised — you just confirm."
               icon={
                 <svg
                   width={18}
@@ -163,7 +156,7 @@ export default function LandingPage() {
               demo={
                 <div className="mini-card">
                   <div className="mini-row">
-                    <span>Shoprite · POS</span>
+                    <span>Ebeano · POS</span>
                     <span className="mini-cat">
                       <span className="sw" style={{ background: "#8a5a18" }} />
                       COGS
@@ -188,8 +181,8 @@ export default function LandingPage() {
             />
 
             <Feature
-              title="FIRS-ready filings"
-              body="VAT, CIT, PAYE, Pension, WHT — drafted the night before they're due."
+              title="Tax-ready filings"
+              body="VAT, CIT, PAYE, Pension, WHT — drafted before they're due."
               icon={
                 <svg
                   width={18}
@@ -335,7 +328,7 @@ export default function LandingPage() {
 
             <Feature
               title="A CFO in your pocket"
-              body={`Ask "what's my runway?" — get a numbers-first answer with the source lines.`}
+              body="A personal AI agent that helps you stay on top of things."
               icon={
                 <svg
                   width={18}
@@ -445,9 +438,7 @@ export default function LandingPage() {
         {/* HOW IT WORKS */}
         <section className="lp-section" id="how" style={{ paddingTop: 0 }}>
           <span className="lp-eyebrow">How it works</span>
-          <h2>
-            From bank feed to filed, <span>in four quiet steps.</span>
-          </h2>
+          <h2 className="lp-h2-oneline">Get set up in 4 easy steps.</h2>
 
           <div className="lp-steps">
             {STEPS.map((s) => (
@@ -465,18 +456,12 @@ export default function LandingPage() {
           <div className="lp-twoup">
             <div className="lp-panel">
               <span className="lp-eyebrow">WhatsApp-first</span>
-              <h3>Snap a receipt. It&apos;s booked before you lock your phone.</h3>
+              <h3>Send a receipt.</h3>
+              <p className="lp-panel-sub">
+                It&apos;s booked before you lock your phone.
+              </p>
               <p className="lead">
-                Forward to{" "}
-                <b
-                  style={{
-                    color: "var(--ink)",
-                    fontFamily: "var(--font-mono)",
-                  }}
-                >
-                  {WHATSAPP_NUMBER}
-                </b>
-                . Emiday reads, matches, files.
+                Forward receipts. Emiday reads, matches and files.
               </p>
               <div className="lp-panel-art">
                 <div className="mini-wa" style={{ width: 280 }}>
@@ -497,7 +482,7 @@ export default function LandingPage() {
               <span className="lp-eyebrow">Ask anything</span>
               <h3>The CFO who remembers every line.</h3>
               <p className="lead">
-                Plain English in. Real numbers and the next step out.
+                Turn everyday input into financial clarity.
               </p>
               <div
                 className="lp-panel-art"

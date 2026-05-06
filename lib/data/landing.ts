@@ -20,13 +20,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Product",       href: "#how" },
   { label: "How it works",  href: "#how" },
   { label: "Pricing",       href: "#pricing" },
-  { label: "Docs",          href: mail("Docs access — early") },
 ];
-
-export const HERO_BADGE = {
-  tag: "NEW",
-  body: "Snap a receipt on WhatsApp — I'll file it.",
-};
 
 export const HERO_FOOT =
   "Setup in 2 minutes · Cancel anytime · Data in Nigeria";
@@ -97,8 +91,6 @@ export const PRICING: Tier[] = [
     name: "Growth",
     desc: "For SMEs running their own books.",
     priceNgn: 85_000,
-    tag: "Popular",
-    featured: true,
     features: [
       "1 business · 5 bank/wallet accounts",
       "2,000 transactions / month",
@@ -118,6 +110,8 @@ export const PRICING: Tier[] = [
     name: "Pro",
     desc: "For SMEs with a finance team.",
     priceNgn: 150_000,
+    tag: "Popular",
+    featured: true,
     features: [
       "Everything in Growth, plus:",
       "Unlimited bank accounts",
