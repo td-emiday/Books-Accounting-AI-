@@ -18,6 +18,7 @@ import {
 } from "@/lib/telegram";
 import { extractReceipt, OcrError } from "@/lib/ocr";
 import { createTransaction } from "@/lib/transactions/create";
+import { askCFO, CfoError } from "@/lib/cfo";
 import { getSiteOrigin } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -130,14 +131,71 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // Plain text — CFO chat backend is out of scope. Surface help.
+  // Plain text → ask the CFO. We acknowledge with a typing action so
+  // the user knows we got it; the OpenAI call usually returns within
+  // 2-5s. Errors are mapped to user-friendly copy server-side.
+  if (text.length > 0) {
+    await handleCfoQuestion(channel, msg, text).catch(async (e) => {
+      console.error("[telegram] cfo failed", {
+        chatId,
+        workspace: channel.workspace_id,
+        error: e instanceof Error ? e.message : String(e),
+      });
+      const reply = cfoErrorReply(e);
+      await sendMessage({ chat_id: chatId, text: reply });
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Empty / non-text message — fall through silently.
+  return NextResponse.json({ ok: true });
+}
+
+async function handleCfoQuestion(
+  channel: Channel,
+  msg: TgMessage,
+  text: string,
+) {
+  const chatId = msg.chat.id;
+  // Best-effort typing indicator; ignore errors since it's UX sugar.
+  try {
+    await fetch(
+      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendChatAction`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, action: "typing" }),
+      },
+    );
+  } catch {
+    /* ignore */
+  }
+
+  const admin = createAdminClient();
+  const ans = await askCFO(admin, channel.workspace_id, text);
   await sendMessage({
     chat_id: chatId,
-    text:
-      "Send me a receipt photo and I'll log it for you.\n\n" +
-      "Other commands: /help",
+    text: ans.text,
+    parse_mode: "Markdown",
+    disable_web_page_preview: true,
   });
-  return NextResponse.json({ ok: true });
+}
+
+function cfoErrorReply(e: unknown): string {
+  if (e instanceof CfoError) {
+    switch (e.code) {
+      case "missing_key":
+        return "Ask-the-CFO isn't switched on in this environment yet. The team has been notified.";
+      case "openai_429":
+        return "I'm rate-limited right now. Try again in 30 seconds.";
+      case "openai_401":
+      case "openai_403":
+        return "Ask-the-CFO authentication is broken. Ping the team.";
+      case "no_workspace":
+        return "I couldn't find your workspace. Try logging in at " + getSiteOrigin();
+    }
+  }
+  return "Sorry, something went wrong while reading your books. Try again in a moment.";
 }
 
 // ──────────────────────── pairing ────────────────────────────────────
@@ -201,15 +259,17 @@ async function handlePair(chatId: TgChatId, code: string, msg: TgMessage) {
     text:
       `✅ ${greeting}your Emiday account is connected to *${wsName}*.\n\n` +
       "*Here's what I can do for you:*\n\n" +
-      "📸 *Snap a receipt* — send me a photo of any receipt and I'll " +
-      "OCR it, categorise it, and add a draft transaction to your books.\n\n" +
+      "📸 *Snap a receipt* — send me a photo and I'll OCR it, categorise " +
+      "it, and add a draft transaction to your books.\n\n" +
+      "💬 *Ask me anything about your books* — \"what's my revenue this " +
+      "month?\", \"how much did I spend on rent?\", \"am I profitable?\". " +
+      "I read your books and answer in plain English.\n\n" +
       "💵 *Track spending in real time* — every receipt you forward " +
       "shows up instantly at " + siteUrl() + "/app/transactions.\n\n" +
       "🧾 *Coming soon*\n" +
       "  • Forward bank statement PDFs to import in bulk\n" +
-      "  • Ask me anything about your books in plain English\n" +
       "  • Daily summaries + filing reminders\n\n" +
-      "Try it now — send me a photo of any receipt. Type /help any time.",
+      "Try it now — send a receipt photo, or just ask me a question. /help any time.",
     parse_mode: "Markdown",
     disable_web_page_preview: true,
   });
@@ -395,8 +455,11 @@ async function replyHelp(chatId: TgChatId) {
     text:
       "📒 *Emiday bot*\n\n" +
       "Send me:\n" +
-      "• A *receipt photo* — I'll OCR it and log a draft transaction.\n\n" +
-      "Coming soon: bank statement PDFs, ask-your-CFO questions, filing reminders.",
+      "• A *receipt photo* — I'll OCR it and log a draft transaction.\n" +
+      "• Any *question about your books* — \"how much did I spend on " +
+      "rent this month?\", \"what's my biggest expense?\", \"am I " +
+      "profitable?\"\n\n" +
+      "Coming soon: bank statement PDFs, daily summaries, filing reminders.",
     parse_mode: "Markdown",
   });
 }

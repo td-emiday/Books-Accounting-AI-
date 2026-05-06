@@ -21,23 +21,44 @@ export function Chat({ open, setOpen }: Props) {
   const [typing, setTyping] = useState(false);
   const [thread, setThread] = useState<ChatMessage[]>(CHAT_THREAD);
 
-  const send = () => {
-    if (!text.trim()) return;
-    const newMsg: ChatMessage = { id: Date.now(), me: true, text };
-    setThread([...thread, newMsg]);
+  const send = async () => {
+    const q = text.trim();
+    if (!q || typing) return;
+    const userMsg: ChatMessage = { id: Date.now(), me: true, text: q };
+    setThread((t) => [...t, userMsg]);
     setText("");
     setTyping(true);
-    setTimeout(() => {
-      setTyping(false);
+    try {
+      const res = await fetch("/api/cfo/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: q }),
+      });
+      const json = (await res.json()) as {
+        ok: boolean;
+        answer?: string;
+        reason?: string;
+      };
+      const reply = json.ok && json.answer
+        ? json.answer
+        : json.reason === "openai_429"
+          ? "I'm rate-limited right now. Try again in a few seconds."
+          : json.reason === "missing_key"
+            ? "Ask-the-CFO isn't switched on in this environment yet."
+            : "Sorry, something went wrong reading your books. Try again.";
+      setThread((t) => [...t, { id: Date.now() + 1, me: false, text: reply }]);
+    } catch {
       setThread((t) => [
         ...t,
         {
           id: Date.now() + 1,
           me: false,
-          text: "Let me pull that together for you…",
+          text: "Network hiccup — try that again.",
         },
       ]);
-    }, 1400);
+    } finally {
+      setTyping(false);
+    }
   };
 
   if (!open) {

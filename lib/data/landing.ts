@@ -107,7 +107,7 @@ export const PRICING: Tier[] = [
       "VAT, PAYE, Pension, NSITF, CIT",
       "One-click FIRS pay",
       "Every report: P&L, BS, Cashflow, VAT, Payroll",
-      { label: "CFO chat in plain English", tag: "soon" },
+      "CFO chat in plain English (web + Telegram)",
       "Email support",
     ],
     cta: "Get started",
