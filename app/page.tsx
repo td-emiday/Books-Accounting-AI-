@@ -93,10 +93,12 @@ export default function LandingPage() {
         {/* HERO */}
         <section className="lp-hero">
           <h1>
-            You build. <span>We balance.</span>
+            Focus on growth. <span>We&apos;ll handle the books.</span>
           </h1>
           <p>
-            Focus on growth. We&apos;ll handle the books.
+            Emiday helps small businesses automate book keeping, tax
+            filings &amp; financial insights. Less admin so you can
+            focus on growth.
           </p>
           <div className="lp-ctas">
             <Link className="lp-cta-primary" href="/sign-up">
