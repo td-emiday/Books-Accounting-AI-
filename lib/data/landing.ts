@@ -20,6 +20,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Product",       href: "#how" },
   { label: "How it works",  href: "#how" },
   { label: "Pricing",       href: "#pricing" },
+  { label: "Blog",          href: "/blog" },
 ];
 
 export const HERO_FOOT =
