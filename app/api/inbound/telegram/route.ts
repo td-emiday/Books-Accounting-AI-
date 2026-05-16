@@ -18,7 +18,7 @@ import {
   sendMessageSafe,
   type TgChatId,
 } from "@/lib/telegram";
-import { extractReceipt, OcrError } from "@/lib/ocr";
+import { extractReceipt, extractReceiptFromPdf, OcrError } from "@/lib/ocr";
 import { createTransaction } from "@/lib/transactions/create";
 import { askCFO, CfoError } from "@/lib/cfo";
 import { getSiteOrigin } from "@/lib/site-url";
@@ -351,7 +351,7 @@ async function handlePair(chatId: TgChatId, code: string, msg: TgMessage) {
     text:
       `✅ ${opener} — you're connected to *${wsName}*.\n\n` +
       "Two things to start:\n\n" +
-      "📸 *Send a receipt* — any photo. I'll OCR it and log a draft " +
+      "📸 *Send a receipt* — photo or PDF. I'll OCR it and log a draft " +
       "transaction.\n\n" +
       "💬 *Ask me anything* — \"what's my net this month?\", \"biggest " +
       "expense last week?\", \"do I owe VAT?\". I answer from your real " +
@@ -414,6 +414,14 @@ function receiptErrorReply(e: unknown): string {
         return "I couldn't parse the receipt. Try a clearer photo.";
       case "network":
         return "I couldn't reach my OCR service. Try again in a moment.";
+      case "pdf_no_text":
+        return (
+          "That PDF looks like a scanned image — the text isn't selectable " +
+          "so I can't read it directly. Send the receipt as a *photo* and " +
+          "I'll OCR it instead."
+        );
+      case "pdf_parse_failed":
+        return "I couldn't open that PDF. It may be password-protected or corrupted — try resending.";
     }
   }
   const detail = e instanceof Error ? e.message : "unknown error";
@@ -462,18 +470,13 @@ async function handleReceipt(channel: Channel, msg: TgMessage) {
     .upload(objectPath, buffer, { contentType, upsert: false });
   if (upErr) throw new Error(`storage: ${upErr.message}`);
 
-  // OCR (PDF skips for v1 — gpt-4o-mini doesn't accept PDF directly).
-  if (contentType === "application/pdf") {
-    await sendMessage({
-      chat_id: chatId,
-      text:
-        "PDF receipts aren't auto-parsed yet — I've stashed it under " +
-        "Documents. Photos work today!",
-    });
-    return;
-  }
-
-  const extract = await extractReceipt(buffer, contentType);
+  // PDF path: pull text via pdf-parse, feed to gpt-4o-mini text
+  // endpoint. Image-only scanned PDFs throw `pdf_no_text` and the
+  // top-level handler maps that to a "send as photo" reply.
+  const extract =
+    contentType === "application/pdf"
+      ? await extractReceiptFromPdf(buffer)
+      : await extractReceipt(buffer, contentType);
 
   if (!extract.amount) {
     await sendMessage({
@@ -550,7 +553,7 @@ async function replyHelp(chatId: TgChatId) {
     text:
       "📒 *Emiday bot*\n\n" +
       "Send me:\n" +
-      "• A *receipt photo* — I'll OCR it and log a draft transaction.\n" +
+      "• A *receipt* — photo or PDF. I'll OCR it and log a draft transaction.\n" +
       "• Any *question about your books* — \"how much did I spend on " +
       "rent this month?\", \"what's my biggest expense?\", \"am I " +
       "profitable?\"\n\n" +
