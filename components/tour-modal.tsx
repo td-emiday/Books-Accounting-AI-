@@ -76,7 +76,30 @@ const STEPS = [
   },
 ] as const;
 
+// localStorage flag that survives the (rare) cases where the server
+// write is still in flight when the next /app visit reads the
+// workspace. If either the server field is set OR this flag is set,
+// we hide the tour. Belt and braces.
+const LS_KEY = "emiday.tour.completed";
+
+function setLocalDone() {
+  try {
+    localStorage.setItem(LS_KEY, "1");
+  } catch {
+    /* private mode / quota — non-fatal */
+  }
+}
+
+function hasLocalDone(): boolean {
+  try {
+    return localStorage.getItem(LS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 async function markComplete() {
+  setLocalDone();
   try {
     // keepalive lets the request finish even if the page is navigating
     // away (e.g. user clicked "Pay & start using Emiday" → Paystack).
@@ -89,7 +112,15 @@ async function markComplete() {
 
 export function TourModal({ firstName, plan }: Props) {
   const [step, setStep] = useState(0);
+  // Initialise closed=true when localStorage says the tour is already
+  // done — this catches the race where /app's server render reads a
+  // stale `tour_completed_at: null` (e.g. the prior write hadn't yet
+  // committed when the page hit getWorkspaceContext()). With this,
+  // the modal never re-appears on a browser that already completed it.
   const [closed, setClosed] = useState(false);
+  useEffect(() => {
+    if (hasLocalDone()) setClosed(true);
+  }, []);
 
   // Spotlight: find the target for this step, scroll it into view, and
   // toggle a CSS class that lifts it above the scrim with a halo.
@@ -111,9 +142,13 @@ export function TourModal({ firstName, plan }: Props) {
   const isLast = step === total - 1;
   const current = STEPS[step];
 
-  function close() {
-    void markComplete();
+  async function close() {
+    // Set the localStorage flag synchronously so a fast re-mount
+    // (e.g. user clicks Skip then immediately navigates) sees it.
+    setLocalDone();
     setClosed(true);
+    // Then send the server write — best effort, keepalive survives nav.
+    void markComplete();
   }
 
   function next() {

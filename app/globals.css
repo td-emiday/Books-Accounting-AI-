@@ -3493,3 +3493,180 @@ body.dark[data-accent="mono"] { --accent: #f4f3ef; --accent-soft: #2a2a2e; --acc
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* ─────────────────────── Change-plan modal ─────────────────────────
+   Sits inside the same scrim primitive as <ConfirmDialog>, just with
+   a wider card and a plan-picker layout. One canonical UX for both
+   "set up billing" (pending) and "schedule a change" (active). */
+.cp-card {
+  position: relative;
+  width: min(560px, 100%);
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e8e6df);
+  border-radius: 16px;
+  padding: 26px 26px 22px;
+  box-shadow: 0 24px 60px -16px rgba(13, 13, 16, 0.35);
+  animation: confirm-rise 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cp-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--ink-2, #6b6b72);
+  cursor: pointer;
+  font-family: inherit;
+}
+.cp-close:hover { background: var(--hover, #f3f1eb); color: var(--ink); }
+
+.cp-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.cp-sub {
+  margin: 0 0 22px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.cp-plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+@media (max-width: 540px) {
+  .cp-plans { grid-template-columns: 1fr; }
+}
+.cp-plan {
+  text-align: left;
+  padding: 14px 16px;
+  border: 1.5px solid var(--line, #e8e6df);
+  border-radius: 12px;
+  background: var(--surface, #fff);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 160ms ease-out, background 160ms ease-out;
+}
+.cp-plan:hover { border-color: var(--line-strong, #d8d5cc); }
+.cp-plan.on {
+  border-color: var(--ink, #15151a);
+  background: var(--surface-2, #fafaf6);
+}
+.cp-plan-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+.cp-plan-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink, #15151a);
+}
+.cp-plan-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--accent-soft, #eceaff);
+  color: var(--accent-ink, #2e2c8a);
+}
+.cp-plan-price {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  color: var(--ink, #15151a);
+  margin: 0 0 4px;
+}
+.cp-plan-price span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2, #6b6b72);
+  margin-left: 4px;
+  letter-spacing: 0;
+}
+.cp-plan-desc {
+  font-size: 12.5px;
+  color: var(--ink-2, #6b6b72);
+  line-height: 1.4;
+}
+
+.cp-cycle {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 16px;
+  flex-wrap: wrap;
+}
+.cp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid var(--line-strong, #d8d5cc);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2, #5a5a66);
+  cursor: pointer;
+  background: var(--surface, #fff);
+  transition: border-color 160ms ease-out, color 160ms ease-out, background 160ms ease-out;
+}
+.cp-chip:hover { border-color: var(--ink-2, #5a5a66); }
+.cp-chip input { display: none; }
+.cp-chip.on {
+  border-color: var(--ink, #15151a);
+  background: var(--ink, #15151a);
+  color: #fff;
+}
+.cp-save {
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 4px;
+  opacity: 0.85;
+}
+
+.cp-summary {
+  font-size: 13px;
+  color: var(--ink-2, #5a5a66);
+  margin: 0 0 18px;
+}
+.cp-summary strong { color: var(--ink); font-weight: 600; }
+
+.cp-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.cp-submit {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--ink, #15151a);
+  background: var(--ink, #15151a);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 550;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 40px;
+}
+.cp-submit:hover { opacity: 0.92; }
+.cp-submit:disabled {
+  background: var(--surface-2, #fafaf6);
+  color: var(--ink-2, #6b6b72);
+  border-color: var(--line, #e8e6df);
+  cursor: not-allowed;
+}

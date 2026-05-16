@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { Icon, type IconName } from "./icon";
 import { TelegramConnect } from "./telegram-connect";
 import { ConfirmDialog } from "./confirm-dialog";
+import { ChangePlanDialog } from "./change-plan-dialog";
 import { useWorkspaceContext } from "./dashboard-data-context";
 import {
   seedDemoDataAction,
@@ -714,6 +715,7 @@ function BillingTab() {
     tierLabel === "Growth" ? 85_000 : tierLabel === "Pro" ? 150_000 : 0;
   const cycleLabel =
     workspace.billingCycle === "ANNUAL" ? "Annual" : "Monthly";
+  const [changePlanOpen, setChangePlanOpen] = useState(false);
 
   const status = workspace.subscriptionStatus;
   const renewDate = workspace.currentPeriodEnd
@@ -799,7 +801,13 @@ function BillingTab() {
                 <button type="submit" className="btn">Cancel plan</button>
               </form>
             )}
-            <a href="/#pricing" className="btn">Change plan</a>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setChangePlanOpen(true)}
+            >
+              Change plan
+            </button>
           </div>
         </div>
 
@@ -837,14 +845,17 @@ function BillingTab() {
           </div>
         )}
 
-        {/* Change-plan picker — only when there's an active sub.
-            Schedules the swap for end-of-cycle; cron does the rest. */}
-        {status === "active" && !workspace.pendingPlanChange && (
-          <SchedulePlanChange
-            currentPlan={tierLabel === "Pro" ? "pro" : "growth"}
-            currentCycle={workspace.billingCycle === "ANNUAL" ? "ANNUAL" : "MONTHLY"}
-          />
-        )}
+        <ChangePlanDialog
+          open={changePlanOpen}
+          onClose={() => setChangePlanOpen(false)}
+          context={{
+            currentPlan: tierLabel === "Pro" ? "pro" : "growth",
+            currentCycle:
+              workspace.billingCycle === "ANNUAL" ? "ANNUAL" : "MONTHLY",
+            subscriptionStatus: status,
+            currentPeriodEnd: workspace.currentPeriodEnd,
+          }}
+        />
       </SettingsSection>
 
       <SettingsSection title="Usage this cycle">
