@@ -12,8 +12,10 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   downloadFile,
+  escapeMarkdown,
   getFile,
   sendMessage,
+  sendMessageSafe,
   type TgChatId,
 } from "@/lib/telegram";
 import { extractReceipt, OcrError } from "@/lib/ocr";
@@ -35,11 +37,21 @@ type TgMessage = {
   caption?: string;
   photo?: { file_id: string; file_size?: number; width?: number; height?: number }[];
   document?: { file_id: string; mime_type?: string; file_name?: string };
+  // Media types we don't (yet) handle — typed so we can branch politely.
+  voice?: { file_id: string };
+  audio?: { file_id: string };
+  video?: { file_id: string };
+  video_note?: { file_id: string };
+  sticker?: { file_id: string };
+  animation?: { file_id: string };
+  location?: { latitude: number; longitude: number };
+  contact?: { phone_number: string };
 };
 
 type TgUpdate = {
   update_id: number;
   message?: TgMessage;
+  edited_message?: TgMessage;
 };
 
 function siteUrl(): string {
@@ -61,11 +73,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
+  // Ignore edits silently — replying to "user edited their message"
+  // would be more confusing than helpful. Only fresh messages route.
   const msg = update.message;
   if (!msg) return NextResponse.json({ ok: true });
 
   const chatId = msg.chat.id;
   const text = (msg.text ?? "").trim();
+
+  // /help works regardless of pair status so anyone landing on the
+  // bot can see what it does.
+  if (text === "/help") {
+    await replyHelp(chatId);
+    return NextResponse.json({ ok: true });
+  }
 
   // /start <pair_code> arrives via deep-link (https://t.me/<bot>?start=CODE).
   if (text.startsWith("/start")) {
@@ -79,8 +100,16 @@ export async function POST(req: Request) {
       text:
         "👋 Welcome to Emiday.\n\n" +
         "To connect, send me your 8-character pairing code. Get one at " +
-        `${siteUrl()}/app/settings → Integrations → Connect Telegram.`,
+        `${siteUrl()}/app/settings → Integrations → Connect Telegram.\n\n` +
+        "Type /help any time to see what I can do.",
     });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Sticker / animation: ignore silently. These almost never carry
+  // intent (they're reactions). Replying to every sticker would be
+  // annoying.
+  if (msg.sticker || msg.animation) {
     return NextResponse.json({ ok: true });
   }
 
@@ -101,6 +130,41 @@ export async function POST(req: Request) {
         "This chat isn't connected to a workspace yet.\n\n" +
         "Send me your 8-character pairing code, or grab a fresh one at\n" +
         `${siteUrl()}/app/settings → Integrations.`,
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Voice / audio / video / video_note: not supported yet. Tell the
+  // user clearly so they don't think the bot ate the message.
+  if (msg.voice || msg.audio || msg.video || msg.video_note) {
+    await sendMessage({
+      chat_id: chatId,
+      text:
+        "Voice and video aren't supported yet — send receipts as a *photo*, " +
+        "or just type your question.\n\n" +
+        "Transcription is on the roadmap.",
+      parse_mode: "Markdown",
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Location / contact: silently ack. We don't want these in books.
+  if (msg.location || msg.contact) {
+    await sendMessage({
+      chat_id: chatId,
+      text: "Got it, but I don't know what to do with that yet. Try a receipt photo or a question about your books.",
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Document of an unsupported type (.docx, .xlsx, .zip…) — politely refuse.
+  if (msg.document && !isImageDoc(msg.document.mime_type)) {
+    await sendMessage({
+      chat_id: chatId,
+      text:
+        `I can only read photos for now. \`${msg.document.file_name ?? "that file"}\` ` +
+        "isn't an image — send a JPEG/PNG of the receipt and I'll handle it.",
+      parse_mode: "Markdown",
     });
     return NextResponse.json({ ok: true });
   }
@@ -140,11 +204,6 @@ export async function POST(req: Request) {
         disable_web_page_preview: true,
       });
     });
-    return NextResponse.json({ ok: true });
-  }
-
-  if (text === "/help" || text === "/start") {
-    await replyHelp(chatId);
     return NextResponse.json({ ok: true });
   }
 
@@ -204,7 +263,9 @@ async function handleCfoQuestion(
 
   const admin = createAdminClient();
   const ans = await askCFO(admin, channel.workspace_id, text);
-  await sendMessage({
+  // sendMessageSafe truncates over 4k chars and retries plain-text if
+  // gpt-4o-mini's Markdown trips Telegram's parser.
+  await sendMessageSafe({
     chat_id: chatId,
     text: ans.text,
     parse_mode: "Markdown",
@@ -425,6 +486,17 @@ async function handleReceipt(channel: Channel, msg: TgMessage) {
   }
 
   const today = new Date().toISOString().slice(0, 10);
+  // Notes: lead with the user's photo caption ("Lunch with Ada") if
+  // they sent one, then the OCR-extracted line items underneath.
+  const userCaption = (msg.caption ?? "").trim();
+  const itemNotes = extract.line_items
+    ? extract.line_items
+        .slice(0, 10)
+        .map((l) => `• ${l.name}${l.amount ? ` — ${l.amount}` : ""}`)
+        .join("\n")
+    : null;
+  const notes = [userCaption || null, itemNotes].filter(Boolean).join("\n\n") || null;
+
   const txn = await createTransaction(admin, {
     workspaceId: channel.workspace_id,
     type: extract.type,
@@ -435,12 +507,7 @@ async function handleReceipt(channel: Channel, msg: TgMessage) {
     vendorClient: extract.vendor,
     source: "TELEGRAM",
     receiptUrl: objectPath,
-    notes: extract.line_items
-      ? extract.line_items
-          .slice(0, 10)
-          .map((l) => `• ${l.name}${l.amount ? ` — ${l.amount}` : ""}`)
-          .join("\n")
-      : null,
+    notes,
     categoryConfirmed: false,
   });
 
@@ -450,10 +517,11 @@ async function handleReceipt(channel: Channel, msg: TgMessage) {
     maximumFractionDigits: 0,
   });
 
-  await sendMessage({
+  const vendorSafe = escapeMarkdown(extract.vendor ?? "receipt");
+  await sendMessageSafe({
     chat_id: chatId,
     text:
-      `✅ Logged *${fmt.format(extract.amount)}* — ${extract.vendor ?? "receipt"} ` +
+      `✅ Logged *${fmt.format(extract.amount)}* — ${vendorSafe} ` +
       `(${extract.date ?? "today"}).\n\n` +
       `View → ${siteUrl()}/app/transactions`,
     parse_mode: "Markdown",
