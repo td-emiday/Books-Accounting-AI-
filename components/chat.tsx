@@ -41,11 +41,13 @@ export function Chat({ open, setOpen }: Props) {
       };
       const reply = json.ok && json.answer
         ? json.answer
-        : json.reason === "openai_429"
-          ? "I'm rate-limited right now. Try again in a few seconds."
-          : json.reason === "missing_key"
-            ? "Ask-the-CFO isn't switched on in this environment yet."
-            : "Sorry, something went wrong reading your books. Try again.";
+        : json.reason === "rate_limited"
+          ? "Slow down a touch — you've asked a lot in the last minute. Try again in a few seconds."
+          : json.reason === "openai_429"
+            ? "I'm rate-limited right now. Try again in a few seconds."
+            : json.reason === "missing_key"
+              ? "Ask-the-CFO isn't switched on in this environment yet."
+              : "Sorry, something went wrong reading your books. Try again.";
       setThread((t) => [...t, { id: Date.now() + 1, me: false, text: reply }]);
     } catch {
       setThread((t) => [

@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { askCFO, CfoError } from "@/lib/cfo";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -16,6 +17,24 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ ok: false, reason: "unauthenticated" }, { status: 401 });
+  }
+
+  // Same 30/min cap the Telegram bot uses. Keyed by user.id so a
+  // user signed in on multiple tabs / devices still shares a bucket.
+  const rl = checkRateLimit({
+    key: `cfo:user:${user.id}`,
+    max: 30,
+    windowMs: 60_000,
+  });
+  if (!rl.ok) {
+    return NextResponse.json(
+      {
+        ok: false,
+        reason: "rate_limited",
+        retryAfterMs: rl.retryAfterMs,
+      },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } },
+    );
   }
 
   let body: { message?: unknown };

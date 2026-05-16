@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { Icon, type IconName } from "./icon";
 import { TelegramConnect } from "./telegram-connect";
+import { ConfirmDialog } from "./confirm-dialog";
 import { useWorkspaceContext } from "./dashboard-data-context";
 import {
   seedDemoDataAction,
@@ -205,8 +206,10 @@ function Toggle({ on = false }: { on?: boolean }) {
 }
 
 function DemoDataSection() {
+  const { workspace } = useWorkspaceContext();
   const [busy, setBusy] = useState<"none" | "seeding" | "clearing">("none");
   const [msg, setMsg] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   async function onSeed() {
     setBusy("seeding");
@@ -221,9 +224,10 @@ function DemoDataSection() {
     }
   }
 
-  async function onClear() {
+  async function runClear() {
     setBusy("clearing");
     setMsg(null);
+    setConfirmOpen(false);
     try {
       await clearDemoDataAction();
       setMsg("Workspace data cleared.");
@@ -251,7 +255,7 @@ function DemoDataSection() {
         <button
           type="button"
           className="btn"
-          onClick={onClear}
+          onClick={() => setConfirmOpen(true)}
           disabled={busy !== "none"}
           style={{ color: "var(--danger)" }}
         >
@@ -261,6 +265,25 @@ function DemoDataSection() {
       {msg && (
         <p style={{ marginTop: 10, fontSize: 13, color: "var(--ink-2)" }}>{msg}</p>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Clear workspace data"
+        body={
+          <>
+            <p style={{ margin: "0 0 8px" }}>
+              This permanently deletes every transaction, invoice,
+              client and document in <strong>{workspace.name}</strong>.
+              Your workspace, members and billing stay put.
+            </p>
+            <p style={{ margin: 0 }}>This action can&apos;t be undone.</p>
+          </>
+        }
+        confirmValue={workspace.name}
+        confirmLabel="Clear workspace data"
+        onConfirm={runClear}
+      />
     </SettingsSection>
   );
 }
@@ -889,6 +912,8 @@ function BillingTab() {
 }
 
 function SecurityTab() {
+  const { workspace } = useWorkspaceContext();
+  const [deleteOpen, setDeleteOpen] = useState(false);
   return (
     <>
       <SettingsSection
@@ -964,6 +989,7 @@ function SecurityTab() {
           <button
             type="button"
             className="btn"
+            onClick={() => setDeleteOpen(true)}
             style={{
               color: "var(--danger)",
               borderColor: "var(--danger-soft)",
@@ -973,6 +999,38 @@ function SecurityTab() {
           </button>
         </Field>
       </SettingsSection>
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title="Delete workspace"
+        body={
+          <>
+            <p style={{ margin: "0 0 8px" }}>
+              This permanently removes <strong>{workspace.name}</strong> —
+              every transaction, invoice, document, member and audit
+              trail. Any active subscription will be cancelled.
+            </p>
+            <p style={{ margin: 0 }}>
+              We don&apos;t self-serve this yet. Confirming opens an email
+              to support so we can verify your identity and process the
+              delete within 24 hours.
+            </p>
+          </>
+        }
+        confirmValue={workspace.name}
+        confirmLabel="Request deletion"
+        onConfirm={() => {
+          const subject = `Delete workspace: ${workspace.name}`;
+          const body =
+            `Please delete workspace "${workspace.name}".\n\n` +
+            `I understand this is irreversible.\n`;
+          window.location.href =
+            `mailto:support@emiday.io?subject=${encodeURIComponent(subject)}` +
+            `&body=${encodeURIComponent(body)}`;
+          setDeleteOpen(false);
+        }}
+      />
     </>
   );
 }

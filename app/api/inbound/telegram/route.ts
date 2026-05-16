@@ -20,6 +20,7 @@ import { extractReceipt, OcrError } from "@/lib/ocr";
 import { createTransaction } from "@/lib/transactions/create";
 import { askCFO, CfoError } from "@/lib/cfo";
 import { getSiteOrigin } from "@/lib/site-url";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 // Receipts can take ~3-8s through OCR; allow generous Vercel timeout.
@@ -105,6 +106,22 @@ export async function POST(req: Request) {
   }
 
   if (msg.photo?.length || (msg.document && isImageDoc(msg.document.mime_type))) {
+    // Cap receipts per chat. OpenAI vision is the expensive call —
+    // 10/min/chat is generous for a real user (most people forward
+    // < 50 a day) and tight enough that a spam loop bumps the wall
+    // before it bills us.
+    const rl = checkRateLimit({
+      key: `tg:photo:${chatId}`,
+      max: 10,
+      windowMs: 60_000,
+    });
+    if (!rl.ok) {
+      await sendMessage({
+        chat_id: chatId,
+        text: `Easy — give me a moment. Try again in ${Math.ceil(rl.retryAfterMs / 1000)}s.`,
+      });
+      return NextResponse.json({ ok: true });
+    }
     await handleReceipt(channel, msg).catch(async (e) => {
       // Log the full error to Vercel runtime logs so we can debug,
       // but tailor the user-facing message to the failure mode.
@@ -135,6 +152,20 @@ export async function POST(req: Request) {
   // the user knows we got it; the OpenAI call usually returns within
   // 2-5s. Errors are mapped to user-friendly copy server-side.
   if (text.length > 0) {
+    // 30 CFO questions/min/chat. Way above any honest usage; only
+    // bites scripted hammering.
+    const rl = checkRateLimit({
+      key: `tg:cfo:${chatId}`,
+      max: 30,
+      windowMs: 60_000,
+    });
+    if (!rl.ok) {
+      await sendMessage({
+        chat_id: chatId,
+        text: `Slow down a touch — try again in ${Math.ceil(rl.retryAfterMs / 1000)}s.`,
+      });
+      return NextResponse.json({ ok: true });
+    }
     await handleCfoQuestion(channel, msg, text).catch(async (e) => {
       console.error("[telegram] cfo failed", {
         chatId,

@@ -1,20 +1,72 @@
 // Next 16 proxy (formerly middleware). Runs before every matched route.
 //
-// Two jobs:
-//   1. Refresh the Supabase auth cookies (so SSR + Server Actions see
+// Three jobs:
+//   1. Subdomain routing: ops.emiday.io serves the /admin/* shell as if it
+//      were the root, so visitors see clean URLs (ops.emiday.io/customers
+//      instead of ops.emiday.io/admin/customers).
+//   2. Refresh the Supabase auth cookies (so SSR + Server Actions see
 //      a fresh session).
-//   2. Gate /app/* routes — if no authenticated user, bounce to /sign-in
-//      with a redirect-back parameter.
+//   3. Gate /app/* routes — if no authenticated user, bounce to /sign-in
+//      with a redirect-back parameter. Plus trial-expired gate.
 
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 import { trialStateFor } from "@/lib/trial";
 
-export async function proxy(request: NextRequest) {
-  const response = await updateSession(request);
-  const pathname = request.nextUrl.pathname;
+// Hosts that should mount /admin at the root.
+const ADMIN_HOSTS = new Set(["ops.emiday.io", "ops.emiday.local"]);
 
+// Paths that DON'T get rewritten on the ops subdomain — auth flow, Next
+// internals, API routes, and the /admin tree itself (so direct visits to
+// ops.emiday.io/admin/content still work).
+const OPS_PASS_THROUGH = [
+  "/admin",
+  "/sign-in",
+  "/sign-up",
+  "/auth",
+  "/api",
+  "/_next",
+  "/favicon",
+];
+
+function isOpsHost(host: string): boolean {
+  return ADMIN_HOSTS.has(host.split(":")[0].toLowerCase());
+}
+
+/** Copy session cookies set by updateSession onto a new response. */
+function carryCookies(from: NextResponse, to: NextResponse): NextResponse {
+  for (const cookie of from.cookies.getAll()) {
+    to.cookies.set(cookie);
+  }
+  return to;
+}
+
+export async function proxy(request: NextRequest) {
+  // 1. Refresh auth cookies on every request. Side effect: request.cookies is
+  // mutated with refreshed values, so downstream rewrites inherit them.
+  const response = await updateSession(request);
+
+  const host = request.headers.get("host") ?? "";
+  const pathname = request.nextUrl.pathname;
+  const search = request.nextUrl.search;
+
+  // 2. ops.emiday.io subdomain routing — mount /admin/* at the root.
+  if (isOpsHost(host)) {
+    const isPass = OPS_PASS_THROUGH.some(
+      (p) => pathname === p || pathname.startsWith(p + "/"),
+    );
+    if (!isPass) {
+      const url = request.nextUrl.clone();
+      url.pathname = pathname === "/" ? "/admin" : `/admin${pathname}`;
+      url.search = search;
+      return carryCookies(response, NextResponse.rewrite(url));
+    }
+    // Pass-through paths on ops still need auth refresh, which already happened.
+    return response;
+  }
+
+  // 3. Main domain (emiday.io) — existing protected-route gating.
   const isProtected =
     pathname.startsWith("/app") ||
     pathname.startsWith("/onboarding") ||
@@ -35,7 +87,7 @@ export async function proxy(request: NextRequest) {
           // Read-only at this point; updateSession already wrote.
         },
       },
-    }
+    },
   );
 
   const {
