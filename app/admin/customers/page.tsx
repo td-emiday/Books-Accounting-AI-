@@ -161,11 +161,17 @@ export default async function CustomersPage({
                 return (
                   <tr key={r.id} className={`border-b last:border-b-0 ${suspended ? "bg-red-50/30" : ""}`}>
                     <td className="px-3 py-3">
-                      <p className="font-medium text-neutral-900">{r.name}</p>
-                      <p className="text-xs text-neutral-500">
-                        {r.jurisdiction} · {r.business_type.replace("_", " ").toLowerCase()}
-                        {r.industry ? ` · ${r.industry}` : ""}
-                      </p>
+                      <Link
+                        href={`/admin/customers/${r.id}`}
+                        className="block hover:underline"
+                      >
+                        <p className="font-medium text-neutral-900">{r.name}</p>
+                        <p className="text-xs text-neutral-500">
+                          {r.jurisdiction} ·{" "}
+                          {r.business_type.replace("_", " ").toLowerCase()}
+                          {r.industry ? ` · ${r.industry}` : ""}
+                        </p>
+                      </Link>
                     </td>
                     <td className="px-3 py-3">
                       {owner ? (

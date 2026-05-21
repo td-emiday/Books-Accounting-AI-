@@ -36,6 +36,7 @@ export default async function AdminLayout({
               <Link href="/admin/archive">Archive</Link>
               <span className="text-neutral-300">·</span>
               <Link href="/admin/customers">Customers</Link>
+              <Link href="/admin/users">Users</Link>
               <Link href="/admin/subscribers">Subscribers</Link>
               <Link href="/admin/admins">Admins</Link>
             </nav>
