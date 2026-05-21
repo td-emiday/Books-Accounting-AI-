@@ -30,22 +30,23 @@ interface ProfileRow {
   created_at: string | null;
 }
 
-const STATUS_STYLE: Record<string, string> = {
-  active: "bg-green-50 text-green-800",
-  pending: "bg-amber-50 text-amber-800",
-  past_due: "bg-red-50 text-red-800",
-  cancelled: "bg-neutral-100 text-neutral-700",
-  non_renewing: "bg-amber-50 text-amber-800",
+const STATUS_TONE: Record<string, "green" | "amber" | "red" | ""> = {
+  active: "green",
+  pending: "amber",
+  past_due: "red",
+  cancelled: "",
+  non_renewing: "amber",
 };
 
-const PLAN_STYLE: Record<string, string> = {
-  STARTER: "bg-neutral-100 text-neutral-700",
-  GROWTH: "bg-indigo-50 text-indigo-800",
-  BUSINESS: "bg-indigo-100 text-indigo-900",
-  PRO: "bg-purple-100 text-purple-900",
-  FIRM: "bg-pink-100 text-pink-900",
-  ENTERPRISE: "bg-black text-white",
-};
+function fmtDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-GB", {
+    timeZone: "Africa/Lagos",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default async function CustomersPage({
   searchParams,
@@ -53,6 +54,7 @@ export default async function CustomersPage({
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
   const { q, status } = await searchParams;
+
   let envOk = true;
   try {
     createProductAdminClient();
@@ -62,16 +64,20 @@ export default async function CustomersPage({
 
   if (!envOk) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Customers</h1>
-        <div className="rounded-2xl bg-amber-50 p-5 text-sm text-amber-900 ring-1 ring-amber-200">
-          <p className="font-semibold">Not yet wired.</p>
-          <p className="mt-2">
-            Set <code>PRODUCT_SUPABASE_URL</code> and <code>PRODUCT_SUPABASE_SERVICE_ROLE_KEY</code> in
-            Vercel pointing to project <code>yegefmfggpicsmiulfkk</code> (EMIDAY ACC), then redeploy.
+      <>
+        <div className="adm-page-head">
+          <h1>Customers</h1>
+        </div>
+        <div className="adm-section">
+          <p style={{ fontWeight: 600, marginBottom: 4 }}>Not yet wired.</p>
+          <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}>
+            Set <code>PRODUCT_SUPABASE_URL</code> and{" "}
+            <code>PRODUCT_SUPABASE_SERVICE_ROLE_KEY</code> in Vercel pointing
+            to project <code>yegefmfggpicsmiulfkk</code> (EMIDAY ACC), then
+            redeploy.
           </p>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -85,20 +91,30 @@ export default async function CustomersPage({
     .order("created_at", { ascending: false })
     .limit(100);
 
-  if (status && status !== "all") query = query.eq("subscription_status", status);
+  if (status && status !== "all")
+    query = query.eq("subscription_status", status);
   if (q) query = query.ilike("name", `%${q}%`);
 
   const { data: workspaces, error: wErr } = await query;
   if (wErr) {
-    return <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200">{wErr.message}</div>;
+    return (
+      <div className="adm-section" style={{ color: "var(--danger)" }}>
+        {wErr.message}
+      </div>
+    );
   }
 
   const rows = (workspaces ?? []) as WorkspaceRow[];
   const ownerIds = [...new Set(rows.map((r) => r.owner_id))];
   const { data: profiles } = ownerIds.length
-    ? await supa.from("profiles").select("id,full_name,email,phone,role,created_at").in("id", ownerIds)
+    ? await supa
+        .from("profiles")
+        .select("id,full_name,email,phone,role,created_at")
+        .in("id", ownerIds)
     : { data: [] as ProfileRow[] };
-  const profileById = new Map<string, ProfileRow>((profiles ?? []).map((p) => [p.id, p as ProfileRow]));
+  const profileById = new Map<string, ProfileRow>(
+    (profiles ?? []).map((p) => [p.id, p as ProfileRow]),
+  );
 
   const counts = {
     total: rows.length,
@@ -109,175 +125,231 @@ export default async function CustomersPage({
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Customers</h1>
-        <p className="text-neutral-600">Workspaces in the Emiday product DB. Newest first.</p>
+    <>
+      <div className="adm-page-head">
+        <h1>Customers</h1>
+        <p>Workspaces in the Emiday product DB. Newest first.</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <Stat label="All" value={counts.total} active={!status || status === "all"} href="/admin/customers" />
-        <Stat label="Active" value={counts.active} tone="green" active={status === "active"} href="/admin/customers?status=active" />
-        <Stat label="Pending" value={counts.pending} tone="amber" active={status === "pending"} href="/admin/customers?status=pending" />
-        <Stat label="Past due" value={counts.past_due} tone="red" active={status === "past_due"} href="/admin/customers?status=past_due" />
-        <Stat label="Suspended" value={counts.suspended} tone="red" />
+      <div className="adm-stats">
+        <Stat
+          label="All"
+          n={counts.total}
+          active={!status || status === "all"}
+          href="/admin/customers"
+        />
+        <Stat
+          label="Active"
+          n={counts.active}
+          tone="green"
+          active={status === "active"}
+          href="/admin/customers?status=active"
+        />
+        <Stat
+          label="Pending"
+          n={counts.pending}
+          tone="amber"
+          active={status === "pending"}
+          href="/admin/customers?status=pending"
+        />
+        <Stat
+          label="Past due"
+          n={counts.past_due}
+          tone="red"
+          active={status === "past_due"}
+          href="/admin/customers?status=past_due"
+        />
+        <Stat label="Suspended" n={counts.suspended} tone="red" />
       </div>
 
-      {/* Search */}
-      <form className="rounded-2xl bg-white p-3 shadow-sm">
+      <form className="adm-search">
         <input
           name="q"
           defaultValue={q}
           placeholder="Search by workspace name…"
-          className="w-full rounded-lg border border-neutral-200 p-2 text-sm"
         />
         {status && <input type="hidden" name="status" value={status} />}
       </form>
 
-      {/* Table */}
       {rows.length === 0 ? (
-        <div className="rounded-2xl bg-white p-12 text-center text-sm text-neutral-500 shadow-sm">
-          No customers match.
-        </div>
+        <div className="adm-empty">No customers match.</div>
       ) : (
-        <div className="rounded-2xl bg-white shadow-sm">
-          <table className="w-full text-sm">
-            <thead className="text-xs uppercase tracking-wide text-neutral-500">
-              <tr className="border-b">
-                <th className="px-3 py-2 text-left">Workspace</th>
-                <th className="px-3 py-2 text-left">Owner</th>
-                <th className="px-3 py-2 text-left">Plan</th>
-                <th className="px-3 py-2 text-left">Status</th>
-                <th className="px-3 py-2 text-left">Trial / Renewal</th>
-                <th className="px-3 py-2 text-left">Joined</th>
-                <th className="px-3 py-2 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => {
-                const owner = profileById.get(r.owner_id);
-                const suspended = !!r.suspended_at;
-                return (
-                  <tr key={r.id} className={`border-b last:border-b-0 ${suspended ? "bg-red-50/30" : ""}`}>
-                    <td className="px-3 py-3">
-                      <Link
-                        href={`/admin/customers/${r.id}`}
-                        className="block hover:underline"
+        <div className="adm-section" style={{ padding: 0 }}>
+          <div className="adm-table-wrap">
+            <table className="adm-table">
+              <thead>
+                <tr>
+                  <th>Workspace</th>
+                  <th>Owner</th>
+                  <th>Plan</th>
+                  <th>Status</th>
+                  <th>Trial / Renewal</th>
+                  <th>Joined</th>
+                  <th style={{ textAlign: "right" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => {
+                  const owner = profileById.get(r.owner_id);
+                  const suspended = !!r.suspended_at;
+                  const tone = r.subscription_status
+                    ? STATUS_TONE[r.subscription_status] ?? ""
+                    : "";
+                  return (
+                    <tr key={r.id}>
+                      <td>
+                        <Link
+                          href={`/admin/customers/${r.id}`}
+                          className="adm-row-link"
+                          style={{ display: "block" }}
+                        >
+                          <div
+                            style={{ fontWeight: 600, color: "var(--ink)" }}
+                          >
+                            {r.name}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 11.5,
+                              color: "var(--ink-2)",
+                              marginTop: 2,
+                            }}
+                          >
+                            {r.jurisdiction} ·{" "}
+                            {r.business_type.replace(/_/g, " ").toLowerCase()}
+                            {r.industry ? ` · ${r.industry}` : ""}
+                          </div>
+                        </Link>
+                      </td>
+                      <td>
+                        {owner ? (
+                          <>
+                            <div style={{ color: "var(--ink)" }}>
+                              {owner.full_name}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: 11.5,
+                                color: "var(--ink-2)",
+                                marginTop: 2,
+                              }}
+                            >
+                              {owner.email}
+                            </div>
+                          </>
+                        ) : (
+                          <span style={{ color: "var(--ink-2)" }}>—</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className="adm-pill indigo">{r.plan_tier}</span>
+                      </td>
+                      <td>
+                        {r.subscription_status && (
+                          <span className={`adm-pill ${tone}`}>
+                            {r.subscription_status}
+                          </span>
+                        )}
+                        {suspended && (
+                          <div
+                            style={{
+                              marginTop: 4,
+                              fontSize: 11.5,
+                              color: "var(--danger)",
+                            }}
+                          >
+                            suspended: {r.suspended_reason ?? "no reason"}
+                          </div>
+                        )}
+                      </td>
+                      <td
+                        style={{ fontSize: 12, color: "var(--ink-2)" }}
                       >
-                        <p className="font-medium text-neutral-900">{r.name}</p>
-                        <p className="text-xs text-neutral-500">
-                          {r.jurisdiction} ·{" "}
-                          {r.business_type.replace("_", " ").toLowerCase()}
-                          {r.industry ? ` · ${r.industry}` : ""}
-                        </p>
-                      </Link>
-                    </td>
-                    <td className="px-3 py-3">
-                      {owner ? (
-                        <>
-                          <p className="text-neutral-900">{owner.full_name}</p>
-                          <p className="text-xs text-neutral-500">{owner.email}</p>
-                        </>
-                      ) : (
-                        <span className="text-xs text-neutral-400">—</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-3">
-                      <span className={`rounded px-2 py-0.5 text-xs font-medium ${PLAN_STYLE[r.plan_tier] ?? "bg-neutral-100"}`}>
-                        {r.plan_tier}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3">
-                      {r.subscription_status && (
-                        <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[r.subscription_status] ?? "bg-neutral-100"}`}>
-                          {r.subscription_status}
-                        </span>
-                      )}
-                      {suspended && (
-                        <p className="mt-1 text-xs text-red-700">suspended: {r.suspended_reason ?? "no reason"}</p>
-                      )}
-                    </td>
-                    <td className="px-3 py-3 text-xs text-neutral-600">
-                      {r.subscription_status === "active" && r.current_period_end
-                        ? `renews ${formatDate(r.current_period_end)}`
-                        : r.trial_ends_at
-                        ? `trial ends ${formatDate(r.trial_ends_at)}`
-                        : "—"}
-                    </td>
-                    <td className="px-3 py-3 text-xs text-neutral-500">
-                      {r.created_at ? formatDate(r.created_at) : "—"}
-                    </td>
-                    <td className="px-3 py-3 text-right">
-                      {suspended ? (
-                        <form
-                          action={async () => {
-                            "use server";
-                            await unsuspendWorkspace(r.id);
-                          }}
-                        >
-                          <button type="submit" className="text-xs text-green-700 hover:underline">
-                            Unsuspend
-                          </button>
-                        </form>
-                      ) : (
-                        <form
-                          action={async (fd: FormData) => {
-                            "use server";
-                            await suspendWorkspace(r.id, String(fd.get("reason") ?? ""));
-                          }}
-                          className="flex items-center gap-1"
-                        >
-                          <input
-                            name="reason"
-                            placeholder="reason"
-                            className="rounded border border-neutral-200 px-1 py-0.5 text-xs"
-                          />
-                          <button type="submit" className="text-xs text-red-700 hover:underline">
-                            Suspend
-                          </button>
-                        </form>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                        {r.subscription_status === "active" &&
+                        r.current_period_end
+                          ? `renews ${fmtDate(r.current_period_end)}`
+                          : r.trial_ends_at
+                            ? `trial ends ${fmtDate(r.trial_ends_at)}`
+                            : "—"}
+                      </td>
+                      <td
+                        style={{ fontSize: 12, color: "var(--ink-2)" }}
+                      >
+                        {fmtDate(r.created_at)}
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        {suspended ? (
+                          <form
+                            action={async () => {
+                              "use server";
+                              await unsuspendWorkspace(r.id);
+                            }}
+                          >
+                            <button
+                              type="submit"
+                              style={{
+                                background: "transparent",
+                                border: 0,
+                                color: "var(--positive-deep)",
+                                fontFamily: "inherit",
+                                fontSize: 12.5,
+                                cursor: "pointer",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              Unsuspend
+                            </button>
+                          </form>
+                        ) : (
+                          <Link
+                            href={`/admin/customers/${r.id}`}
+                            style={{
+                              fontSize: 12.5,
+                              color: "var(--ink-2)",
+                              textDecoration: "underline",
+                            }}
+                          >
+                            Manage
+                          </Link>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
 function Stat({
   label,
-  value,
-  tone = "neutral",
+  n,
+  tone,
   active,
   href,
 }: {
   label: string;
-  value: number;
-  tone?: "neutral" | "green" | "amber" | "red";
+  n: number;
+  tone?: "green" | "amber" | "red" | "indigo";
   active?: boolean;
   href?: string;
 }) {
-  const toneClass = {
-    neutral: "bg-white text-neutral-900",
-    green: "bg-green-50 text-green-900",
-    amber: "bg-amber-50 text-amber-900",
-    red: "bg-red-50 text-red-900",
-  }[tone];
+  const cls = `adm-stat ${tone ?? ""} ${active ? "on" : ""}`.trim();
   const inner = (
-    <div className={`rounded-2xl p-3 shadow-sm ring-2 ${toneClass} ${active ? "ring-black" : "ring-transparent"}`}>
-      <p className="text-xs uppercase tracking-wide opacity-70">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-    </div>
+    <>
+      <div className="adm-stat-l">{label}</div>
+      <div className="adm-stat-n">{n}</div>
+    </>
   );
-  return href ? <Link href={href}>{inner}</Link> : inner;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", { timeZone: "Africa/Lagos", day: "2-digit", month: "short", year: "numeric" });
+  return href ? (
+    <Link href={href} className={cls}>
+      {inner}
+    </Link>
+  ) : (
+    <div className={cls}>{inner}</div>
+  );
 }

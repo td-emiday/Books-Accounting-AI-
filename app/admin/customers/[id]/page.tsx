@@ -52,7 +52,6 @@ interface ProfileRow {
   role: string;
   created_at: string | null;
 }
-
 interface MemberRow {
   id: string;
   user_id: string;
@@ -60,7 +59,6 @@ interface MemberRow {
   accepted_at: string | null;
   created_at: string | null;
 }
-
 interface ChannelRow {
   id: string;
   provider: string;
@@ -69,7 +67,6 @@ interface ChannelRow {
   display_name: string | null;
   created_at: string | null;
 }
-
 interface TxnRow {
   id: string;
   type: string;
@@ -81,7 +78,6 @@ interface TxnRow {
   source: string;
   category_id: string | null;
 }
-
 interface PaymentRow {
   id: string;
   paystack_reference: string;
@@ -92,7 +88,6 @@ interface PaymentRow {
   paid_at: string | null;
   created_at: string | null;
 }
-
 interface EmailRow {
   id: string;
   template: string;
@@ -104,31 +99,30 @@ interface EmailRow {
 
 function fmtDate(iso: string | null | undefined): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-NG", {
-    day: "numeric",
+  return new Date(iso).toLocaleDateString("en-GB", {
+    timeZone: "Africa/Lagos",
+    day: "2-digit",
     month: "short",
     year: "numeric",
   });
 }
-
 function fmtDateTime(iso: string | null | undefined): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-NG", {
-    day: "numeric",
+  return new Date(iso).toLocaleString("en-GB", {
+    timeZone: "Africa/Lagos",
+    day: "2-digit",
     month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
 }
-
 function daysBetween(future: string | null | undefined): number | null {
   if (!future) return null;
   return Math.ceil(
     (new Date(future).getTime() - Date.now()) / (24 * 60 * 60 * 1000),
   );
 }
-
 function ngn(n: number, currency = "NGN"): string {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
@@ -136,6 +130,14 @@ function ngn(n: number, currency = "NGN"): string {
     maximumFractionDigits: 0,
   }).format(n);
 }
+
+const STATUS_TONE: Record<string, "green" | "amber" | "red" | ""> = {
+  active: "green",
+  pending: "amber",
+  past_due: "red",
+  cancelled: "",
+  non_renewing: "amber",
+};
 
 export default async function CustomerDetailPage({
   params,
@@ -212,7 +214,6 @@ export default async function CustomerDetailPage({
   const payments = (paymentRows ?? []) as PaymentRow[];
   const emails = (emailRows ?? []) as EmailRow[];
 
-  // Member profiles, in one fetch
   const memberUserIds = [...new Set(members.map((m) => m.user_id))];
   const { data: memberProfilesData } = memberUserIds.length
     ? await supa
@@ -226,165 +227,161 @@ export default async function CustomerDetailPage({
 
   const trialDays = daysBetween(w.trial_ends_at);
   const suspended = !!w.suspended_at;
+  const subTone = w.subscription_status
+    ? STATUS_TONE[w.subscription_status] ?? ""
+    : "";
 
   return (
-    <div className="space-y-8">
-      {/* Back link */}
-      <div>
-        <Link
-          href="/admin/customers"
-          className="text-sm text-neutral-600 hover:text-neutral-900"
-        >
-          ← Customers
-        </Link>
-      </div>
+    <>
+      <Link href="/admin/customers" className="adm-back">
+        ← Customers
+      </Link>
 
-      {/* Banner from action results */}
-      {msg && (
-        <div className="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900 ring-1 ring-emerald-200">
-          {msg}
-        </div>
-      )}
+      {msg && <div className="adm-msg">{msg}</div>}
       {pair_code && pair_url && (
         <PairingResultCard code={pair_code} url={pair_url} />
       )}
 
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div
+        className="adm-page-head"
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 16,
+          flexWrap: "wrap",
+        }}
+      >
         <div>
-          <h1 className="text-3xl font-bold">{w.name}</h1>
-          <p className="mt-1 text-sm text-neutral-600">
-            {w.business_type.replace(/_/g, " ").toLowerCase()} ·{" "}
-            {w.jurisdiction}
+          <h1>{w.name}</h1>
+          <p>
+            {w.business_type.replace(/_/g, " ").toLowerCase()} · {w.jurisdiction}
             {w.industry ? ` · ${w.industry}` : ""}
           </p>
           {owner && (
-            <p className="mt-1 text-sm text-neutral-500">
+            <p style={{ marginTop: 4 }}>
               Owner: {owner.full_name} ·{" "}
               <a
                 href={`mailto:${owner.email}`}
-                className="text-neutral-700 underline decoration-neutral-300 underline-offset-2"
+                style={{ color: "var(--ink)" }}
               >
                 {owner.email}
               </a>
             </p>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Pill
-            label={w.subscription_status ?? "—"}
-            tone={
-              w.subscription_status === "active"
-                ? "green"
-                : w.subscription_status === "past_due"
-                  ? "red"
-                  : w.subscription_status === "cancelled"
-                    ? "neutral"
-                    : "amber"
-            }
-          />
-          <Pill label={w.plan_tier} tone="indigo" />
-          {suspended && <Pill label="suspended" tone="red" />}
-          {!w.onboarded_at && <Pill label="onboarding incomplete" tone="amber" />}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {w.subscription_status && (
+            <span className={`adm-pill ${subTone}`}>{w.subscription_status}</span>
+          )}
+          <span className="adm-pill indigo">{w.plan_tier}</span>
+          {suspended && <span className="adm-pill red">suspended</span>}
+          {!w.onboarded_at && (
+            <span className="adm-pill amber">onboarding incomplete</span>
+          )}
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left: data sections */}
-        <div className="space-y-6 lg:col-span-2">
-          <Section title="Identity">
-            <Field label="Trading name" value={w.name} />
-            <Field
-              label="Business type"
-              value={w.business_type.replace(/_/g, " ").toLowerCase()}
-            />
-            <Field label="Jurisdiction" value={w.jurisdiction} />
-            <Field label="Industry" value={w.industry ?? "—"} />
-            <Field label="TIN" value={w.tin ?? "—"} mono />
-            <Field label="RC number" value={w.rc_number ?? "—"} mono />
-            <Field
-              label="VAT"
-              value={
-                w.vat_registered
-                  ? `Registered${w.vat_number ? " · " + w.vat_number : ""}`
-                  : "Not registered"
-              }
-            />
-            <Field
-              label="Banks"
-              value={
-                w.banks && w.banks.length
-                  ? w.banks.join(", ")
-                  : "—"
-              }
-            />
-            <Field label="Onboarded" value={fmtDate(w.onboarded_at)} />
-            <Field label="Created" value={fmtDateTime(w.created_at)} />
-          </Section>
-
-          <Section title="Subscription">
-            <Field label="Plan tier" value={w.plan_tier} />
-            <Field label="Billing cycle" value={w.billing_cycle ?? "—"} />
-            <Field
-              label="Status"
-              value={w.subscription_status ?? "—"}
-            />
-            <Field
-              label="Current period ends"
-              value={fmtDate(w.current_period_end)}
-            />
-            {w.pending_plan_change && (
+      <div className="adm-cols">
+        <div>
+          <section className="adm-section">
+            <h2 className="adm-section-head">Identity</h2>
+            <div className="adm-fields">
+              <Field label="Trading name" v={w.name} />
               <Field
-                label="Pending change"
-                value={
-                  `→ ${w.pending_plan_change.public_id} ${w.pending_plan_change.cycle} ` +
-                  `on ${fmtDate(w.pending_plan_change.effective_at)}`
+                label="Business type"
+                v={w.business_type.replace(/_/g, " ").toLowerCase()}
+              />
+              <Field label="Jurisdiction" v={w.jurisdiction} />
+              <Field label="Industry" v={w.industry ?? "—"} />
+              <Field label="TIN" v={w.tin ?? "—"} mono />
+              <Field label="RC number" v={w.rc_number ?? "—"} mono />
+              <Field
+                label="VAT"
+                v={
+                  w.vat_registered
+                    ? `Registered${w.vat_number ? " · " + w.vat_number : ""}`
+                    : "Not registered"
                 }
               />
-            )}
-            <Field
-              label="Paystack customer"
-              value={w.paystack_customer_code ?? "—"}
-              mono
-            />
-            <Field
-              label="Paystack subscription"
-              value={w.paystack_subscription_code ?? "—"}
-              mono
-            />
-            <Field
-              label="Saved authorization"
-              value={w.paystack_authorization_code ? "yes" : "no"}
-            />
-            {suspended && (
               <Field
-                label="Suspended"
-                value={`${fmtDateTime(w.suspended_at)} — ${w.suspended_reason ?? "no reason"}`}
+                label="Banks"
+                v={w.banks && w.banks.length ? w.banks.join(", ") : "—"}
               />
-            )}
-          </Section>
+              <Field label="Onboarded" v={fmtDate(w.onboarded_at)} />
+              <Field label="Created" v={fmtDateTime(w.created_at)} />
+            </div>
+          </section>
 
-          <Section title="Trial & onboarding">
-            <Field label="Trial ends" value={fmtDate(w.trial_ends_at)} />
-            <Field
-              label="Days left"
-              value={
-                trialDays === null
-                  ? "—"
-                  : trialDays <= 0
-                    ? "expired"
-                    : `${trialDays} day${trialDays === 1 ? "" : "s"}`
-              }
-            />
-            <Field
-              label="Tour completed"
-              value={fmtDateTime(w.tour_completed_at)}
-            />
-          </Section>
+          <section className="adm-section">
+            <h2 className="adm-section-head">Subscription</h2>
+            <div className="adm-fields">
+              <Field label="Plan tier" v={w.plan_tier} />
+              <Field label="Billing cycle" v={w.billing_cycle ?? "—"} />
+              <Field label="Status" v={w.subscription_status ?? "—"} />
+              <Field
+                label="Current period ends"
+                v={fmtDate(w.current_period_end)}
+              />
+              {w.pending_plan_change && (
+                <Field
+                  label="Pending change"
+                  v={
+                    `→ ${w.pending_plan_change.public_id} ${w.pending_plan_change.cycle} ` +
+                    `on ${fmtDate(w.pending_plan_change.effective_at)}`
+                  }
+                />
+              )}
+              <Field
+                label="Paystack customer"
+                v={w.paystack_customer_code ?? "—"}
+                mono
+              />
+              <Field
+                label="Paystack subscription"
+                v={w.paystack_subscription_code ?? "—"}
+                mono
+              />
+              <Field
+                label="Saved authorization"
+                v={w.paystack_authorization_code ? "yes" : "no"}
+              />
+              {suspended && (
+                <Field
+                  label="Suspended"
+                  v={`${fmtDateTime(w.suspended_at)} — ${w.suspended_reason ?? "no reason"}`}
+                />
+              )}
+            </div>
+          </section>
 
-          <Section title={`Members (${members.length})`}>
+          <section className="adm-section">
+            <h2 className="adm-section-head">Trial & onboarding</h2>
+            <div className="adm-fields">
+              <Field label="Trial ends" v={fmtDate(w.trial_ends_at)} />
+              <Field
+                label="Days left"
+                v={
+                  trialDays === null
+                    ? "—"
+                    : trialDays <= 0
+                      ? "expired"
+                      : `${trialDays} day${trialDays === 1 ? "" : "s"}`
+                }
+              />
+              <Field
+                label="Tour completed"
+                v={fmtDateTime(w.tour_completed_at)}
+              />
+            </div>
+          </section>
+
+          <section className="adm-section">
+            <h2 className="adm-section-head">
+              Members ({members.length})
+            </h2>
             {members.length === 0 ? (
-              <Empty>No additional members.</Empty>
+              <div className="adm-empty">No additional members.</div>
             ) : (
               <Table
                 head={["Email", "Role", "Joined"]}
@@ -398,11 +395,14 @@ export default async function CustomerDetailPage({
                 })}
               />
             )}
-          </Section>
+          </section>
 
-          <Section title={`Telegram & WhatsApp (${channels.length})`}>
+          <section className="adm-section">
+            <h2 className="adm-section-head">
+              Telegram / WhatsApp ({channels.length})
+            </h2>
             {channels.length === 0 ? (
-              <Empty>No paired chats.</Empty>
+              <div className="adm-empty">No paired chats.</div>
             ) : (
               <Table
                 head={["Provider", "Chat / handle", "Display name", "Paired"]}
@@ -414,29 +414,34 @@ export default async function CustomerDetailPage({
                 ])}
               />
             )}
-          </Section>
+          </section>
 
-          <Section title={`Recent transactions (${txns.length})`}>
+          <section className="adm-section">
+            <h2 className="adm-section-head">
+              Recent transactions ({txns.length})
+            </h2>
             {txns.length === 0 ? (
-              <Empty>No transactions yet.</Empty>
+              <div className="adm-empty">No transactions yet.</div>
             ) : (
               <Table
                 head={["Date", "Vendor", "Amount", "Source"]}
                 rows={txns.map((t) => [
                   t.date,
                   t.vendor_client ?? t.description,
-                  (t.type === "EXPENSE" ? "−" : "+") +
-                    ngn(t.amount, t.currency),
+                  (t.type === "EXPENSE" ? "−" : "+") + ngn(t.amount, t.currency),
                   t.source,
                 ])}
-                rightCols={[2]}
+                numCols={[2]}
               />
             )}
-          </Section>
+          </section>
 
-          <Section title={`Payments (${payments.length})`}>
+          <section className="adm-section">
+            <h2 className="adm-section-head">
+              Payments ({payments.length})
+            </h2>
             {payments.length === 0 ? (
-              <Empty>No Paystack payments yet.</Empty>
+              <div className="adm-empty">No Paystack payments yet.</div>
             ) : (
               <Table
                 head={["When", "Reference", "Event", "Amount", "Status"]}
@@ -447,14 +452,19 @@ export default async function CustomerDetailPage({
                   ngn(p.amount_kobo / 100, p.currency),
                   p.status,
                 ])}
-                rightCols={[3]}
+                numCols={[3]}
               />
             )}
-          </Section>
+          </section>
 
-          <Section title={`Email log (${emails.length})`}>
+          <section className="adm-section">
+            <h2 className="adm-section-head">
+              Email log ({emails.length})
+            </h2>
             {emails.length === 0 ? (
-              <Empty>No emails sent to this workspace.</Empty>
+              <div className="adm-empty">
+                No emails sent to this workspace.
+              </div>
             ) : (
               <Table
                 head={["When", "Template", "To", "Status"]}
@@ -466,175 +476,160 @@ export default async function CustomerDetailPage({
                 ])}
               />
             )}
-          </Section>
+          </section>
         </div>
 
-        {/* Right: operational actions */}
-        <aside className="space-y-4">
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500">
-              Trial & billing
-            </h3>
-            <div className="space-y-2">
+        <aside className="adm-actions">
+          <div className="adm-action-group">
+            <h3>Trial &amp; billing</h3>
+            <form
+              action={async () => {
+                "use server";
+                await extendTrial(id, 7);
+              }}
+            >
+              <button type="submit" className="adm-btn">
+                Extend trial +7 days
+              </button>
+            </form>
+            <form
+              action={async () => {
+                "use server";
+                await extendTrial(id, 30);
+              }}
+            >
+              <button type="submit" className="adm-btn">
+                Extend trial +30 days
+              </button>
+            </form>
+            <form
+              action={async (fd: FormData) => {
+                "use server";
+                await extendTrial(id, Number(fd.get("days") ?? 0));
+              }}
+              className="adm-row"
+              style={{ marginTop: 4 }}
+            >
+              <input
+                name="days"
+                type="number"
+                min={1}
+                max={365}
+                placeholder="N"
+                className="adm-input"
+              />
+              <button type="submit" className="adm-btn">
+                Extend by N days
+              </button>
+            </form>
+            <form
+              action={async () => {
+                "use server";
+                await compPlan(id, 30);
+              }}
+              style={{ marginTop: 4 }}
+            >
+              <button type="submit" className="adm-btn primary">
+                Comp plan (30 days)
+              </button>
+            </form>
+          </div>
+
+          <div className="adm-action-group">
+            <h3>Product state</h3>
+            <form
+              action={async () => {
+                "use server";
+                await resetTour(id);
+              }}
+            >
+              <button type="submit" className="adm-btn">
+                Reset tour
+              </button>
+            </form>
+            <form
+              action={async () => {
+                "use server";
+                await resendWelcome(id);
+              }}
+            >
+              <button type="submit" className="adm-btn">
+                Resend welcome email
+              </button>
+            </form>
+            <form
+              action={async () => {
+                "use server";
+                const { code, url } = await generateTelegramPairing(
+                  id,
+                  w.owner_id,
+                );
+                const sp = new URLSearchParams({
+                  pair_code: code,
+                  pair_url: url,
+                });
+                const { redirect } = await import("next/navigation");
+                redirect(`/admin/customers/${id}?${sp.toString()}`);
+              }}
+            >
+              <button type="submit" className="adm-btn">
+                Generate Telegram pair code
+              </button>
+            </form>
+          </div>
+
+          <div className="adm-action-group">
+            <h3>Access</h3>
+            {suspended ? (
               <form
                 action={async () => {
                   "use server";
-                  await extendTrial(id, 7);
+                  await unsuspendWorkspace(id);
                 }}
               >
-                <button type="submit" className={btn}>
-                  Extend trial +7 days
+                <button type="submit" className="adm-btn primary">
+                  Unsuspend workspace
                 </button>
               </form>
-              <form
-                action={async () => {
-                  "use server";
-                  await extendTrial(id, 30);
-                }}
-              >
-                <button type="submit" className={btn}>
-                  Extend trial +30 days
-                </button>
-              </form>
+            ) : (
               <form
                 action={async (fd: FormData) => {
                   "use server";
-                  await extendTrial(id, Number(fd.get("days") ?? 0));
+                  await suspendWorkspace(
+                    id,
+                    String(fd.get("reason") ?? ""),
+                  );
                 }}
-                className="flex gap-2"
               >
                 <input
-                  name="days"
-                  type="number"
-                  min={1}
-                  max={365}
-                  placeholder="N days"
-                  className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs"
+                  name="reason"
+                  placeholder="reason (optional)"
+                  className="adm-input"
+                  style={{ marginBottom: 6 }}
                 />
-                <button type="submit" className={btnSmall}>
-                  Extend
+                <button type="submit" className="adm-btn">
+                  Suspend workspace
                 </button>
               </form>
-
-              <form
-                action={async () => {
-                  "use server";
-                  await compPlan(id, 30);
-                }}
-              >
-                <button type="submit" className={btnPrimary}>
-                  Comp plan (30 days)
-                </button>
-              </form>
-            </div>
+            )}
+            <form
+              action={async () => {
+                "use server";
+                await forceSignOut(id);
+              }}
+            >
+              <button type="submit" className="adm-btn">
+                Force sign-out
+              </button>
+            </form>
           </div>
 
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500">
-              Product state
-            </h3>
-            <div className="space-y-2">
-              <form
-                action={async () => {
-                  "use server";
-                  await resetTour(id);
-                }}
-              >
-                <button type="submit" className={btn}>
-                  Reset tour
-                </button>
-              </form>
-              <form
-                action={async () => {
-                  "use server";
-                  await resendWelcome(id);
-                }}
-              >
-                <button type="submit" className={btn}>
-                  Resend welcome email
-                </button>
-              </form>
-              <form
-                action={async () => {
-                  "use server";
-                  const { code, url } = await generateTelegramPairing(
-                    id,
-                    w.owner_id,
-                  );
-                  const u = new URL(
-                    `/admin/customers/${id}`,
-                    "https://placeholder",
-                  );
-                  u.searchParams.set("pair_code", code);
-                  u.searchParams.set("pair_url", url);
-                  const { redirect } = await import("next/navigation");
-                  redirect(u.pathname + "?" + u.searchParams.toString());
-                }}
-              >
-                <button type="submit" className={btn}>
-                  Generate Telegram pairing code
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500">
-              Access
-            </h3>
-            <div className="space-y-2">
-              {suspended ? (
-                <form
-                  action={async () => {
-                    "use server";
-                    await unsuspendWorkspace(id);
-                  }}
-                >
-                  <button type="submit" className={btnPrimary}>
-                    Unsuspend workspace
-                  </button>
-                </form>
-              ) : (
-                <form
-                  action={async (fd: FormData) => {
-                    "use server";
-                    await suspendWorkspace(id, String(fd.get("reason") ?? ""));
-                  }}
-                  className="space-y-2"
-                >
-                  <input
-                    name="reason"
-                    placeholder="reason (optional)"
-                    className="w-full rounded border border-neutral-200 px-2 py-1 text-xs"
-                  />
-                  <button type="submit" className={btn}>
-                    Suspend workspace
-                  </button>
-                </form>
-              )}
-
-              <form
-                action={async () => {
-                  "use server";
-                  await forceSignOut(id);
-                }}
-              >
-                <button type="submit" className={btn}>
-                  Force sign-out
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-red-50 p-4 ring-1 ring-red-200">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-red-700">
-              Danger zone
-            </h3>
-            <p className="mb-3 text-xs text-red-800">
-              Permanently delete this workspace and its owning user account.
-              Type the workspace name to confirm. Cascades through all
-              workspace data; auth user is removed afterwards. This can&apos;t
-              be undone.
+          <div className="adm-danger-card">
+            <h3>Danger zone</h3>
+            <p>
+              Permanently delete this workspace and its owner user.
+              Cascades through every workspace-scoped table; auth user is
+              removed afterwards. Can&apos;t be undone.
             </p>
             <DeleteWorkspaceForm
               workspaceId={id}
@@ -652,110 +647,36 @@ export default async function CustomerDetailPage({
           </div>
         </aside>
       </div>
+    </>
+  );
+}
+
+function Field({ label, v, mono }: { label: string; v: string; mono?: boolean }) {
+  return (
+    <div className="adm-field">
+      <span className="adm-field-l">{label}</span>
+      <span className={`adm-field-v${mono ? " mono" : ""}`}>{v}</span>
     </div>
-  );
-}
-
-const btn =
-  "w-full rounded border border-neutral-200 bg-white px-3 py-2 text-left text-xs font-medium text-neutral-800 hover:border-neutral-300 hover:bg-neutral-50";
-const btnPrimary =
-  "w-full rounded bg-black px-3 py-2 text-left text-xs font-medium text-white hover:bg-neutral-800";
-const btnSmall =
-  "rounded border border-neutral-200 bg-white px-2 py-1 text-xs hover:border-neutral-300";
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-500">
-        {title}
-      </h2>
-      <div className="space-y-2 text-sm">{children}</div>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  mono,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-}) {
-  return (
-    <div className="grid grid-cols-[160px_1fr] items-baseline gap-3">
-      <span className="text-xs uppercase tracking-wide text-neutral-500">
-        {label}
-      </span>
-      <span
-        className={`text-neutral-900 ${
-          mono ? "font-mono text-xs" : "text-sm"
-        }`}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function Empty({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="rounded bg-neutral-50 px-3 py-4 text-center text-xs text-neutral-500">
-      {children}
-    </p>
-  );
-}
-
-function Pill({
-  label,
-  tone,
-}: {
-  label: string;
-  tone: "green" | "amber" | "red" | "neutral" | "indigo";
-}) {
-  const toneClasses: Record<typeof tone, string> = {
-    green: "bg-emerald-50 text-emerald-800",
-    amber: "bg-amber-50 text-amber-800",
-    red: "bg-red-50 text-red-800",
-    neutral: "bg-neutral-100 text-neutral-700",
-    indigo: "bg-indigo-50 text-indigo-800",
-  };
-  return (
-    <span
-      className={`rounded px-2 py-0.5 text-xs font-medium ${toneClasses[tone]}`}
-    >
-      {label}
-    </span>
   );
 }
 
 function Table({
   head,
   rows,
-  rightCols = [],
+  numCols = [],
 }: {
   head: string[];
   rows: (string | React.ReactNode)[][];
-  rightCols?: number[];
+  numCols?: number[];
 }) {
-  const rightSet = new Set(rightCols);
+  const numSet = new Set(numCols);
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs">
-        <thead className="text-[10px] uppercase tracking-wide text-neutral-500">
-          <tr className="border-b">
+    <div className="adm-table-wrap">
+      <table className="adm-table">
+        <thead>
+          <tr>
             {head.map((h, i) => (
-              <th
-                key={i}
-                className={`px-2 py-2 ${rightSet.has(i) ? "text-right" : "text-left"}`}
-              >
+              <th key={i} className={numSet.has(i) ? "num" : ""}>
                 {h}
               </th>
             ))}
@@ -763,12 +684,9 @@ function Table({
         </thead>
         <tbody>
           {rows.map((cells, ri) => (
-            <tr key={ri} className="border-b last:border-b-0">
+            <tr key={ri}>
               {cells.map((c, ci) => (
-                <td
-                  key={ci}
-                  className={`px-2 py-2 align-top text-neutral-800 ${rightSet.has(ci) ? "text-right font-mono" : ""}`}
-                >
+                <td key={ci} className={numSet.has(ci) ? "num" : ""}>
                   {c}
                 </td>
               ))}
