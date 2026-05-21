@@ -22,6 +22,10 @@ export type CreateTransactionInput = {
   notes?: string | null;
   receiptUrl?: string | null;
   categoryConfirmed?: boolean;
+  /** Pre-resolved category UUID, when the caller has already run a
+   *  classifier. Stays nullable for receipts that don't match any
+   *  rule — those land Uncategorised for the user to fix. */
+  categoryId?: string | null;
 };
 
 export type CreatedTransaction = {
@@ -56,6 +60,7 @@ export async function createTransaction(
     reference: input.reference ?? null,
     notes: input.notes ?? null,
     receipt_url: input.receiptUrl ?? null,
+    category_id: input.categoryId ?? null,
     category_confirmed: input.categoryConfirmed ?? false,
   };
 

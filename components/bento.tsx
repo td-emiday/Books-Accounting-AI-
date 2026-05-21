@@ -7,8 +7,8 @@ import { useDashboardData, useToday } from "./dashboard-data-context";
 import {
   AUTHORITIES,
   COMPLIANCE,
-  TAX_LIABILITY,
 } from "@/lib/data/overview";
+import { computeTaxLiability } from "@/lib/tax-liability";
 import {
   filterByPeriod,
   filterByRange,
@@ -289,7 +289,17 @@ export function Bento() {
     };
   }, [transactions, period, today]);
 
+  // Real tax liability — derived from the current workspace's
+  // transactions instead of a fixed mock. With zero transactions
+  // this collapses to ₦0 and the card honestly reads "No tax due
+  // yet" via the conditional below.
+  const taxLiability = useMemo(
+    () => computeTaxLiability(transactions, today),
+    [transactions, today],
+  );
+  const TAX_LIABILITY = taxLiability;
   const totalLiability = TAX_LIABILITY.total.toLocaleString("en-NG");
+  const hasTax = TAX_LIABILITY.total > 0;
 
   return (
     <div className="bento">
@@ -298,8 +308,10 @@ export function Bento() {
 
       <div className="card tax-liability" style={{ gridColumn: "span 4" }}>
         <div className="card-head">
-          <span className="t">Tax liability · Q2</span>
-          <span className="chip warn">Accruing</span>
+          <span className="t">Tax liability · this quarter</span>
+          <span className={`chip ${hasTax ? "warn" : ""}`}>
+            {hasTax ? "Accruing" : "Quiet"}
+          </span>
         </div>
         <div
           style={{
@@ -315,10 +327,16 @@ export function Bento() {
             {totalLiability}
           </div>
           <div style={{ fontSize: 11, color: "var(--muted)" }}>
-            <span className="num">{TAX_LIABILITY.dueDate}</span>{" "}
-            <span style={{ fontWeight: 500, color: "var(--ink)" }}>
-              · in {TAX_LIABILITY.daysToDue}d
-            </span>
+            {hasTax ? (
+              <>
+                <span className="num">{TAX_LIABILITY.dueDate}</span>{" "}
+                <span style={{ fontWeight: 500, color: "var(--ink)" }}>
+                  · in {TAX_LIABILITY.daysToDue}d
+                </span>
+              </>
+            ) : (
+              <span>No tax due yet — based on your transactions.</span>
+            )}
           </div>
         </div>
 

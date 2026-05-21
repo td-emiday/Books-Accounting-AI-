@@ -128,6 +128,7 @@ function suggestCategory(merchant: string, amount: number): string {
 
 type PdfImport = {
   imported: number;
+  autoCategorised: number;
   truncated: boolean;
   bank: string | null;
   periodStart: string | null;
@@ -179,6 +180,7 @@ export function BankUpload({
       const json = (await res.json()) as {
         ok: boolean;
         imported?: number;
+        autoCategorised?: number;
         truncated?: boolean;
         meta?: {
           bank?: string | null;
@@ -194,6 +196,7 @@ export function BankUpload({
       }
       setPdfResult({
         imported: json.imported ?? 0,
+        autoCategorised: json.autoCategorised ?? 0,
         truncated: json.truncated ?? false,
         bank: json.meta?.bank ?? null,
         periodStart: json.meta?.periodStart ?? null,
@@ -502,9 +505,19 @@ export function BankUpload({
                 .
               </div>
               <div style={{ color: "var(--ink-2, #5a5a66)" }}>
+                {pdfResult.autoCategorised > 0 && (
+                  <>
+                    {pdfResult.autoCategorised} of {pdfResult.imported}{" "}
+                    auto-categorised ({Math.round(
+                      (pdfResult.autoCategorised / Math.max(1, pdfResult.imported)) *
+                        100,
+                    )}
+                    %).{" "}
+                  </>
+                )}
                 Open Transactions to review and confirm categories.{" "}
                 {pdfResult.truncated &&
-                  "⚠ The PDF was very long — some rows past page 30 weren't read. Split the file and re-upload the rest if needed."}
+                  "⚠ The PDF was very long — some rows past page 60 weren't read. Split the file and re-upload the rest if needed."}
               </div>
             </div>
           )}

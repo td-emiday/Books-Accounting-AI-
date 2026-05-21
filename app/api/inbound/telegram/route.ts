@@ -20,6 +20,7 @@ import {
 } from "@/lib/telegram";
 import { extractReceipt, extractReceiptFromPdf, OcrError } from "@/lib/ocr";
 import { createTransaction } from "@/lib/transactions/create";
+import { categorize, lookupCategoryIds, type Category } from "@/lib/categorize";
 import { askCFO, CfoError } from "@/lib/cfo";
 import { getSiteOrigin } from "@/lib/site-url";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -500,6 +501,15 @@ async function handleReceipt(channel: Channel, msg: TgMessage) {
     : null;
   const notes = [userCaption || null, itemNotes].filter(Boolean).join("\n\n") || null;
 
+  // Categorise from the description + vendor before insert. Receipts
+  // typically describe a single merchant so a single rule match is
+  // enough — falls back to null (Uncategorised) when the merchant
+  // isn't in our pattern library.
+  const descForCat = [extract.description, extract.vendor].filter(Boolean).join(" ");
+  const guess: Category | null = categorize(descForCat, extract.type);
+  const catIds = guess ? await lookupCategoryIds(admin, [guess]) : null;
+  const categoryId = guess ? (catIds?.get(guess) ?? null) : null;
+
   const txn = await createTransaction(admin, {
     workspaceId: channel.workspace_id,
     type: extract.type,
@@ -511,6 +521,7 @@ async function handleReceipt(channel: Channel, msg: TgMessage) {
     source: "TELEGRAM",
     receiptUrl: objectPath,
     notes,
+    categoryId,
     categoryConfirmed: false,
   });
 

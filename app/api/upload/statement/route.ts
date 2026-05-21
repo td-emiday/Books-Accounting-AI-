@@ -14,6 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { extractStatementTransactions } from "@/lib/bank-statement";
 import { OcrError } from "@/lib/ocr";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { categorize, lookupCategoryIds, type Category } from "@/lib/categorize";
 import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
@@ -154,27 +155,42 @@ export async function POST(req: Request) {
   }
 
   // Bulk insert via service-role client. We map each row to the
-  // transactions schema with source='BANK_IMPORT' and
-  // category_confirmed=false so they show up as drafts to review.
+  // transactions schema with source='BANK_IMPORT'. Each row is
+  // categorised by lib/categorize via the description; rows that
+  // match a rule get category_id pre-filled but stay
+  // category_confirmed=false so the user reviews + confirms in
+  // /app/transactions.
   const admin = createAdminClient();
-  const rows = extract.transactions.map((t) => ({
-    workspace_id: membership.workspace_id,
-    type: t.type,
-    amount: t.amount,
-    currency: extract.meta.currency,
-    date: t.date,
-    description: t.description,
-    vendor_client: t.description.slice(0, 80),
-    source: "BANK_IMPORT" as const,
-    reference: t.reference,
-    notes: extract.meta.bank
-      ? `Imported from ${extract.meta.bank} statement` +
-        (extract.meta.accountNumber
-          ? ` (${extract.meta.accountNumber.slice(-4).padStart(4, "•")})`
-          : "")
-      : null,
-    category_confirmed: false,
-  }));
+  const guesses = extract.transactions.map((t) => categorize(t.description, t.type));
+  const uniqueCats = guesses.filter((c): c is Category => Boolean(c));
+  const catIds = await lookupCategoryIds(admin, uniqueCats);
+
+  const rows = extract.transactions.map((t, i) => {
+    const cat = guesses[i];
+    return {
+      workspace_id: membership.workspace_id,
+      type: t.type,
+      amount: t.amount,
+      currency: extract.meta.currency,
+      date: t.date,
+      description: t.description,
+      vendor_client: t.description.slice(0, 80),
+      source: "BANK_IMPORT" as const,
+      reference: t.reference,
+      category_id: cat ? catIds.get(cat) ?? null : null,
+      notes: extract.meta.bank
+        ? `Imported from ${extract.meta.bank} statement` +
+          (extract.meta.accountNumber
+            ? ` (${extract.meta.accountNumber.slice(-4).padStart(4, "•")})`
+            : "")
+        : null,
+      category_confirmed: false,
+    };
+  });
+
+  // Count how many rows we managed to auto-categorise — surface this
+  // to the UI so the user knows what review work is left.
+  const autoCategorised = rows.filter((r) => r.category_id !== null).length;
 
   const { error: insertErr } = await admin.from("transactions").insert(rows);
   if (insertErr) {
@@ -195,6 +211,7 @@ export async function POST(req: Request) {
   return NextResponse.json({
     ok: true,
     imported: rows.length,
+    autoCategorised,
     truncated: extract.truncated,
     meta: extract.meta,
   });
