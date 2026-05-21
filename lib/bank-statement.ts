@@ -88,12 +88,14 @@ export async function extractStatementTransactions(
   // Lazy import: pdf-parse pulls pdfjs-dist which is heavy.
   const { PDFParse } = await import("pdf-parse");
 
-  let text: string;
+  let pages: { num: number; text: string }[];
   let parser: InstanceType<typeof PDFParse> | null = null;
   try {
     parser = new PDFParse({ data: new Uint8Array(pdfBuffer) });
-    const result = await parser.getText({ last: 30 });
-    text = result.text ?? "";
+    // Cap at 60 pages — that covers a full year of monthly statements
+    // for a busy SME without becoming an infinite-cost vector.
+    const result = await parser.getText({ last: 60 });
+    pages = result.pages.map((p) => ({ num: p.num, text: p.text ?? "" }));
   } catch (e) {
     throw new OcrError(
       "pdf_parse_failed",
@@ -103,20 +105,134 @@ export async function extractStatementTransactions(
     if (parser) await parser.destroy().catch(() => {});
   }
 
+  const totalChars = pages.reduce((n, p) => n + p.text.length, 0);
+
   // Scanned image-only PDFs come back near-empty — bail loudly.
-  if (text.replace(/\s+/g, "").length < 200) {
+  if (totalChars < 200) {
     throw new OcrError(
       "pdf_no_text",
       "This statement is image-only (scanned). Export it as a text PDF from your bank's portal, or send rows as CSV.",
     );
   }
 
-  // Cap the prompt at ~28K chars to keep us well under gpt-4o-mini's
-  // 128K context — and to keep cost predictable. Most monthly SME
-  // statements are <20K chars; quarterly ones hit ~40K.
-  const MAX = 28_000;
-  const truncated = text.length > MAX;
-  const trimmed = truncated ? text.slice(0, MAX) : text;
+  // Chunk pages into ~20K-char batches so each LLM call stays well
+  // under gpt-4o-mini's 8K-token output ceiling. Each chunk gets
+  // processed independently and we merge the transactions at the
+  // end. Meta (bank, account, period, balances) comes from the
+  // first chunk only — that's where the header lives.
+  const CHUNK_CHAR_BUDGET = 20_000;
+  const chunks: string[] = [];
+  let cur = "";
+  for (const p of pages) {
+    if (cur.length + p.text.length > CHUNK_CHAR_BUDGET && cur.length > 0) {
+      chunks.push(cur);
+      cur = "";
+    }
+    cur += (cur ? "\n\n" : "") + p.text;
+  }
+  if (cur.length > 0) chunks.push(cur);
+
+  // Process chunks sequentially (in parallel would race OpenAI rate
+  // limits on free tier). Merge as we go. Bail early if any chunk
+  // hard-errors; soft failures (malformed JSON) just contribute 0
+  // rows so we don't lose every other page.
+  let mergedMeta: ChunkParsed | null = null;
+  const merged: StatementTxn[] = [];
+  let truncatedFlag = false;
+
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    const parsed = await callChunk(chunk, key, i === 0).catch((e: unknown) => {
+      console.error("[bank-statement] chunk failed", {
+        chunkIndex: i,
+        of: chunks.length,
+        error: e instanceof Error ? e.message : String(e),
+      });
+      // Mark truncated when at least one chunk failed so the UI
+      // surfaces the partial-import warning.
+      truncatedFlag = true;
+      return null;
+    });
+    if (!parsed) continue;
+
+    if (i === 0) mergedMeta = parsed;
+    for (const t of parsed.transactions ?? []) {
+      if (!t.date || typeof t.amount !== "number" || !t.description) continue;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(t.date)) continue;
+      merged.push({
+        date: t.date,
+        description: String(t.description).slice(0, 200),
+        amount: Math.abs(t.amount),
+        type: t.type === "INCOME" ? "INCOME" : "EXPENSE",
+        reference: t.reference ?? null,
+        balance: typeof t.balance === "number" ? t.balance : null,
+      });
+    }
+  }
+
+  // Dedupe across chunk boundaries — same (date, description, amount,
+  // type) within a chunk-overlap window is almost always the same row
+  // seen twice. We don't currently overlap chunks but if we ever do,
+  // this catches it.
+  const seen = new Set<string>();
+  const transactions = merged.filter((t) => {
+    const k = `${t.date}|${t.amount}|${t.type}|${t.description}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+
+  return {
+    transactions,
+    meta: {
+      bank: mergedMeta?.bank ?? null,
+      accountNumber: mergedMeta?.account_number ?? null,
+      accountName: mergedMeta?.account_name ?? null,
+      currency: (mergedMeta?.currency ?? "NGN").toUpperCase(),
+      periodStart: mergedMeta?.period_start ?? null,
+      periodEnd: mergedMeta?.period_end ?? null,
+      openingBalance:
+        typeof mergedMeta?.opening_balance === "number"
+          ? mergedMeta!.opening_balance!
+          : null,
+      closingBalance:
+        typeof mergedMeta?.closing_balance === "number"
+          ? mergedMeta!.closing_balance!
+          : null,
+    },
+    truncated: truncatedFlag,
+  };
+}
+
+type RawTxn = {
+  date?: string;
+  description?: string;
+  amount?: number;
+  type?: string;
+  reference?: string | null;
+  balance?: number | null;
+};
+
+type ChunkParsed = {
+  bank?: string | null;
+  account_number?: string | null;
+  account_name?: string | null;
+  currency?: string;
+  period_start?: string | null;
+  period_end?: string | null;
+  opening_balance?: number | null;
+  closing_balance?: number | null;
+  transactions?: RawTxn[];
+};
+
+async function callChunk(
+  chunk: string,
+  key: string,
+  isFirstChunk: boolean,
+): Promise<ChunkParsed> {
+  const userHeader = isFirstChunk
+    ? "BANK STATEMENT TEXT (first chunk — include header meta):\n\n"
+    : "BANK STATEMENT TEXT (continuation chunk — meta optional, focus on transactions):\n\n";
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -129,8 +245,11 @@ export async function extractStatementTransactions(
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM },
-        { role: "user", content: `BANK STATEMENT TEXT:\n\n${trimmed}` },
+        { role: "user", content: `${userHeader}${chunk}` },
       ],
+      // 8,000 output tokens fits ~70-90 transactions of full JSON.
+      // Combined with the 20K-char input chunking above, we land
+      // comfortably across multiple calls without hitting either cap.
       max_tokens: 8_000,
       temperature: 0,
     }),
@@ -156,69 +275,12 @@ export async function extractStatementTransactions(
     choices?: { message: { content: string } }[];
   };
   const raw = json.choices?.[0]?.message?.content ?? "{}";
-
-  type RawTxn = {
-    date?: string;
-    description?: string;
-    amount?: number;
-    type?: string;
-    reference?: string | null;
-    balance?: number | null;
-  };
-  type Parsed = {
-    bank?: string | null;
-    account_number?: string | null;
-    account_name?: string | null;
-    currency?: string;
-    period_start?: string | null;
-    period_end?: string | null;
-    opening_balance?: number | null;
-    closing_balance?: number | null;
-    transactions?: RawTxn[];
-  };
-
-  let parsed: Parsed;
   try {
-    parsed = JSON.parse(raw) as Parsed;
+    return JSON.parse(raw) as ChunkParsed;
   } catch {
     throw new OcrError(
       "bad_json",
-      "OpenAI returned malformed JSON — try a clearer PDF.",
+      "OpenAI returned malformed JSON for one chunk — re-upload a clearer PDF.",
     );
   }
-
-  const transactions: StatementTxn[] = [];
-  for (const t of parsed.transactions ?? []) {
-    if (!t.date || typeof t.amount !== "number" || !t.description) continue;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(t.date)) continue;
-    transactions.push({
-      date: t.date,
-      description: String(t.description).slice(0, 200),
-      amount: Math.abs(t.amount),
-      type: t.type === "INCOME" ? "INCOME" : "EXPENSE",
-      reference: t.reference ?? null,
-      balance: typeof t.balance === "number" ? t.balance : null,
-    });
-  }
-
-  return {
-    transactions,
-    meta: {
-      bank: parsed.bank ?? null,
-      accountNumber: parsed.account_number ?? null,
-      accountName: parsed.account_name ?? null,
-      currency: (parsed.currency ?? "NGN").toUpperCase(),
-      periodStart: parsed.period_start ?? null,
-      periodEnd: parsed.period_end ?? null,
-      openingBalance:
-        typeof parsed.opening_balance === "number"
-          ? parsed.opening_balance
-          : null,
-      closingBalance:
-        typeof parsed.closing_balance === "number"
-          ? parsed.closing_balance
-          : null,
-    },
-    truncated,
-  };
 }

@@ -28,9 +28,11 @@
   "devDependencies": {
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.5",
+    "@types/pdfkit": "^0.17.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.4.2",
+    "pdfkit": "^0.18.0",
     "typescript": "^5",
     "vercel": "^52.0.0"
   }
