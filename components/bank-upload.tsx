@@ -373,8 +373,20 @@ export function BankUpload({
               <Icon name="plus" size={13} /> Choose file
             </button>
             <button type="button" className="btn" onClick={fillSample}>
-              Use sample
+              Sample CSV
             </button>
+            {/* Direct link to the demo GTBank-style PDF in /public.
+                `download` attribute hints to the browser to save the
+                file instead of opening it inline — Safari sometimes
+                ignores it but Chrome/Edge/Firefox honour it. */}
+            <a
+              href="/samples/kadara-foods-gtbank-statement.pdf"
+              download="kadara-foods-statement.pdf"
+              className="btn"
+              style={{ textDecoration: "none" }}
+            >
+              Sample PDF
+            </a>
           </div>
 
           <label style={{ display: "grid", gap: 6 }}>
