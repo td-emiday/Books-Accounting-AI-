@@ -126,6 +126,14 @@ function suggestCategory(merchant: string, amount: number): string {
   return amount > 0 ? "revenue" : "cogs";
 }
 
+type PdfImport = {
+  imported: number;
+  truncated: boolean;
+  bank: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+} | null;
+
 export function BankUpload({
   open,
   onClose,
@@ -140,16 +148,78 @@ export function BankUpload({
   const [error, setError] = useState<string | null>(null);
   const [imported, setImported] = useState<number | null>(null);
   const [accountLabel, setAccountLabel] = useState("Imported · Statement");
+  // PDF-specific state: a loading flag while the server processes the
+  // upload, and a result blob to show after success.
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfResult, setPdfResult] = useState<PdfImport>(null);
 
   const parsed = useMemo(() => (text.trim() ? parseCsv(text) : null), [text]);
 
   if (!open) return null;
 
+  const isPdf = (f: File) =>
+    f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
+
+  // Server-side PDF path: upload the file, server runs pdf-parse +
+  // gpt-4o-mini, inserts transactions into the DB, returns a summary.
+  // Skips the CSV preview because the model already extracted the
+  // structured rows.
+  const onPdf = async (f: File) => {
+    setPdfLoading(true);
+    setPdfResult(null);
+    setError(null);
+    setImported(null);
+    try {
+      const form = new FormData();
+      form.set("file", f);
+      const res = await fetch("/api/upload/statement", {
+        method: "POST",
+        body: form,
+      });
+      const json = (await res.json()) as {
+        ok: boolean;
+        imported?: number;
+        truncated?: boolean;
+        meta?: {
+          bank?: string | null;
+          periodStart?: string | null;
+          periodEnd?: string | null;
+        };
+        message?: string;
+        reason?: string;
+      };
+      if (!json.ok) {
+        setError(json.message ?? "Couldn't read that PDF — try a fresh export.");
+        return;
+      }
+      setPdfResult({
+        imported: json.imported ?? 0,
+        truncated: json.truncated ?? false,
+        bank: json.meta?.bank ?? null,
+        periodStart: json.meta?.periodStart ?? null,
+        periodEnd: json.meta?.periodEnd ?? null,
+      });
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? `Upload failed: ${e.message}`
+          : "Upload failed. Try again.",
+      );
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   const onFile = async (f: File) => {
+    if (isPdf(f)) {
+      await onPdf(f);
+      return;
+    }
     const t = await f.text();
     setText(t);
     setError(null);
     setImported(null);
+    setPdfResult(null);
   };
 
   const onImport = () => {
@@ -184,9 +254,11 @@ export function BankUpload({
   };
 
   const close = () => {
+    if (pdfLoading) return; // don't close mid-upload
     setText("");
     setError(null);
     setImported(null);
+    setPdfResult(null);
     onClose();
   };
 
@@ -234,8 +306,8 @@ export function BankUpload({
               Upload bank statement
             </div>
             <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
-              CSV with Date, Description, Amount (or Debit + Credit). Stays
-              local to your browser.
+              Drop a PDF and I&apos;ll OCR every transaction, or paste a CSV
+              with Date, Description, Amount.
             </div>
           </div>
           <button
@@ -276,17 +348,17 @@ export function BankUpload({
             <Icon name="upload" size={18} />
             <div style={{ flex: 1, minWidth: 180 }}>
               <div style={{ fontSize: 13, fontWeight: 500 }}>
-                Drop a CSV file
+                Drop a PDF or CSV
               </div>
               <div style={{ fontSize: 11, color: "var(--muted)" }}>
-                Or paste rows directly below.
+                PDFs are read with AI · CSVs use a quick parser.
               </div>
             </div>
             <input
               ref={fileRef}
               id={fileInputId}
               type="file"
-              accept=".csv,text/csv,text/plain"
+              accept=".csv,text/csv,text/plain,.pdf,application/pdf"
               style={{ display: "none" }}
               onChange={(e) => {
                 const f = e.target.files?.[0];
@@ -363,6 +435,65 @@ export function BankUpload({
                   .toLocaleString("en-NG")}
               </span>{" "}
               total volume.
+            </div>
+          )}
+
+          {pdfLoading && (
+            <div
+              style={{
+                padding: 12,
+                borderRadius: 8,
+                background: "var(--accent-soft, rgba(46,44,138,0.06))",
+                fontSize: 13,
+                color: "var(--ink)",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  display: "inline-block",
+                  width: 14,
+                  height: 14,
+                  borderRadius: "50%",
+                  border: "2px solid var(--accent, #2e2c8a)",
+                  borderTopColor: "transparent",
+                  animation: "spin 0.8s linear infinite",
+                }}
+              />
+              Reading the PDF and pulling out transactions… this takes 10–25
+              seconds for a typical statement.
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          )}
+
+          {pdfResult && (
+            <div
+              style={{
+                padding: 12,
+                borderRadius: 8,
+                background: "rgba(31,107,58,0.1)",
+                color: "#1f6b3a",
+                fontSize: 13,
+                lineHeight: 1.55,
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                ✅ Imported {pdfResult.imported} transaction
+                {pdfResult.imported === 1 ? "" : "s"}
+                {pdfResult.bank ? ` from ${pdfResult.bank}` : ""}
+                {pdfResult.periodStart && pdfResult.periodEnd
+                  ? ` (${pdfResult.periodStart} → ${pdfResult.periodEnd})`
+                  : ""}
+                .
+              </div>
+              <div style={{ color: "var(--ink-2, #5a5a66)" }}>
+                Open Transactions to review and confirm categories.{" "}
+                {pdfResult.truncated &&
+                  "⚠ The PDF was very long — some rows past page 30 weren't read. Split the file and re-upload the rest if needed."}
+              </div>
             </div>
           )}
 

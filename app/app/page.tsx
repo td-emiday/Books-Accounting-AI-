@@ -56,6 +56,7 @@ export default async function OverviewPage({
       {showTour && (
         <TourModal
           firstName={firstName}
+          workspaceId={workspace.id}
           plan={{
             publicId: billingPlanPublic,
             cycle: workspace.billingCycle === "ANNUAL" ? "ANNUAL" : "MONTHLY",

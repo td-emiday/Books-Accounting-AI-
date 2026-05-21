@@ -19,6 +19,10 @@ type Plan = {
 type Props = {
   firstName: string;
   plan: Plan;
+  /** Workspace id — used to scope the "tour done" localStorage flag
+   *  so a fresh signup in the same browser actually sees the tour
+   *  again instead of inheriting the previous account's flag. */
+  workspaceId: string;
 };
 
 // `target` is a CSS selector for an element on the dashboard. When set,
@@ -76,30 +80,31 @@ const STEPS = [
   },
 ] as const;
 
-// localStorage flag that survives the (rare) cases where the server
-// write is still in flight when the next /app visit reads the
-// workspace. If either the server field is set OR this flag is set,
-// we hide the tour. Belt and braces.
-const LS_KEY = "emiday.tour.completed";
+// Per-workspace localStorage flag for the (rare) race where the user
+// clicks Skip or Pay and the server write is still in flight when /app
+// re-renders. Keyed by workspace id so each new signup gets its own
+// blank slate — fixes the bug where a fresh signup in the same browser
+// inherited a stale "done" flag from a previous test account.
+const lsKey = (workspaceId: string) => `emiday.tour.completed.${workspaceId}`;
 
-function setLocalDone() {
+function setLocalDone(workspaceId: string) {
   try {
-    localStorage.setItem(LS_KEY, "1");
+    localStorage.setItem(lsKey(workspaceId), "1");
   } catch {
     /* private mode / quota — non-fatal */
   }
 }
 
-function hasLocalDone(): boolean {
+function hasLocalDone(workspaceId: string): boolean {
   try {
-    return localStorage.getItem(LS_KEY) === "1";
+    return localStorage.getItem(lsKey(workspaceId)) === "1";
   } catch {
     return false;
   }
 }
 
-async function markComplete() {
-  setLocalDone();
+async function markComplete(workspaceId: string) {
+  setLocalDone(workspaceId);
   try {
     // keepalive lets the request finish even if the page is navigating
     // away (e.g. user clicked "Pay & start using Emiday" → Paystack).
@@ -110,17 +115,17 @@ async function markComplete() {
   }
 }
 
-export function TourModal({ firstName, plan }: Props) {
+export function TourModal({ firstName, plan, workspaceId }: Props) {
   const [step, setStep] = useState(0);
-  // Initialise closed=true when localStorage says the tour is already
-  // done — this catches the race where /app's server render reads a
-  // stale `tour_completed_at: null` (e.g. the prior write hadn't yet
-  // committed when the page hit getWorkspaceContext()). With this,
-  // the modal never re-appears on a browser that already completed it.
+  // Initialise closed=true when localStorage says THIS workspace's
+  // tour is already done — catches the race where /app's server
+  // render reads a stale `tour_completed_at: null`. Scoped per
+  // workspace so a fresh signup in the same browser gets a fresh
+  // tour, not a stale flag from a previous account.
   const [closed, setClosed] = useState(false);
   useEffect(() => {
-    if (hasLocalDone()) setClosed(true);
-  }, []);
+    if (hasLocalDone(workspaceId)) setClosed(true);
+  }, [workspaceId]);
 
   // Spotlight: find the target for this step, scroll it into view, and
   // toggle a CSS class that lifts it above the scrim with a halo.
@@ -145,10 +150,10 @@ export function TourModal({ firstName, plan }: Props) {
   async function close() {
     // Set the localStorage flag synchronously so a fast re-mount
     // (e.g. user clicks Skip then immediately navigates) sees it.
-    setLocalDone();
+    setLocalDone(workspaceId);
     setClosed(true);
     // Then send the server write — best effort, keepalive survives nav.
-    void markComplete();
+    void markComplete(workspaceId);
   }
 
   function next() {
